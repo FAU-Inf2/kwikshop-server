@@ -7,6 +7,8 @@ RUN apt-get install -y --no-install-recommends gradle openjdk-7-jdk git unzip ss
 
 ADD server /server
 
+RUN cd /server; ./gradlew jar
+
 CMD cd /server; ./gradlew run
 
 EXPOSE 8080
