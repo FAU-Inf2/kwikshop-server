@@ -20,10 +20,10 @@ public class UserResourceImpl implements UserResource {
 
     @Override
     @UnitOfWork
-    public Response auth(String token) {
+    public String auth(String token) {
         String userId = new TokenHandler().TokenCheck(token);
         if(userId == null) // invalid token
-            return Response.status(Response.Status.FORBIDDEN).build();
+            return null;
         else {
             User sessionUser = facade.getUserById(userId); // try to find this user in the db
             if(sessionUser == null) { // new user -> create a session token
@@ -31,7 +31,7 @@ public class UserResourceImpl implements UserResource {
                 sessionUser.setSessionToken(new TokenHandler().nextSessionId());
                 facade.updateUser(userId, sessionUser); // save this user
             }
-            return Response.ok(sessionUser.getSessionToken()).build();
+            return sessionUser.getSessionToken();
         }
     }
 
