@@ -1,61 +1,56 @@
 package de.fau.cs.mad.kwikshop.server;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.apache.ApacheHttpTransport;
+import com.google.api.client.json.jackson2.JacksonFactory;
 
+import java.io.IOException;
 import java.math.BigInteger;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
-
-import io.dropwizard.jackson.Jackson;
+import java.util.Arrays;
 
 public class TokenHandler {
 
     private SecureRandom random = new SecureRandom();
 
     // TODO: change client_id
-    private static String client_id = "974373376910-pp2n1j7jd93evqpljt47s8r2k2a6rkha.apps.googleusercontent.com";
+    private static String ANDROID_CLIENT_ID = "974373376910-pp2n1j7jd93evqpljt47s8r2k2a6rkha.apps.googleusercontent.com";
+    private static String SERVER_CLIENT_ID = "974373376910-mg6fm7feie2rn0v9qj2nmi1jpeftr47u.apps.googleusercontent.com";
 
-    // Google OAuth validation result
-    private static class GoogleOAuthResult {
-        public String issuer;
-        public String issued_to;
-        public String audience;
-        public String user_id;
-        public int expires_in;
-        public long issued_at;
-        public String email;
-        public boolean email_verified;
-    }
-
-    /* Validate the token */
+    /* Validate the token, return user_id if the token is valid */
     public static String TokenCheck(String tokenString) {
-        HttpClient httpClient = new DefaultHttpClient();
-        HttpGet httpGet = new HttpGet("https://www.googleapis.com/oauth2/v1/tokeninfo?id_token="+tokenString);
-        GoogleOAuthResult result;
+        ApacheHttpTransport transport = new ApacheHttpTransport();
+        JacksonFactory jsonFactory = new JacksonFactory();
+        GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)
+                .setAudience(Arrays.asList(SERVER_CLIENT_ID))
+                        .build();
+
+        GoogleIdToken idToken = null;
 
         try {
-            HttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            String json = EntityUtils.toString(entity);
-            result = Jackson.newObjectMapper().readValue(json, GoogleOAuthResult.class);
-
-            // Expired token?
-            if(result.expires_in < 0)
-                return null;
-
-            // issued_to must match
-            if(!result.issued_to.equals(client_id))
-                return null;
-        } catch (Exception e) {
-            // Invalid token / check failed
-            return null;
+            idToken = verifier.verify(tokenString); // "The GoogleIdTokenVerifier.verify() method verifies the JWT signature, the aud claim, the iss claim, and the exp claim."
+        } catch (GeneralSecurityException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return result.user_id;
+        if (idToken != null) {
+            Payload payload = idToken.getPayload();
+            if (Arrays.asList(ANDROID_CLIENT_ID).contains(payload.getAuthorizedParty())) {
+                System.out.println("User ID: " + payload.getSubject());
+                return payload.getSubject();
+            } else {
+                System.out.println("Invalid ID token.");
+            }
+        } else {
+            System.out.println("ID token is null.");
+        }
+
+        return null;
     }
 
     // Generates a Kwik Shop session token
