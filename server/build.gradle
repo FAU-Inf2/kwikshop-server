@@ -1,0 +1,39 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+	compile 'io.dropwizard:dropwizard-core:0.8.1'
+    compile 'io.dropwizard:dropwizard-testing:0.8.1'
+    compile 'io.dropwizard:dropwizard-assets:0.8.1'
+    compile 'io.dropwizard:dropwizard-hibernate:0.8.1'
+    compile 'io.dropwizard:dropwizard-auth:0.8.1'
+
+    compile 'com.wordnik:swagger-jersey2-jaxrs:1.5.0-M2'
+    compile 'org.glassfish.jersey.ext:jersey-proxy-client:2.17'
+    compile 'com.h2database:h2:1.4.186'
+
+
+    compile 'com.google.apis:google-api-services-oauth2:v2-rev92-1.20.0'
+    compile 'org.apache.httpcomponents:httpclient:4.5'
+}
+
+//deployment configuration
+mainClassName = 'de.fau.cs.mad.kwikshop.server.ServerApplication'
+run {
+    args 'server', 'config.yml'
+}
+
+//add common subtree as source root for intellij
+sourceSets {
+    main {
+        java {
+            srcDir 'src/common/src/main/java'
+        }
+    }
+}

@@ -1,0 +1,3 @@
+#!/bin/bash
+echo "Starting production server (with volume /kwikshop-server/data)..."
+docker run -d -p 8080:8080 --name kwikshop-server-prod -v /kwikshop-server/data:/server/data kwikshop-server

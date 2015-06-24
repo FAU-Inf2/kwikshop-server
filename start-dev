@@ -1,0 +1,7 @@
+#!/bin/bash
+
+echo "Cleaning up..."
+docker rm kwikshop-server-dev > /dev/null 2>&1
+
+echo "Starting development server..."
+docker run -d -p 8080:8080 --name kwikshop-server-dev kwikshop-server
