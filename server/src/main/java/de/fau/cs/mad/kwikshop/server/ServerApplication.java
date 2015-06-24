@@ -3,7 +3,6 @@ package de.fau.cs.mad.kwikshop.server;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
-import de.fau.cs.mad.kwikshop.common.TimeResource;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.UserResource;
 import io.dropwizard.Application;
@@ -54,8 +53,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
         final UserAuthenticator authenticator = new UserAuthenticator(facade);
 
-        final TimeResource time = new TimeResourceImpl();
-        environment.jersey().register(time);
+        //final TimeResource time = new TimeResourceImpl();
+        //environment.jersey().register(time);
 
         final ApiListingResource api = new ApiListingResource();
         environment.jersey().register(api);
