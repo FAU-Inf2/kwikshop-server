@@ -1,0 +1,25 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+}
+
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+
+}
+
+
+
+
+project(':server') {
+    dependencies {
+        project(':kwikshop-common')
+    }
+}

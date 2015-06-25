@@ -7,7 +7,12 @@ repositories {
     mavenCentral()
 }
 
+build.dependsOn(":kwikshop-common:build")
+
 dependencies {
+
+    compile fileTree(dir: '../../kwikshop-common/build/classes', include: '*.class')
+
 	compile 'io.dropwizard:dropwizard-core:0.8.1'
     compile 'io.dropwizard:dropwizard-testing:0.8.1'
     compile 'io.dropwizard:dropwizard-assets:0.8.1'
