@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
 import de.fau.cs.mad.kwikshop.common.User;
-import de.fau.cs.mad.kwikshop.common.UserResource;
+import de.fau.cs.mad.kwikshop.common.rest.UserResource;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.db.DataSourceFactory;

@@ -1,7 +1,7 @@
 package de.fau.cs.mad.kwikshop.server;
 
 import de.fau.cs.mad.kwikshop.common.ShoppingList;
-import de.fau.cs.mad.kwikshop.common.ShoppingListResource;
+import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 
 
 import java.util.Arrays;

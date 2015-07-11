@@ -1,11 +1,8 @@
 package de.fau.cs.mad.kwikshop.server;
 
 import de.fau.cs.mad.kwikshop.common.User;
-import de.fau.cs.mad.kwikshop.common.UserResource;
+import de.fau.cs.mad.kwikshop.common.rest.UserResource;
 import io.dropwizard.hibernate.UnitOfWork;
-
-import java.util.List;
-import javax.ws.rs.core.Response;
 
 /**
  * Created by Andreas Kumlehn on 3/26/15. 
