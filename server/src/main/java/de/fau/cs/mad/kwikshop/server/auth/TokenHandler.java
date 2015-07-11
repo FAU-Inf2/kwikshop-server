@@ -1,4 +1,4 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.auth;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken.Payload;

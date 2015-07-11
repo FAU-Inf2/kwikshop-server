@@ -1,7 +1,9 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.api;
 
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.rest.UserResource;
+import de.fau.cs.mad.kwikshop.server.auth.TokenHandler;
+import de.fau.cs.mad.kwikshop.server.UserFacade;
 import io.dropwizard.hibernate.UnitOfWork;
 
 /**

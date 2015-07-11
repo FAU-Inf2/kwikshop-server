@@ -1,4 +1,4 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.api;
 
 import com.wordnik.swagger.annotations.ApiParam;
 import de.fau.cs.mad.kwikshop.common.Item;

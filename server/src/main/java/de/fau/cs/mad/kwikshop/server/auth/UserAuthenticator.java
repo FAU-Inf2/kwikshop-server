@@ -1,8 +1,9 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.auth;
 
 import com.google.common.base.Optional;
 
 import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.server.UserFacade;
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.auth.basic.BasicCredentials;
