@@ -52,6 +52,8 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingList> implements ListDA
 
         } else {
 
+            Transaction transaction = currentSession().beginTransaction();
+
             existingList.setName(shoppingList.getName());
             existingList.setSortTypeInt(shoppingList.getSortTypeInt());
             existingList.setLocation(shoppingList.getLocation());
@@ -70,7 +72,7 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingList> implements ListDA
                 }
             }
 
-            Transaction transaction = currentSession().beginTransaction();
+
             existingList = persist(existingList);
             transaction.commit();
 
@@ -173,6 +175,45 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingList> implements ListDA
 
             return item;
         }
+
+
+    }
+
+    @Override
+    public Item updateOrCreateListItem(User user, int listId, Item updatedItem) {
+
+        Item existingItem = getListItem(user, listId, updatedItem.getId());
+
+        if(existingItem == null) {
+            return addListItem(user, listId, updatedItem);
+        } else {
+
+            Transaction transaction = currentSession().beginTransaction();
+
+            existingItem.setOrder(updatedItem.getOrder());
+            existingItem.setBought(updatedItem.isBought());
+            existingItem.setName(updatedItem.getName());
+            existingItem.setAmount(updatedItem.getAmount());
+            existingItem.setHighlight(updatedItem.isHighlight());
+            existingItem.setBrand(updatedItem.getBrand());
+            existingItem.setComment(updatedItem.getComment());
+            existingItem.setGroup(updatedItem.getGroup());
+            existingItem.setUnit(updatedItem.getUnit());
+            existingItem.setLastBought(updatedItem.getLastBought());
+            existingItem.setRegularlyRepeatItem(updatedItem.isRegularlyRepeatItem());
+            existingItem.setPeriodType(updatedItem.getPeriodType());
+            existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
+            existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
+            existingItem.setRemindAtDate(updatedItem.getRemindAtDate());
+            existingItem.setLocation(updatedItem.getLocation());
+
+            currentSession().persist(existingItem);
+            transaction.commit();
+
+            return existingItem;
+
+        }
+
 
 
     }

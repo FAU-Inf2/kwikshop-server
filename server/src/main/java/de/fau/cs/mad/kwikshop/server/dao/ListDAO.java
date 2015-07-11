@@ -19,8 +19,12 @@ public interface ListDAO<TList>  {
 
     Item getListItem(User user, int listId, int itemId);
 
+    Item addListItem(User user, int listId, Item item);
+
+    Item updateOrCreateListItem(User user, int listId, Item itemToUpdate);
+
     boolean deleteListItem(User user, int listId, int itemId);
 
-    Item addListItem(User user, int listId, Item item);
+
 
 }
