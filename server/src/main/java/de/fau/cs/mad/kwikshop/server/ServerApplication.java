@@ -48,10 +48,13 @@ public class ServerApplication extends Application<ServerConfiguration> {
         final UserDAO dao = new UserDAO(hibernate.getSessionFactory());
         final UserFacade facade = new UserFacade(dao);
 
-        final UserResourceImpl resource = new UserResourceImpl(facade);
-        environment.jersey().register(resource);
+        final UserResourceImpl userResource = new UserResourceImpl(facade);
+        environment.jersey().register(userResource);
 
         final UserAuthenticator authenticator = new UserAuthenticator(facade);
+
+        final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl();
+        environment.jersey().register(shoppingListResource);
 
         //final TimeResource time = new TimeResourceImpl();
         //environment.jersey().register(time);
