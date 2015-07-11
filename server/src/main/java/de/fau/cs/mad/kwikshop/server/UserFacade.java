@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server;
 
 import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.server.dao.UserDAO;
 
 import java.util.LinkedList;
 import java.util.List;

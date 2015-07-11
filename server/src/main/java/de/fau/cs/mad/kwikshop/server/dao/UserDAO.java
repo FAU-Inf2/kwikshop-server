@@ -1,4 +1,4 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.dao;
 
 import de.fau.cs.mad.kwikshop.common.User;
 import io.dropwizard.hibernate.AbstractDAO;
