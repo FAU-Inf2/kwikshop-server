@@ -70,22 +70,11 @@ public class UserDAO extends AbstractDAO<User> {
         return result;
     }
 
-    public List<User> findByName(String firstName, String lastName) {
-        Criteria criteria = criteria();
 
-        if (firstName != null) {
-            criteria = criteria.add(Restrictions.like("firstName", firstName, MatchMode.START));
-        }
-        if (lastName != null) {
-            criteria = criteria.add(Restrictions.like("lastName", lastName, MatchMode.START));
-        }
-        List<User> list = list(criteria);
-        return list;
-    }
 
-    public List<User> findByLastName(String lastName) {
-        Query query = namedQuery("User.findByLastName");
-        query.setParameter("lastName", lastName);
+    public List<User> findBySessionToken(String sessionToken) {
+        Query query = namedQuery("User.findBySessionToken");
+        query.setParameter("sessionToken", sessionToken);
         List<User> list = list(query);
         return list;
     }

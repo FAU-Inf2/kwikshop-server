@@ -2,9 +2,8 @@ package de.fau.cs.mad.kwikshop.server.api;
 
 import com.wordnik.swagger.annotations.ApiParam;
 import de.fau.cs.mad.kwikshop.common.Item;
-import de.fau.cs.mad.kwikshop.common.ShoppingList;
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
-import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import io.dropwizard.auth.Auth;
 
@@ -18,10 +17,10 @@ import java.util.List;
 public class ShoppingListResourceImpl implements ShoppingListResource {
 
 
-    private final ListDAO<ShoppingList> shoppingListDAO;
+    private final ListDAO<ShoppingListServer> shoppingListDAO;
 
 
-    public ShoppingListResourceImpl(ListDAO<ShoppingList> shoppingListDAO) {
+    public ShoppingListResourceImpl(ListDAO<ShoppingListServer> shoppingListDAO) {
 
         if(shoppingListDAO == null) {
             throw new IllegalArgumentException("'shoppingListDAO' must not be null");
@@ -33,24 +32,23 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
 
     @Override
-    public List<ShoppingList> getList(@Auth User user) {
+    public List<ShoppingListServer> getList(@Auth User user) {
         return shoppingListDAO.getLists(user);
     }
 
     @Override
-    public ShoppingList getList(@Auth User user, @PathParam("listId") int listId) {
+    public ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId) {
         return shoppingListDAO.getListById(user, listId);
     }
 
     @Override
-    public ShoppingList createList(@Auth User user, ShoppingList shoppingList) {
+    public ShoppingListServer createList(@Auth User user, ShoppingListServer shoppingList) {
         return shoppingListDAO.createList(user, shoppingList);
     }
 
     @Override
-    public ShoppingList updateList(@Auth User user,
-                                   @PathParam("listId") int listId,
-                                   ShoppingList shoppingList,
+    public ShoppingListServer updateList(@Auth User user,
+                                   @PathParam("listId") int listId, ShoppingListServer shoppingList,
                                    @QueryParam("updateItems") boolean updateItems) {
 
         if(shoppingList.getId() != listId) {

@@ -41,25 +41,14 @@ public class UserFacade {
         return false;
     }
 
-    public List<User> searchUsers(List<String> ids, String firstName, String lastName) {
-        if (firstName != null || lastName != null) {
-            return this.searchByFirstAndLastName(firstName, lastName);
-        } else {
-            return this.searchUsersByIds(ids);
-        }
+    public List<User> searchBySessionToken(String sessionToken) {
+        return dao.findBySessionToken(sessionToken);
     }
 
-    private List<User> searchByFirstAndLastName(String firstName, String lastName) {
-        //search by first- and/or lastname
-        //split calls for different hibernate implementations
-        if (firstName == null && lastName != null) {
-            //uses jpa named query
-            return this.dao.findByLastName(lastName);
-        } else {
-            //uses hibernate criteria query
-            return this.dao.findByName(firstName, lastName);
-        }
+    public List<User> searchUsers(List<String> ids) {
+        return this.searchUsersByIds(ids);
     }
+
 
     private List<User> searchUsersByIds(List<String> ids) {
         if (ids == null || ids.size() == 0) {
@@ -78,4 +67,6 @@ public class UserFacade {
 
         return result;
     }
+
+
 }

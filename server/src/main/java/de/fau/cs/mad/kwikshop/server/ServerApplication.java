@@ -3,7 +3,7 @@ package de.fau.cs.mad.kwikshop.server;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
-import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.UserResource;
 import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.UserResourceImpl;
@@ -12,6 +12,8 @@ import de.fau.cs.mad.kwikshop.server.dao.ShoppingListDAO;
 import de.fau.cs.mad.kwikshop.server.dao.UserDAO;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
+import io.dropwizard.auth.AuthFactory;
+import io.dropwizard.auth.basic.BasicAuthFactory;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -27,7 +29,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
     }
 
     private final HibernateBundle<ServerConfiguration> hibernate =
-            new HibernateBundle<ServerConfiguration>(User.class) {
+            new HibernateBundle<ServerConfiguration>(User.class, ShoppingListServer.class, Item.class, LastLocation.class,
+                    Group.class, Unit.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                     DataSourceFactory fac = configuration.getDataSourceFactory();
@@ -57,6 +60,11 @@ public class ServerApplication extends Application<ServerConfiguration> {
         environment.jersey().register(userResource);
 
         final UserAuthenticator authenticator = new UserAuthenticator(facade);
+
+        environment.jersey().register(AuthFactory.binder(
+                new BasicAuthFactory<>(authenticator,
+                "SUPER SECRET STUFF",
+                User.class)));
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(new ShoppingListDAO(hibernate.getSessionFactory()));
         environment.jersey().register(shoppingListResource);
