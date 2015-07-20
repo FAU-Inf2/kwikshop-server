@@ -4,6 +4,8 @@ import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
+import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
@@ -36,14 +38,9 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     @Override
     public ShoppingListServer updateOrCreateList(User user, ShoppingListServer shoppingList, boolean updateItems) {
 
-        ShoppingListServer existingList = getListById(user, shoppingList.getId());
 
-        if(existingList == null) {
-
-            return createList(user, shoppingList);
-
-        } else {
-
+        try {
+            ShoppingListServer existingList = getListById(user, shoppingList.getId());
 
             existingList.setName(shoppingList.getName());
             existingList.setSortTypeInt(shoppingList.getSortTypeInt());
@@ -66,23 +63,27 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
 
             existingList = persist(existingList);
             return existingList;
-        }
 
+        } catch (ListNotFoundException e) {
+
+            return createList(user, shoppingList);
+        }
 
     }
 
     @Override
     public boolean deleteList(User user, int listId) {
 
-        ShoppingListServer list = getListById(user, listId);
-
-        if(list == null) {
+        ShoppingListServer list;
+        try {
+            list = getListById(user, listId);
+        } catch (ListNotFoundException e) {
             return false;
-        } else {
-
-            currentSession().delete(list);
-            return true;
         }
+
+        currentSession().delete(list);
+        return true;
+
 
     }
 
@@ -95,7 +96,7 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     }
 
     @Override
-    public ShoppingListServer getListById(User user, int listId) {
+    public ShoppingListServer getListById(User user, int listId) throws ListNotFoundException {
 
         Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_BY_LISTID)
                 .setParameter(NamedQueryConstants.USER_ID, user.getId())
@@ -103,67 +104,55 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
 
         List<ShoppingListServer> result = list(query);
 
-        return result.isEmpty()
-                ? null
-                : result.get(0);
-    }
-
-    @Override
-    public Item getListItem(User user, int listId, int itemId) {
-
-        ShoppingListServer list = getListById(user, listId);
-        if(list == null) {
-            return null;
-        } else {
-            return list.getItem(itemId);
-        }
-    }
-
-    @Override
-    public boolean deleteListItem(User user, int listId, int itemId) {
-
-        ShoppingListServer list = getListById(user, listId);
-        if(list == null) {
-
-            return false;
-
-        } else {
-
-            boolean success = list.removeItem(itemId);
-            persist(list);
-            return success;
+        if(result.size() != 1) {
+            throw new ListNotFoundException(String.format("ShoppingList with id %s for user %s not found", listId, user.getId()));
         }
 
+        return result.get(0);
     }
 
     @Override
-    public Item addListItem(User user, int listId, Item item) {
+    public Item getListItem(User user, int listId, int itemId) throws ListNotFoundException, ItemNotFoundException {
 
         ShoppingListServer list = getListById(user, listId);
-        if(list == null) {
 
-            return null;
-
-        } else {
-
-            currentSession().persist(item);
-            list.addItem(item);
-            persist(list);
-
-            return item;
+        Item item = list.getItem(itemId);
+        if(item == null) {
+            throw new ItemNotFoundException(String.format("Item %s not found in shopping list %s for user %s", itemId, listId, user.getId()));
         }
 
+        return item;
+    }
+
+    @Override
+    public boolean deleteListItem(User user, int listId, int itemId) throws ListNotFoundException {
+
+        ShoppingListServer list = getListById(user, listId);
+
+        boolean success = list.removeItem(itemId);
+        persist(list);
+        return success;
+    }
+
+    @Override
+    public Item addListItem(User user, int listId, Item item) throws ListNotFoundException {
+
+        ShoppingListServer list = getListById(user, listId);
+
+        currentSession().persist(item);
+        list.addItem(item);
+        persist(list);
+
+        return item;
 
     }
 
     @Override
-    public Item updateOrCreateListItem(User user, int listId, Item updatedItem) {
+    public Item updateOrCreateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException {
 
-        Item existingItem = getListItem(user, listId, updatedItem.getId());
 
-        if(existingItem == null) {
-            return addListItem(user, listId, updatedItem);
-        } else {
+        try {
+            Item existingItem = getListItem(user, listId, updatedItem.getId());
 
             existingItem.setOrder(updatedItem.getOrder());
             existingItem.setBought(updatedItem.isBought());
@@ -186,9 +175,10 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
 
             return existingItem;
 
+        } catch (ItemNotFoundException e) {
+            return addListItem(user, listId, updatedItem);
         }
 
-
-
     }
+
 }

@@ -5,6 +5,8 @@ import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
+import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
+import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.auth.Auth;
 
 
@@ -38,7 +40,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
     @Override
     public ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId) {
-        return shoppingListDAO.getListById(user, listId);
+
+        try {
+            return shoppingListDAO.getListById(user, listId);
+        } catch (ListNotFoundException e) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+
     }
 
     @Override
@@ -55,12 +63,20 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
-        return shoppingListDAO.updateOrCreateList(user, shoppingList, updateItems);
+        try {
+            return shoppingListDAO.getListById(user, listId);
+        } catch (ListNotFoundException e) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
     }
 
     @Override
     public void deleteList(@Auth User user, @PathParam("listId") int listId) {
-        shoppingListDAO.deleteList(user, listId);
+        boolean listFound = shoppingListDAO.deleteList(user, listId);
+        if(!listFound) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
     }
 
     @Override
@@ -68,7 +84,20 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                             @PathParam("listId") int listId,
                             @PathParam("itemId") int itemId) {
 
-        return shoppingListDAO.getListItem(user, listId, itemId);
+        try {
+
+            return shoppingListDAO.getListItem(user, listId, itemId);
+
+        } catch (ListNotFoundException e) {
+
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+        } catch (ItemNotFoundException e) {
+
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+
     }
 
     @Override
@@ -76,7 +105,16 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                            @PathParam("listId") int listId,
                            @ApiParam(value = "Item to create", required = true) Item newItem) {
 
-        return shoppingListDAO.addListItem(user, listId, newItem);
+        try {
+
+            return shoppingListDAO.addListItem(user, listId, newItem);
+
+        } catch (ListNotFoundException e) {
+
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+
     }
 
     @Override
@@ -89,7 +127,14 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
-        return shoppingListDAO.updateOrCreateListItem(user, listId, item);
+        try {
+
+            return shoppingListDAO.updateOrCreateListItem(user, listId, item);
+
+        } catch (ListNotFoundException e) {
+
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
 
     }
 
@@ -98,7 +143,14 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                                @ApiParam(value = "id of the list the item belongs to", required = true) @PathParam("listId") int listId,
                                @ApiParam(value = "id of the Item to update", required = true) @PathParam("itemId") int itemId) {
 
-        shoppingListDAO.deleteListItem(user, listId, itemId);
+        try {
+
+            shoppingListDAO.deleteListItem(user, listId, itemId);
+
+        } catch (ListNotFoundException e) {
+
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
 
     }
 }
