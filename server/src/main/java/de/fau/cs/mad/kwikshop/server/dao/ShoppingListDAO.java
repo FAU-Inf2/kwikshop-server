@@ -12,7 +12,7 @@ import org.hibernate.SessionFactory;
 
 import java.util.List;
 
-
+//TODO: implement as subclass of AbstractListDAO
 public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements ListDAO<ShoppingListServer> {
 
 
