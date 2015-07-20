@@ -17,15 +17,17 @@ import java.util.List;
 public interface ShoppingListResource extends ListResource {
 
 
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @UnitOfWork
     List<ShoppingListServer> getList(@Auth User user);
 
     @GET
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{listId}")
     @UnitOfWork
-    ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId);
+    ShoppingListServer getList(@Auth User user, @PathParam("listId") String listId);
 
     @PUT
     @UnitOfWork

@@ -29,9 +29,9 @@ public interface ListResource {
     Item getListItem(@Auth User user, @PathParam("listId") int listId, @PathParam("itemId") int itemId);
 
 
-    @POST
+    @PUT
     @UnitOfWork
-    @Path("{listId}")
+    @Path("{listId}/newItem")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @ApiOperation(
@@ -42,7 +42,7 @@ public interface ListResource {
                     @PathParam("listId") int listId,
                     @ApiParam(value = "Item to create", required = true)Item newItem);
 
-    @PUT
+    @POST
     @UnitOfWork
     @Path("{listId}/{itemId}")
     @Consumes(MediaType.APPLICATION_JSON)

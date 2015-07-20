@@ -8,11 +8,11 @@ import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.auth.Auth;
+import io.dropwizard.hibernate.UnitOfWork;
 
 
-import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
@@ -34,27 +34,43 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
 
     @Override
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @UnitOfWork
     public List<ShoppingListServer> getList(@Auth User user) {
         return shoppingListDAO.getLists(user);
     }
 
     @Override
-    public ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId) {
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("{listId}")
+    @UnitOfWork
+    public ShoppingListServer getList(@Auth User user, @PathParam("listId") String listId) {
 
         try {
-            return shoppingListDAO.getListById(user, listId);
+            return shoppingListDAO.getListById(user, Integer.parseInt(listId));
         } catch (ListNotFoundException e) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
     }
 
     @Override
+    @PUT
+    @UnitOfWork
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public ShoppingListServer createList(@Auth User user, ShoppingListServer shoppingList) {
         return shoppingListDAO.createList(user, shoppingList);
     }
 
     @Override
+    @POST
+    @UnitOfWork
+    @Path("{listId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public ShoppingListServer updateList(@Auth User user,
                                    @PathParam("listId") int listId, ShoppingListServer shoppingList,
                                    @QueryParam("updateItems") boolean updateItems) {
@@ -64,7 +80,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         try {
-            return shoppingListDAO.getListById(user, listId);
+            return shoppingListDAO.updateList(user, shoppingList, updateItems);
         } catch (ListNotFoundException e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -72,6 +88,9 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
+    @DELETE
+    @UnitOfWork
+    @Path("{listId}")
     public void deleteList(@Auth User user, @PathParam("listId") int listId) {
         boolean listFound = shoppingListDAO.deleteList(user, listId);
         if(!listFound) {
@@ -80,6 +99,9 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
+    @GET
+    @UnitOfWork
+    @Path("{listId}/{itemId}")
     public Item getListItem(@Auth User user,
                             @PathParam("listId") int listId,
                             @PathParam("itemId") int itemId) {
@@ -88,11 +110,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
             return shoppingListDAO.getListItem(user, listId, itemId);
 
-        } catch (ListNotFoundException e) {
-
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
-
-        } catch (ItemNotFoundException e) {
+        } catch (ListNotFoundException | ItemNotFoundException e) {
 
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -101,6 +119,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
+    @PUT
+    @UnitOfWork
+    @Path("{listId}/newItem")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Item createItem(@Auth User user,
                            @PathParam("listId") int listId,
                            @ApiParam(value = "Item to create", required = true) Item newItem) {
@@ -117,7 +140,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
     }
 
+
     @Override
+    @POST
+    @UnitOfWork
+    @Path("{listId}/{itemId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Item updateItem(@Auth User user,
                            @ApiParam(value = "id of the list the item belongs to", required = true) @PathParam("listId") int listId,
                            @ApiParam(value = "id of the Item to update", required = true) @PathParam("itemId") int itemId,
@@ -129,9 +158,9 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
         try {
 
-            return shoppingListDAO.updateOrCreateListItem(user, listId, item);
+            return shoppingListDAO.updateListItem(user, listId, item);
 
-        } catch (ListNotFoundException e) {
+        } catch (ListNotFoundException | ItemNotFoundException e) {
 
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -139,6 +168,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
+    @DELETE
+    @UnitOfWork
+    @Path("{listId}/{itemId}")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
     public void deleteListItem(@Auth User user,
                                @ApiParam(value = "id of the list the item belongs to", required = true) @PathParam("listId") int listId,
                                @ApiParam(value = "id of the Item to update", required = true) @PathParam("itemId") int itemId) {

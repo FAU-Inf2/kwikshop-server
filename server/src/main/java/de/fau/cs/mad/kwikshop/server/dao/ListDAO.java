@@ -24,8 +24,9 @@ public interface ListDAO<TList>  {
      * @param updateItems Specifies whether to also overwrite the items of the list on the server with the items from the
      *                    specified list
      * @return Returns the updated or created list
+     * @throws ListNotFoundException Thrown if the list with the specified id could not be found
      */
-    TList updateOrCreateList(User user, TList list, boolean updateItems);
+    TList updateList(User user, TList list, boolean updateItems) throws ListNotFoundException;
 
     /**
      * Deletes the specified list on the server
@@ -46,7 +47,7 @@ public interface ListDAO<TList>  {
      * Gets the specified list for which must be owned by the specified user
      * @param user The user who's lists to search
      * @param listId The id of the list to retrieve
-     * @return Retunrs the list as it's stored on the server
+     * @return Returns the list as it's stored on the server
      * @throws ListNotFoundException Thrown if the list with the specified id could not be found
      */
     TList getListById(User user, int listId) throws ListNotFoundException;
@@ -80,7 +81,7 @@ public interface ListDAO<TList>  {
      * @return Returns the updated or created item
      * @throws ListNotFoundException Thrown if the specified list could not be found
      */
-    Item updateOrCreateListItem(User user, int listId, Item itemToUpdate) throws ListNotFoundException;
+    Item updateListItem(User user, int listId, Item itemToUpdate) throws ListNotFoundException, ItemNotFoundException;
 
     /**
      * Deletes the specified Item from the specified list

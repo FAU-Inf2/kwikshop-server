@@ -36,38 +36,33 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     }
 
     @Override
-    public ShoppingListServer updateOrCreateList(User user, ShoppingListServer shoppingList, boolean updateItems) {
+    public ShoppingListServer updateList(User user, ShoppingListServer shoppingList, boolean updateItems) throws ListNotFoundException{
 
 
-        try {
-            ShoppingListServer existingList = getListById(user, shoppingList.getId());
+        ShoppingListServer existingList = getListById(user, shoppingList.getId());
 
-            existingList.setName(shoppingList.getName());
-            existingList.setSortTypeInt(shoppingList.getSortTypeInt());
-            existingList.setLocation(shoppingList.getLocation());
-            existingList.setLastModifiedDate(shoppingList.getLastModifiedDate());
+        existingList.setName(shoppingList.getName());
+        existingList.setSortTypeInt(shoppingList.getSortTypeInt());
+        existingList.setLocation(shoppingList.getLocation());
+        existingList.setLastModifiedDate(shoppingList.getLastModifiedDate());
 
-            if(updateItems) {
+        if(updateItems) {
 
-                //remove all existing items
-                for(Item i : existingList.getItems()) {
-                    existingList.removeItem(i.getId());
-                }
-
-                //add items from updated value
-                for(Item i : shoppingList.getItems()) {
-                    existingList.addItem(i);
-                }
+            //remove all existing items
+            for(Item i : existingList.getItems()) {
+                existingList.removeItem(i.getId());
             }
 
-
-            existingList = persist(existingList);
-            return existingList;
-
-        } catch (ListNotFoundException e) {
-
-            return createList(user, shoppingList);
+            //add items from updated value
+            for(Item i : shoppingList.getItems()) {
+                existingList.addItem(i);
+            }
         }
+
+
+        existingList = persist(existingList);
+        return existingList;
+
 
     }
 
@@ -148,36 +143,32 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     }
 
     @Override
-    public Item updateOrCreateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException {
+    public Item updateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException, ItemNotFoundException {
 
 
-        try {
-            Item existingItem = getListItem(user, listId, updatedItem.getId());
+        Item existingItem = getListItem(user, listId, updatedItem.getId());
 
-            existingItem.setOrder(updatedItem.getOrder());
-            existingItem.setBought(updatedItem.isBought());
-            existingItem.setName(updatedItem.getName());
-            existingItem.setAmount(updatedItem.getAmount());
-            existingItem.setHighlight(updatedItem.isHighlight());
-            existingItem.setBrand(updatedItem.getBrand());
-            existingItem.setComment(updatedItem.getComment());
-            existingItem.setGroup(updatedItem.getGroup());
-            existingItem.setUnit(updatedItem.getUnit());
-            existingItem.setLastBought(updatedItem.getLastBought());
-            existingItem.setRegularlyRepeatItem(updatedItem.isRegularlyRepeatItem());
-            existingItem.setPeriodType(updatedItem.getPeriodType());
-            existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
-            existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
-            existingItem.setRemindAtDate(updatedItem.getRemindAtDate());
-            existingItem.setLocation(updatedItem.getLocation());
+        existingItem.setOrder(updatedItem.getOrder());
+        existingItem.setBought(updatedItem.isBought());
+        existingItem.setName(updatedItem.getName());
+        existingItem.setAmount(updatedItem.getAmount());
+        existingItem.setHighlight(updatedItem.isHighlight());
+        existingItem.setBrand(updatedItem.getBrand());
+        existingItem.setComment(updatedItem.getComment());
+        existingItem.setGroup(updatedItem.getGroup());
+        existingItem.setUnit(updatedItem.getUnit());
+        existingItem.setLastBought(updatedItem.getLastBought());
+        existingItem.setRegularlyRepeatItem(updatedItem.isRegularlyRepeatItem());
+        existingItem.setPeriodType(updatedItem.getPeriodType());
+        existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
+        existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
+        existingItem.setRemindAtDate(updatedItem.getRemindAtDate());
+        existingItem.setLocation(updatedItem.getLocation());
 
-            currentSession().persist(existingItem);
+        currentSession().persist(existingItem);
 
-            return existingItem;
+        return existingItem;
 
-        } catch (ItemNotFoundException e) {
-            return addListItem(user, listId, updatedItem);
-        }
 
     }
 
