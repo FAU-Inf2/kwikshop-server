@@ -14,30 +14,9 @@ import javax.ws.rs.core.MediaType;
 import java.util.List;
 
 @Produces(MediaType.APPLICATION_JSON)
-public interface ListResource<TList> {
+public interface ListResource {
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    @UnitOfWork
-    List<TList> getList(@Auth User user);
 
-    @GET
-    @Path("{listId}")
-    @UnitOfWork
-    TList getList(@Auth User user, @PathParam("listId") int listId);
-
-    @PUT
-    @UnitOfWork
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    TList createList(@Auth User user, TList list);
-
-    @POST
-    @UnitOfWork
-    @Path("{listId}")
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    TList updateList(@Auth User user, @PathParam("listId") int listId, TList list, @QueryParam("updateItems") boolean updateItems);
 
     @DELETE
     @UnitOfWork
