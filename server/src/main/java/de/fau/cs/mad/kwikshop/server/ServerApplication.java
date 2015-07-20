@@ -19,9 +19,7 @@ import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
 import io.dropwizard.setup.Environment;
 
-/**
- * Created by Andreas Kumlehn on 3/26/15.
- */
+
 public class ServerApplication extends Application<ServerConfiguration> {
 
     public static void main(String[] args) throws Exception {
@@ -29,8 +27,14 @@ public class ServerApplication extends Application<ServerConfiguration> {
     }
 
     private final HibernateBundle<ServerConfiguration> hibernate =
-            new HibernateBundle<ServerConfiguration>(User.class, ShoppingListServer.class, Item.class, LastLocation.class,
-                    Group.class, Unit.class) {
+            new HibernateBundle<ServerConfiguration>(
+                    User.class,
+                    ShoppingListServer.class,
+                    Item.class,
+                    LastLocation.class,
+                    Group.class,
+                    Unit.class,
+                    RecipeServer.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                     DataSourceFactory fac = configuration.getDataSourceFactory();
@@ -68,9 +72,6 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(new ShoppingListDAO(hibernate.getSessionFactory()));
         environment.jersey().register(shoppingListResource);
-
-        //final TimeResource time = new TimeResourceImpl();
-        //environment.jersey().register(time);
 
         final ApiListingResource api = new ApiListingResource();
         environment.jersey().register(api);
