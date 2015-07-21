@@ -5,9 +5,11 @@ import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.UserResource;
+import de.fau.cs.mad.kwikshop.server.api.RecipeResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.UserResourceImpl;
 import de.fau.cs.mad.kwikshop.server.auth.UserAuthenticator;
+import de.fau.cs.mad.kwikshop.server.dao.RecipeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.ShoppingListDAO;
 import de.fau.cs.mad.kwikshop.server.dao.UserDAO;
 import io.dropwizard.Application;
@@ -72,6 +74,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(new ShoppingListDAO(hibernate.getSessionFactory()));
         environment.jersey().register(shoppingListResource);
+
+        final RecipeResourceImpl recipeResource = new RecipeResourceImpl((new RecipeDAO(hibernate.getSessionFactory())));
+        environment.jersey().register(recipeResource);
 
         final ApiListingResource api = new ApiListingResource();
         environment.jersey().register(api);

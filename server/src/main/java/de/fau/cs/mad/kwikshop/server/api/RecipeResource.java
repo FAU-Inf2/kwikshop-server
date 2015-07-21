@@ -29,7 +29,7 @@ public interface RecipeResource extends ListResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{listId}")
     @UnitOfWork
-    RecipeServer getList(@Auth User user, @PathParam("listId") String listId);
+    RecipeServer getList(@Auth User user, @PathParam("listId") int listId);
 
     @PUT
     @UnitOfWork
