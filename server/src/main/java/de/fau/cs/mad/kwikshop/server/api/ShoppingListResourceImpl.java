@@ -4,6 +4,7 @@ import com.wordnik.swagger.annotations.ApiParam;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
