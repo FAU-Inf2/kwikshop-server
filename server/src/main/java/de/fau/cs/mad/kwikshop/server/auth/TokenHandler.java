@@ -17,8 +17,8 @@ public class TokenHandler {
     private SecureRandom random = new SecureRandom();
 
     // TODO: change client_id
-    private static String ANDROID_CLIENT_ID = "974373376910-pp2n1j7jd93evqpljt47s8r2k2a6rkha.apps.googleusercontent.com";
-    private static String SERVER_CLIENT_ID = "974373376910-mg6fm7feie2rn0v9qj2nmi1jpeftr47u.apps.googleusercontent.com";
+    private static String ANDROID_CLIENT_ID = "379668729015-vfjnf4ara6a4bdv49m4roof9ffa15hnb.apps.googleusercontent.com";
+    private static String SERVER_CLIENT_ID = "379668729015-kfnp2dso6r971doip3f9mbvv2rbd37b9.apps.googleusercontent.com";
 
     /* Validate the token, return user_id if the token is valid */
     public static String TokenCheck(String tokenString) {
