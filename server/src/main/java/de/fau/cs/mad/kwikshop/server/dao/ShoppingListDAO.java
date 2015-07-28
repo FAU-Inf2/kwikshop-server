@@ -29,7 +29,7 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     @Override
     public ShoppingListServer createList(User user, ShoppingListServer shoppingList) {
 
-        shoppingList.setOwner(user);
+        shoppingList.setOwnerId(user.getId());
         shoppingList = persist(shoppingList);
 
         return shoppingList;
