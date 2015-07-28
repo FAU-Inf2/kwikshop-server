@@ -16,6 +16,8 @@ import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthFactory;
 import io.dropwizard.auth.basic.BasicAuthFactory;
+import io.dropwizard.configuration.EnvironmentVariableSubstitutor;
+import io.dropwizard.configuration.SubstitutingSourceProvider;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.setup.Bootstrap;
@@ -52,6 +54,12 @@ public class ServerApplication extends Application<ServerConfiguration> {
     @Override
     public void initialize(Bootstrap<ServerConfiguration> bootstrap) {
         bootstrap.addBundle(hibernate);
+
+        //enables the use of environment variables in yaml config file
+        bootstrap.setConfigurationSourceProvider(new SubstitutingSourceProvider(
+                bootstrap.getConfigurationSourceProvider(),
+                new EnvironmentVariableSubstitutor()
+        ));
 
         //serve pages copied from https://github.com/swagger-api/swagger-ui/tree/master/dist
         bootstrap.addBundle(new AssetsBundle("/swagger/", "/docs", "index.html"));

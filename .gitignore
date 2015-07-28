@@ -42,3 +42,6 @@ out/
 local.properties
 
 *.db
+
+# Keystore
+keystore.jks

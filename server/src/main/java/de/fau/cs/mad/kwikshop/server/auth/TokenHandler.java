@@ -22,6 +22,9 @@ public class TokenHandler {
 
     /* Validate the token, return user_id if the token is valid */
     public static String TokenCheck(String tokenString) {
+        if(tokenString == null)
+            return null;
+
         ApacheHttpTransport transport = new ApacheHttpTransport();
         JacksonFactory jsonFactory = new JacksonFactory();
         GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(transport, jsonFactory)

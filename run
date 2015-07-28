@@ -1,0 +1,35 @@
+#!/bin/bash
+
+if [ ! -d ~/kwikshop-data ]; then
+  echo "[INFO] Creating data volume ~/kwikshop-data."
+  mkdir ~/kwikshop-data
+  if [ ! -d ~/kwikshop-data ]; then
+    echo "[ERROR] Could not create data volume."
+    exit
+  fi
+fi
+
+if [ ! -f keystore.jks ]; then
+	echo "[ERROR] File keystore.jks is missing, please add it from the docs repository."
+  exit
+fi
+
+if [ -z "$KEYSTORE_PW" ]; then
+  echo "[ERROR] Environment variable KEYSTORE_PW is not set, run:"
+  echo "KEYSTORE_PW=xxx ./run"
+  exit
+fi
+
+cp keystore.jks ~/kwikshop-data/
+
+echo "[INFO] Starting production server (with volume ~/kwikshop-data)..."
+
+if [ -n "$(docker ps -a | fgrep 'kwikshop-server-prod')" ]; then
+  echo "[INFO] Using existing container"
+  docker start kwikshop-server-prod
+else
+  echo "[INFO] Running new container"
+  docker run -d -p 443:443 --name kwikshop-server-prod \
+    -e KEYSTORE_PW=$KEYSTORE_PW \
+    -v ~/kwikshop-data:/server/data kwikshop-server
+fi

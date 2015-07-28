@@ -5,10 +5,8 @@ ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends gradle openjdk-7-jdk git unzip ssh wget
 
-ADD server /server
+ADD . /kwikshop-server
 
-RUN cd /server; ./gradlew jar
+CMD cd /kwikshop-server ; git pull ; ./gradlew run
 
-CMD cd /server; ./gradlew run
-
-EXPOSE 8080
+EXPOSE 443
