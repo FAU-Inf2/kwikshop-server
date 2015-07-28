@@ -31,5 +31,5 @@ else
   echo "[INFO] Running new container"
   docker run -d -p 443:443 --name kwikshop-server-prod \
     -e KEYSTORE_PW=$KEYSTORE_PW \
-    -v ~/kwikshop-data:/server/data kwikshop-server
+    -v ~/kwikshop-data:/kwikshop-server/data kwikshop-server
 fi
