@@ -104,6 +104,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @UnitOfWork
     @Path("{listId}/{itemId}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Item getListItem(@Auth User user,
                             @PathParam("listId") int listId,
                             @PathParam("itemId") int itemId) {
