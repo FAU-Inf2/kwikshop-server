@@ -104,6 +104,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @UnitOfWork
     @Path("{listId}/{itemId}")
+    @Produces(MediaType.APPLICATION_JSON)
     public Item getListItem(@Auth User user,
                             @PathParam("listId") int listId,
                             @PathParam("itemId") int itemId) {
@@ -150,8 +151,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Item updateItem(@Auth User user,
-                           @ApiParam(value = "id of the list the item belongs to", required = true) @PathParam("listId") int listId,
-                           @ApiParam(value = "id of the Item to update", required = true) @PathParam("itemId") int itemId,
+                           @PathParam("listId") @ApiParam(value = "id of the list the item belongs to", required = true) int listId,
+                           @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId,
                            @ApiParam(value = "new details of the specified item", required = true) Item item) {
 
         if(item.getId() != itemId) {
@@ -176,8 +177,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
     public void deleteListItem(@Auth User user,
-                               @ApiParam(value = "id of the list the item belongs to", required = true) @PathParam("listId") int listId,
-                               @ApiParam(value = "id of the Item to update", required = true) @PathParam("itemId") int itemId) {
+                               @PathParam("listId") @ApiParam(value = "id of the list the item belongs to", required = true) int listId,
+                               @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId) {
 
         try {
 
