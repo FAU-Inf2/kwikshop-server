@@ -48,10 +48,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{listId}")
     @UnitOfWork
-    public ShoppingListServer getList(@Auth User user, @PathParam("listId") String listId) {
+    public ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId) {
 
         try {
-            return shoppingListDAO.getListById(user, Integer.parseInt(listId));
+            return shoppingListDAO.getListById(user, listId);
         } catch (ListNotFoundException e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
