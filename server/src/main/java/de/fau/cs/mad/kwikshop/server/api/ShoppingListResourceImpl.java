@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
 import com.wordnik.swagger.annotations.ApiParam;
+import de.fau.cs.mad.kwikshop.common.DeletionInfo;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
@@ -110,15 +111,15 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Path("deleted")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Integer> getDeletedLists(@Auth User user) {
+    public List<DeletionInfo> getDeletedLists(@Auth User user) {
 
-        List<Integer> ids = new ArrayList<>();
+        List<DeletionInfo> result = new ArrayList<>();
 
         for(ShoppingListServer s : shoppingListDAO.getDeletedLists(user)) {
-            ids.add(s.getId());
+            result.add(new DeletionInfo(s.getId(), s.getVersion()));
         }
 
-        return ids;
+        return result;
     }
 
     @Override
@@ -219,7 +220,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @UnitOfWork
     @Path("{listId}/deleted")
-    public List<Integer> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
+    public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
         //TODO
         return null;
     }
