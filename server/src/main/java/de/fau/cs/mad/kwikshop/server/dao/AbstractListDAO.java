@@ -95,7 +95,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
         existingItem.setGroup(updatedItem.getGroup());
         existingItem.setUnit(updatedItem.getUnit());
         existingItem.setLastBought(updatedItem.getLastBought());
-        existingItem.setRegularlyRepeatItem(updatedItem.isRegularlyRepeatItem());
+        existingItem.setRepeatType(updatedItem.getRepeatType());
         existingItem.setPeriodType(updatedItem.getPeriodType());
         existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
         existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
