@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
+import com.wordnik.swagger.annotations.ApiOperation;
 import com.wordnik.swagger.annotations.ApiParam;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.RecipeServer;
@@ -14,6 +15,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("recipe")
@@ -106,6 +108,22 @@ public class RecipeResourceImpl implements RecipeResource {
 
     @GET
     @UnitOfWork
+    @Path("deleted")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Integer> getDeletedLists(@Auth User user) {
+
+        List<Integer> ids = new ArrayList<>();
+
+        for(RecipeServer r : recipeDAO.getDeletedLists(user)) {
+            ids.add(r.getId());
+        }
+
+        return ids;
+    }
+
+
+    @GET
+    @UnitOfWork
     @Path("{listId}/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Item getListItem(@Auth User user, @PathParam("listId") int listId, @PathParam("itemId") int itemId) {
@@ -188,4 +206,15 @@ public class RecipeResourceImpl implements RecipeResource {
         }
 
     }
+
+
+
+    @GET
+    @UnitOfWork
+    @Path("{listId}/deleted")
+    public List<Integer> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
+        //TODO
+        return null;
+    }
+
 }

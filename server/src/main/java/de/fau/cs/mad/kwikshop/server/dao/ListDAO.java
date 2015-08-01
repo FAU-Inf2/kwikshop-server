@@ -39,9 +39,16 @@ public interface ListDAO<TList>  {
     /**
      * Gets all of the user's lists
      * @param user The user for which to get lists for
-     * @return Returns all list owned by the specified user
+     * @return Returns all lists owned by the specified user
      */
     List<TList> getLists(User user);
+
+    /**
+     * Gets all of the user's deleted lists
+     * @param user The user for which to get deleted lists for
+     * @return Retuns all lists owned by the specified user which have been marked as deleted
+     */
+    List<TList> getDeletedLists(User user);
 
     /**
      * Gets the specified list for which must be owned by the specified user

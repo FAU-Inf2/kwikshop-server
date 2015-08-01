@@ -46,12 +46,17 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
             return false;
         }
 
-        currentSession().delete(list);
+        list.setDeleted(true);
+        persist(list);
+
         return true;
     }
 
     @Override
     public abstract List<TList> getLists(User user);
+
+    @Override
+    public abstract List<TList> getDeletedLists(User user);
 
     @Override
     public abstract TList getListById(User user, int listId) throws ListNotFoundException;

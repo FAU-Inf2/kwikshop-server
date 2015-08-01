@@ -66,6 +66,13 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
     @Override
+    public List<ShoppingListServer> getDeletedLists(User user) {
+        Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_DELETED_LISTS)
+                .setParameter(NamedQueryConstants.USER_ID, user.getId());
+        return list(query);
+    }
+
+    @Override
     public ShoppingListServer getListById(User user, int listId) throws ListNotFoundException {
 
         Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_BY_LISTID)

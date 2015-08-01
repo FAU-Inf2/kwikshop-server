@@ -15,6 +15,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 @Path("shoppinglist")
@@ -103,6 +104,21 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         if(!listFound) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
+    }
+
+    @GET
+    @UnitOfWork
+    @Path("deleted")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Integer> getDeletedLists(@Auth User user) {
+
+        List<Integer> ids = new ArrayList<>();
+
+        for(ShoppingListServer s : shoppingListDAO.getDeletedLists(user)) {
+            ids.add(s.getId());
+        }
+
+        return ids;
     }
 
     @Override
@@ -198,5 +214,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
+    }
+
+    @GET
+    @UnitOfWork
+    @Path("{listId}/deleted")
+    public List<Integer> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
+        //TODO
+        return null;
     }
 }

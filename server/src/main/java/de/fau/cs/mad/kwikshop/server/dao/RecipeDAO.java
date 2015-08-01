@@ -60,6 +60,13 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
     }
 
     @Override
+    public List<RecipeServer> getDeletedLists(User user) {
+        Query query = namedQuery(NamedQueryConstants.RECIPE_GET_DELETED_LISTS)
+                .setParameter(NamedQueryConstants.USER_ID, user.getId());
+        return list(query);
+    }
+
+    @Override
     public RecipeServer getListById(User user, int listId) throws ListNotFoundException {
 
         Query query = namedQuery(NamedQueryConstants.RECIPE_GET_BY_LISTID)
