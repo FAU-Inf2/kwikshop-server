@@ -17,6 +17,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Path("shoppinglist")
@@ -81,15 +82,14 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ShoppingListServer updateList(@Auth User user,
-                                   @PathParam("listId") int listId, ShoppingListServer shoppingList,
-                                   @QueryParam("updateItems") boolean updateItems) {
+                                   @PathParam("listId") int listId, ShoppingListServer shoppingList) {
 
         if(shoppingList.getId() != listId) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
         try {
-            return shoppingListDAO.updateList(user, shoppingList, updateItems);
+            return shoppingListDAO.updateList(user, shoppingList);
         } catch (ListNotFoundException e) {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
@@ -219,9 +219,37 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
     @GET
     @UnitOfWork
-    @Path("{listId}/deleted")
+    @Path("{listId}/items")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Item> getListItems(@Auth User user, @PathParam("listId") int listId) {
+
+        try {
+            return shoppingListDAO.getListItems(user, listId);
+        } catch (ListNotFoundException ex) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+    }
+
+
+    @GET
+    @UnitOfWork
+    @Path("{listId}/items/deleted")
     public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
-        //TODO
-        return null;
+
+        List<Item> deletedItems;
+        try {
+            deletedItems = shoppingListDAO.getDeletedListItems(user, listId);
+        } catch (ListNotFoundException ex) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        List<DeletionInfo> result = new LinkedList<>();
+        for(Item i : deletedItems) {
+            result.add(new DeletionInfo(i.getId(), i.getVersion()));
+        }
+
+        return result;
+
     }
 }

@@ -1,10 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
 import com.wordnik.swagger.annotations.ApiParam;
-import de.fau.cs.mad.kwikshop.common.DeletionInfo;
-import de.fau.cs.mad.kwikshop.common.Item;
-import de.fau.cs.mad.kwikshop.common.RecipeServer;
-import de.fau.cs.mad.kwikshop.common.User;
+import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.RecipeResource;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
@@ -16,6 +13,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Path("recipe")
@@ -78,7 +76,7 @@ public class RecipeResourceImpl implements RecipeResource {
     @Path("{listId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public RecipeServer updateList(@Auth User user, @PathParam("listId") int listId, RecipeServer recipe, @QueryParam("updateItems") boolean updateItems) {
+    public RecipeServer updateList(@Auth User user, @PathParam("listId") int listId, RecipeServer recipe) {
 
         if(recipe.getId() != listId) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -86,7 +84,7 @@ public class RecipeResourceImpl implements RecipeResource {
 
         try {
 
-            return recipeDAO.updateList(user, recipe, updateItems);
+            return recipeDAO.updateList(user, recipe);
 
         } catch (ListNotFoundException e) {
 
@@ -208,13 +206,38 @@ public class RecipeResourceImpl implements RecipeResource {
     }
 
 
+    @GET
+    @UnitOfWork
+    @Path("{listId}/items")
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<Item> getListItems(@Auth User user, @PathParam("listId") int listId) {
+
+        try {
+            return recipeDAO.getListItems(user, listId);
+        } catch (ListNotFoundException ex) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+    }
 
     @GET
     @UnitOfWork
-    @Path("{listId}/deleted")
+    @Path("{listId}/items/deleted")
     public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
-        //TODO
-        return null;
+
+        List<Item> deletedItems;
+        try {
+            deletedItems = recipeDAO.getDeletedListItems(user, listId);
+        } catch (ListNotFoundException ex) {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
+        List<DeletionInfo> result = new LinkedList<>();
+        for(Item i : deletedItems) {
+            result.add(new DeletionInfo(i.getId(), i.getVersion()));
+        }
+
+        return result;
     }
 
 }

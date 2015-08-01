@@ -25,7 +25,7 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
 
     @Override
-    public RecipeServer updateList(User user, RecipeServer recipe, boolean updateItems) throws ListNotFoundException {
+    public RecipeServer updateList(User user, RecipeServer recipe) throws ListNotFoundException {
 
         RecipeServer existingRecipe = getListById(user, recipe.getId());
 
@@ -33,20 +33,6 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
         existingRecipe.setScaleFactor(recipe.getScaleFactor());
         existingRecipe.setScaleName(recipe.getScaleName());
         existingRecipe.setLastModifiedDate(recipe.getLastModifiedDate());
-
-        if(updateItems) {
-
-            //remove all existing items
-            for(Item i : existingRecipe.getItems()) {
-                existingRecipe.removeItem(i.getServerId());
-            }
-
-            //add items from updated value
-            for(Item i : recipe.getItems()) {
-                existingRecipe.addItem(i);
-            }
-        }
-
 
         existingRecipe = persist(existingRecipe);
         return existingRecipe;

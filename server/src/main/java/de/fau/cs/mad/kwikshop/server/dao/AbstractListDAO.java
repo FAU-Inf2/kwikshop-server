@@ -8,6 +8,9 @@ import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.SessionFactory;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -34,7 +37,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
     }
 
     @Override
-    public abstract TList updateList(User user, TList tList, boolean updateItems) throws ListNotFoundException;
+    public abstract TList updateList(User user, TList tList) throws ListNotFoundException;
 
     @Override
     public boolean deleteList(User user, int listId) {
@@ -56,6 +59,22 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
     public abstract List<TList> getLists(User user);
 
     @Override
+    public List<Item> getListItems(User user, int listId) throws ListNotFoundException {
+
+        TList list = getListById(user, listId);
+
+        List<Item> result = new ArrayList<>();
+        for(Item i : list.getItems()) {
+
+            if( ! i.getDeleted()){
+                result.add(i);
+            }
+        }
+
+        return result;
+    }
+
+    @Override
     public abstract List<TList> getDeletedLists(User user);
 
     @Override
@@ -67,7 +86,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
         TList list = getListById(user, listId);
 
         Item item = list.getItem(itemId);
-        if(item == null) {
+        if(item == null || item.getDeleted()) {
             throw new ItemNotFoundException(String.format("Item %s not found in list %s of type %s for user %s", itemId, list.getClass().getSimpleName(), listId, user.getId()));
         }
 
@@ -118,8 +137,33 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         TList list = getListById(user, listId);
 
-        boolean success = list.removeItem(itemId);
-        persist(list);
-        return success;
+        Item item;
+        try {
+            item = getListItem(user, listId, itemId);
+        } catch (ItemNotFoundException e) {
+            return false;
+        }
+
+        item.setDeleted(true);
+        currentSession().persist(item);
+
+        return true;
+    }
+
+    @Override
+    public List<Item> getDeletedListItems(User user, int listId) throws ListNotFoundException {
+
+        TList list = getListById(user, listId);
+
+        List<Item> result = new ArrayList<>();
+        for(Item i : list.getItems()) {
+
+            if(i.getDeleted()){
+                result.add(i);
+            }
+        }
+
+        return result;
+
     }
 }

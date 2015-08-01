@@ -21,12 +21,10 @@ public interface ListDAO<TList>  {
      * Creates the specified list on the server or updates it if a list with the same id already exists
      * @param user The owner of the list
      * @param list The list to update or create on the server
-     * @param updateItems Specifies whether to also overwrite the items of the list on the server with the items from the
-     *                    specified list
      * @return Returns the updated or created list
      * @throws ListNotFoundException Thrown if the list with the specified id could not be found
      */
-    TList updateList(User user, TList list, boolean updateItems) throws ListNotFoundException;
+    TList updateList(User user, TList list) throws ListNotFoundException;
 
     /**
      * Deletes the specified list on the server
@@ -58,6 +56,15 @@ public interface ListDAO<TList>  {
      * @throws ListNotFoundException Thrown if the list with the specified id could not be found
      */
     TList getListById(User user, int listId) throws ListNotFoundException;
+
+    /**
+     * Gets all the items the specified lsit contains
+     * @param user The owner of the list to get deleted items for
+     * @param listId The id of the list to get deleted items for
+     * @return Retruns the lsit of items the lsit contains
+     * @throws ListNotFoundException Thrown if the specified list could not be found
+     */
+    List<Item> getListItems(User user, int listId) throws ListNotFoundException;
 
     /**
      * Gets an item from one of the users lists
@@ -101,5 +108,13 @@ public interface ListDAO<TList>  {
     boolean deleteListItem(User user, int listId, int itemId) throws ListNotFoundException;
 
 
+    /**
+     * Gets all deleted Items for the specified list
+     * @param user The owner of the list to get deleted items for
+     * @param listId The id of the list to get deleted items for
+     * @return Retruns all deleted items found for the specified list
+     * @throws ListNotFoundException Thrown if the specified list could not be found
+     */
+    List<Item> getDeletedListItems(User user, int listId) throws ListNotFoundException;
 
 }

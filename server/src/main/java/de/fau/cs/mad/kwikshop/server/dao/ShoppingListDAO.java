@@ -27,7 +27,7 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
 
 
     @Override
-    public ShoppingListServer updateList(User user, ShoppingListServer shoppingList, boolean updateItems) throws ListNotFoundException{
+    public ShoppingListServer updateList(User user, ShoppingListServer shoppingList) throws ListNotFoundException{
 
 
         ShoppingListServer existingList = getListById(user, shoppingList.getId());
@@ -36,20 +36,6 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
         existingList.setSortTypeInt(shoppingList.getSortTypeInt());
         existingList.setLocation(shoppingList.getLocation());
         existingList.setLastModifiedDate(shoppingList.getLastModifiedDate());
-
-        if(updateItems) {
-
-            //remove all existing items
-            for(Item i : existingList.getItems()) {
-                existingList.removeItem(i.getServerId());
-            }
-
-            //add items from updated value
-            for(Item i : shoppingList.getItems()) {
-                existingList.addItem(i);
-            }
-        }
-
 
         existingList = persist(existingList);
         return existingList;
