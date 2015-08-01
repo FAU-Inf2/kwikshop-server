@@ -63,8 +63,11 @@ public class RecipeResourceImpl implements RecipeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public RecipeServer createList(@Auth User user, RecipeServer list) {
 
-        return recipeDAO.createList(user, list);
+        if(list.getId() != 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
 
+        return recipeDAO.createList(user, list);
     }
 
     @Override
@@ -125,6 +128,10 @@ public class RecipeResourceImpl implements RecipeResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Item createItem(@Auth User user, @PathParam("listId") int listId, @ApiParam(value = "Item to create", required = true) Item newItem) {
+
+        if(newItem.getId() != 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
 
         try {
 

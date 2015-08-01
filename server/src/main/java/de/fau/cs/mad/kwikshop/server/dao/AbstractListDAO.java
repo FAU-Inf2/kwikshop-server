@@ -26,10 +26,11 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
     @Override
     public TList createList(User user, TList list) {
-        list.setOwnerId(user.getId());
-        list = persist(list);
 
-        return list;
+        //make sure owner is set and is actually the current user
+        list.setOwnerId(user.getId());
+
+        return persist(list);
     }
 
     @Override

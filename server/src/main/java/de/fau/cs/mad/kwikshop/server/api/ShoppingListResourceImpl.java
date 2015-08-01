@@ -64,6 +64,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ShoppingListServer createList(@Auth User user, ShoppingListServer shoppingList) {
+
+        if(shoppingList.getId() != 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
+
         return shoppingListDAO.createList(user, shoppingList);
     }
 
@@ -130,6 +135,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     public Item createItem(@Auth User user,
                            @PathParam("listId") int listId,
                            @ApiParam(value = "Item to create", required = true) Item newItem) {
+
+        if(newItem.getId() != 0) {
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+        }
 
         try {
 
