@@ -129,7 +129,7 @@ public class RecipeResourceImpl implements RecipeResource {
     @Produces(MediaType.APPLICATION_JSON)
     public Item createItem(@Auth User user, @PathParam("listId") int listId, @ApiParam(value = "Item to create", required = true) Item newItem) {
 
-        if(newItem.getId() != 0) {
+        if(newItem.getServerId() != 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
@@ -154,7 +154,7 @@ public class RecipeResourceImpl implements RecipeResource {
                            @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId,
                            @ApiParam(value = "new details of the specified item", required = true) Item item) {
 
-        if(item.getId() != itemId) {
+        if(item.getServerId() != itemId) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 

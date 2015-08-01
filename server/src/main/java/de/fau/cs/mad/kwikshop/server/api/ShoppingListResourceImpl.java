@@ -136,7 +136,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                            @PathParam("listId") int listId,
                            @ApiParam(value = "Item to create", required = true) Item newItem) {
 
-        if(newItem.getId() != 0) {
+        if(newItem.getServerId() != 0) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 
@@ -164,7 +164,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                            @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId,
                            @ApiParam(value = "new details of the specified item", required = true) Item item) {
 
-        if(item.getId() != itemId) {
+        if(item.getServerId() != itemId) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
 

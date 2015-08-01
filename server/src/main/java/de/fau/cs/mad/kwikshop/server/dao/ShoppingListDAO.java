@@ -50,7 +50,7 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
 
             //remove all existing items
             for(Item i : existingList.getItems()) {
-                existingList.removeItem(i.getId());
+                existingList.removeItem(i.getServerId());
             }
 
             //add items from updated value
@@ -146,7 +146,7 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     public Item updateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException, ItemNotFoundException {
 
 
-        Item existingItem = getListItem(user, listId, updatedItem.getId());
+        Item existingItem = getListItem(user, listId, updatedItem.getServerId());
 
         existingItem.setOrder(updatedItem.getOrder());
         existingItem.setBought(updatedItem.isBought());

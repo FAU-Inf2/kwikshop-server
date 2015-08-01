@@ -38,7 +38,7 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
             //remove all existing items
             for(Item i : existingRecipe.getItems()) {
-                existingRecipe.removeItem(i.getId());
+                existingRecipe.removeItem(i.getServerId());
             }
 
             //add items from updated value

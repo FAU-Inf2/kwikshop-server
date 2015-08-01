@@ -84,7 +84,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
     @Override
     public Item updateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException, ItemNotFoundException {
 
-        Item existingItem = getListItem(user, listId, updatedItem.getId());
+        Item existingItem = getListItem(user, listId, updatedItem.getServerId());
 
         existingItem.setOrder(updatedItem.getOrder());
         existingItem.setBought(updatedItem.isBought());
