@@ -12,8 +12,7 @@ import org.hibernate.SessionFactory;
 
 import java.util.List;
 
-//TODO: implement as subclass of AbstractListDAO
-public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements ListDAO<ShoppingListServer> {
+public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
 
 
     /**
@@ -26,14 +25,6 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     }
 
 
-    @Override
-    public ShoppingListServer createList(User user, ShoppingListServer shoppingList) {
-
-        shoppingList.setOwnerId(user.getId());
-        shoppingList = persist(shoppingList);
-
-        return shoppingList;
-    }
 
     @Override
     public ShoppingListServer updateList(User user, ShoppingListServer shoppingList, boolean updateItems) throws ListNotFoundException{
@@ -67,22 +58,6 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
     }
 
     @Override
-    public boolean deleteList(User user, int listId) {
-
-        ShoppingListServer list;
-        try {
-            list = getListById(user, listId);
-        } catch (ListNotFoundException e) {
-            return false;
-        }
-
-        currentSession().delete(list);
-        return true;
-
-
-    }
-
-    @Override
     public List<ShoppingListServer> getLists(User user) {
 
         Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_ALL_FOR_USER)
@@ -106,70 +81,9 @@ public class ShoppingListDAO extends AbstractDAO<ShoppingListServer> implements 
         return result.get(0);
     }
 
-    @Override
-    public Item getListItem(User user, int listId, int itemId) throws ListNotFoundException, ItemNotFoundException {
-
-        ShoppingListServer list = getListById(user, listId);
-
-        Item item = list.getItem(itemId);
-        if(item == null) {
-            throw new ItemNotFoundException(String.format("Item %s not found in shopping list %s for user %s", itemId, listId, user.getId()));
-        }
-
-        return item;
-    }
-
-    @Override
-    public boolean deleteListItem(User user, int listId, int itemId) throws ListNotFoundException {
-
-        ShoppingListServer list = getListById(user, listId);
-
-        boolean success = list.removeItem(itemId);
-        persist(list);
-        return success;
-    }
-
-    @Override
-    public Item addListItem(User user, int listId, Item item) throws ListNotFoundException {
-
-        ShoppingListServer list = getListById(user, listId);
-
-        currentSession().persist(item);
-        list.addItem(item);
-        persist(list);
-
-        return item;
-
-    }
-
-    @Override
-    public Item updateListItem(User user, int listId, Item updatedItem) throws ListNotFoundException, ItemNotFoundException {
 
 
-        Item existingItem = getListItem(user, listId, updatedItem.getServerId());
-
-        existingItem.setOrder(updatedItem.getOrder());
-        existingItem.setBought(updatedItem.isBought());
-        existingItem.setName(updatedItem.getName());
-        existingItem.setAmount(updatedItem.getAmount());
-        existingItem.setHighlight(updatedItem.isHighlight());
-        existingItem.setBrand(updatedItem.getBrand());
-        existingItem.setComment(updatedItem.getComment());
-        existingItem.setGroup(updatedItem.getGroup());
-        existingItem.setUnit(updatedItem.getUnit());
-        existingItem.setLastBought(updatedItem.getLastBought());
-        existingItem.setRepeatType(updatedItem.getRepeatType());
-        existingItem.setPeriodType(updatedItem.getPeriodType());
-        existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
-        existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
-        existingItem.setRemindAtDate(updatedItem.getRemindAtDate());
-        existingItem.setLocation(updatedItem.getLocation());
-
-        currentSession().persist(existingItem);
-
-        return existingItem;
 
 
-    }
 
 }
