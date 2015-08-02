@@ -109,7 +109,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
     @GET
     @UnitOfWork
-    @Path("deleted")
+    @Path("/deleted")
     @Produces(MediaType.APPLICATION_JSON)
     public List<DeletionInfo> getDeletedLists(@Auth User user) {
 
@@ -235,6 +235,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @UnitOfWork
     @Path("{listId}/items/deleted")
+    @Produces(MediaType.APPLICATION_JSON)
     public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
 
         List<Item> deletedItems;
@@ -246,7 +247,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
         List<DeletionInfo> result = new LinkedList<>();
         for(Item i : deletedItems) {
-            result.add(new DeletionInfo(i.getId(), i.getVersion()));
+            result.add(new DeletionInfo(i.getServerId(), i.getVersion()));
         }
 
         return result;

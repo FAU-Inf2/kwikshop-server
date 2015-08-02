@@ -106,7 +106,7 @@ public class RecipeResourceImpl implements RecipeResource {
 
     @GET
     @UnitOfWork
-    @Path("deleted")
+    @Path("/deleted")
     @Produces(MediaType.APPLICATION_JSON)
     public List<DeletionInfo> getDeletedLists(@Auth User user) {
 
@@ -222,6 +222,7 @@ public class RecipeResourceImpl implements RecipeResource {
 
     @GET
     @UnitOfWork
+    @Produces(MediaType.APPLICATION_JSON)
     @Path("{listId}/items/deleted")
     public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
 
@@ -234,7 +235,7 @@ public class RecipeResourceImpl implements RecipeResource {
 
         List<DeletionInfo> result = new LinkedList<>();
         for(Item i : deletedItems) {
-            result.add(new DeletionInfo(i.getId(), i.getVersion()));
+            result.add(new DeletionInfo(i.getServerId(), i.getVersion()));
         }
 
         return result;

@@ -30,7 +30,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         //make sure owner is set and is actually the current user
         list.setOwnerId(user.getId());
-        list.setVersion(0);
+        list.setVersion(1);
 
         return persist(list);
     }
@@ -97,6 +97,8 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         TList list = getListById(user, listId);
 
+        item.setVersion(1);
+
         currentSession().persist(item);
         list.addItem(item);
         list.setVersion(list.getVersion() + 1);
@@ -115,7 +117,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         if(!itemEquals(existingItem, updatedItem)) {
 
-            existingItem.setVersion(existingItem.getVersion());
+            existingItem.setVersion(existingItem.getVersion() + 1);
             list.setVersion(list.getVersion() + 1);
 
             existingItem.setOrder(updatedItem.getOrder());
