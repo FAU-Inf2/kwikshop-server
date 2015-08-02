@@ -1,12 +1,9 @@
 package de.fau.cs.mad.kwikshop.server.dao;
 
-import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 import de.fau.cs.mad.kwikshop.common.User;
-import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
-import io.dropwizard.hibernate.AbstractDAO;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
@@ -25,19 +22,23 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
 
-
     @Override
-    public ShoppingListServer updateList(User user, ShoppingListServer shoppingList) throws ListNotFoundException{
+    public ShoppingListServer updateList(User user, ShoppingListServer shoppingList) throws ListNotFoundException {
 
 
         ShoppingListServer existingList = getListById(user, shoppingList.getId());
 
-        existingList.setName(shoppingList.getName());
-        existingList.setSortTypeInt(shoppingList.getSortTypeInt());
-        existingList.setLocation(shoppingList.getLocation());
-        existingList.setLastModifiedDate(shoppingList.getLastModifiedDate());
+        if (!shoppingListEquals(existingList, shoppingList)) {
 
-        existingList = persist(existingList);
+            existingList.setName(shoppingList.getName());
+            existingList.setSortTypeInt(shoppingList.getSortTypeInt());
+            existingList.setLocation(shoppingList.getLocation());
+            existingList.setLastModifiedDate(shoppingList.getLastModifiedDate());
+
+            existingList.setVersion(existingList.getVersion() + 1);
+
+            existingList = persist(existingList);
+        }
         return existingList;
 
 
@@ -67,7 +68,7 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
 
         List<ShoppingListServer> result = list(query);
 
-        if(result.size() != 1) {
+        if (result.size() != 1) {
             throw new ListNotFoundException(String.format("ShoppingList with id %s for user %s not found", listId, user.getId()));
         }
 
@@ -75,8 +76,13 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
 
+    protected boolean shoppingListEquals(ShoppingListServer shoppingList1, ShoppingListServer shoppingList2) {
 
-
+        return stringEquals(shoppingList1.getName(), shoppingList2.getName()) &&
+                shoppingList1.getSortTypeInt() == shoppingList2.getSortTypeInt() &&
+                locationEquals(shoppingList1.getLocation(), shoppingList2.getLocation()) &&
+                dateEquals(shoppingList1.getLastModifiedDate(), shoppingList2.getLastModifiedDate());
+    }
 
 
 }

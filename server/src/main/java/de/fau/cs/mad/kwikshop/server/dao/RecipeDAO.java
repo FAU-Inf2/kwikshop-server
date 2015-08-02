@@ -1,6 +1,5 @@
 package de.fau.cs.mad.kwikshop.server.dao;
 
-import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.RecipeServer;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
@@ -29,12 +28,17 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
         RecipeServer existingRecipe = getListById(user, recipe.getId());
 
-        existingRecipe.setName(recipe.getName());
-        existingRecipe.setScaleFactor(recipe.getScaleFactor());
-        existingRecipe.setScaleName(recipe.getScaleName());
-        existingRecipe.setLastModifiedDate(recipe.getLastModifiedDate());
+        if (!recipeEquals(existingRecipe, recipe)) {
 
-        existingRecipe = persist(existingRecipe);
+            existingRecipe.setName(recipe.getName());
+            existingRecipe.setScaleFactor(recipe.getScaleFactor());
+            existingRecipe.setScaleName(recipe.getScaleName());
+            existingRecipe.setLastModifiedDate(recipe.getLastModifiedDate());
+
+            existingRecipe.setVersion(existingRecipe.getVersion() + 1);
+
+            existingRecipe = persist(existingRecipe);
+        }
         return existingRecipe;
     }
 
@@ -61,11 +65,20 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
         List<RecipeServer> result = list(query);
 
-        if(result.size() != 1) {
+        if (result.size() != 1) {
             throw new ListNotFoundException(String.format("Recipe with id %s for user %s not found", listId, user.getId()));
         }
 
         return result.get(0);
+    }
+
+
+    protected boolean recipeEquals(RecipeServer recipe1, RecipeServer recipe2) {
+
+        return stringEquals(recipe1.getName(), recipe2.getName()) &&
+                recipe1.getScaleFactor() == recipe2.getScaleFactor() &&
+                stringEquals(recipe1.getScaleName(), recipe2.getScaleName()) &&
+                dateEquals(recipe1.getLastModifiedDate(), recipe2.getLastModifiedDate());
     }
 
 
