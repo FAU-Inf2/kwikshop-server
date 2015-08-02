@@ -30,7 +30,7 @@ public class UserResourceImpl implements UserResource {
                 sessionUser.setSessionToken(new TokenHandler().nextSessionId());
                 facade.updateUser(userId, sessionUser); // save this user
             }
-            return sessionUser.getSessionToken();
+            return sessionUser.getId() + ":" + sessionUser.getSessionToken();
         }
     }
 
