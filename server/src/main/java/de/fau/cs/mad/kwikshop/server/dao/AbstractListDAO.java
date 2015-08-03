@@ -3,6 +3,7 @@ package de.fau.cs.mad.kwikshop.server.dao;
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.interfaces.DomainListObjectServer;
 import de.fau.cs.mad.kwikshop.common.util.EqualityComparer;
+import de.fau.cs.mad.kwikshop.server.ServerEqualityComparer;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
@@ -15,7 +16,7 @@ import java.util.List;
 
 public abstract class AbstractListDAO<TList extends DomainListObjectServer> extends AbstractDAO<TList> implements ListDAO<TList> {
 
-    protected final EqualityComparer comparer = new EqualityComparer();
+    protected final EqualityComparer comparer = new ServerEqualityComparer();
 
 
     /**
