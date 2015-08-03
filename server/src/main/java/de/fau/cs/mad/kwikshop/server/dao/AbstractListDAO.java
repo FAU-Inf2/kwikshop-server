@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.dao;
 
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.interfaces.DomainListObjectServer;
+import de.fau.cs.mad.kwikshop.common.util.EqualityComparer;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
@@ -13,6 +14,8 @@ import java.util.List;
 
 
 public abstract class AbstractListDAO<TList extends DomainListObjectServer> extends AbstractDAO<TList> implements ListDAO<TList> {
+
+    protected final EqualityComparer comparer = new EqualityComparer();
 
 
     /**
@@ -115,7 +118,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         Item existingItem = getListItem(user, listId, updatedItem.getServerId());
 
-        if(!itemEquals(existingItem, updatedItem)) {
+        if(!comparer.itemEquals(existingItem, updatedItem)) {
 
             existingItem.setVersion(existingItem.getVersion() + 1);
             list.setVersion(list.getVersion() + 1);
@@ -182,94 +185,6 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
     }
 
 
-    protected boolean itemEquals(Item item1, Item item2) {
 
-         return item1.getOrder() == item2.getOrder() &&
-                item1.isBought() == item2.isBought() &&
-                stringEquals(item1.getName(), item2.getName()) &&
-                item1.getAmount() == item2.getAmount() &&
-                item1.isHighlight() == item2.isHighlight() &&
-                stringEquals(item1.getBrand(), item2.getBrand()) &&
-                stringEquals(item1.getComment(), item2.getComment()) &&
-                groupEquals(item1.getGroup(), item2.getGroup()) &&
-                unitEquals(item1.getUnit(), item2.getUnit()) &&
-                dateEquals(item1.getLastBought(), item2.getLastBought()) &&
-                item1.getRepeatType() == item2.getRepeatType() &&
-                item1.getPeriodType() == item2.getPeriodType() &&
-                item1.getSelectedRepeatTime() == item2.getSelectedRepeatTime() &&
-                item1.isRemindFromNextPurchaseOn() == item2.isRemindFromNextPurchaseOn() &&
-                dateEquals(item1.getRemindAtDate(), item2.getRemindAtDate()) &&
-                locationEquals(item1.getLocation(), item2.getLocation());
-    }
-
-    /**
-     * String comparer function that can handle null value
-     */
-    protected boolean stringEquals(String string1, String string2){
-
-        if(string1 == null && string2 == null) {
-            return true;
-        }
-
-        if(string1 == null || string2 == null) {
-            return false;
-        }
-
-        return  string1.equals(string2);
-    }
-
-    protected boolean groupEquals(Group group1, Group group2) {
-
-        if(group1 == group2) {
-            return true;
-        }
-
-        if(group1 == null || group2 == null) {
-            return false;
-        }
-
-        return group1.getServerId() == group2.getServerId();
-    }
-
-    protected boolean unitEquals(Unit unit1, Unit unit2) {
-
-        if(unit1 == unit2) {
-            return true;
-        }
-
-        if(unit1 == null || unit2 == null) {
-            return false;
-        }
-
-        return unit1.getServerId() == unit2.getServerId();
-
-    }
-
-    protected boolean dateEquals(Date date1, Date date2) {
-
-        if(date1 == date2) {
-            return true;
-        }
-
-        if(date1 == null || date2 == null) {
-            return false;
-        }
-
-        return date1.equals(date2);
-    }
-
-
-    protected boolean locationEquals(LastLocation location1, LastLocation location2) {
-
-        if(location1 == location2) {
-            return true;
-        }
-
-        if(location1 == null || location2 == null) {
-            return false;
-        }
-
-        return  location1.getServerId() == location2.getServerId();
-    }
 
 }

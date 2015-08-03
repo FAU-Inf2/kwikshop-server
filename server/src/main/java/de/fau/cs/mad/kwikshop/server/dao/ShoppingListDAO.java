@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.dao;
 
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
+import de.fau.cs.mad.kwikshop.common.util.EqualityComparer;
 import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
@@ -28,7 +29,7 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
 
         ShoppingListServer existingList = getListById(user, shoppingList.getId());
 
-        if (!shoppingListEquals(existingList, shoppingList)) {
+        if (!comparer.shoppingListEquals(existingList, shoppingList)) {
 
             existingList.setName(shoppingList.getName());
             existingList.setSortTypeInt(shoppingList.getSortTypeInt());
@@ -76,13 +77,7 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
 
-    protected boolean shoppingListEquals(ShoppingListServer shoppingList1, ShoppingListServer shoppingList2) {
 
-        return stringEquals(shoppingList1.getName(), shoppingList2.getName()) &&
-                shoppingList1.getSortTypeInt() == shoppingList2.getSortTypeInt() &&
-                locationEquals(shoppingList1.getLocation(), shoppingList2.getLocation()) &&
-                dateEquals(shoppingList1.getLastModifiedDate(), shoppingList2.getLastModifiedDate());
-    }
 
 
 }

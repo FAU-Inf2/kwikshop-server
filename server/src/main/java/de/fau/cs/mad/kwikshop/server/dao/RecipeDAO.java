@@ -13,6 +13,8 @@ import java.util.List;
 public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
 
+
+
     /**
      * Creates a new DAO with a given session provider.
      *
@@ -28,7 +30,7 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
 
         RecipeServer existingRecipe = getListById(user, recipe.getId());
 
-        if (!recipeEquals(existingRecipe, recipe)) {
+        if (!comparer.recipeEquals(existingRecipe, recipe)) {
 
             existingRecipe.setName(recipe.getName());
             existingRecipe.setScaleFactor(recipe.getScaleFactor());
@@ -73,13 +75,7 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
     }
 
 
-    protected boolean recipeEquals(RecipeServer recipe1, RecipeServer recipe2) {
 
-        return stringEquals(recipe1.getName(), recipe2.getName()) &&
-                recipe1.getScaleFactor() == recipe2.getScaleFactor() &&
-                stringEquals(recipe1.getScaleName(), recipe2.getScaleName()) &&
-                dateEquals(recipe1.getLastModifiedDate(), recipe2.getLastModifiedDate());
-    }
 
 
 }
