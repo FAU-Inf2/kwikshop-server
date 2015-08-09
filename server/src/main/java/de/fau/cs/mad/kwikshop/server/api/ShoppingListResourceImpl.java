@@ -161,7 +161,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
-    @GET
+    @POST
     @UnitOfWork
     @Path("share/{sharingCode}")
     @Produces(MediaType.TEXT_PLAIN)
