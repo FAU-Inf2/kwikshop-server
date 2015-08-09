@@ -181,6 +181,21 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     }
 
     @Override
+    @GET
+    @UnitOfWork
+    @Path("/sharedLists")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ShoppingListServer> getSharedLists(@Auth User user) {
+        List<ShoppingListServer> result = new ArrayList<>();
+
+        for(ShoppingListServer s : user.getSharedShoppingLists()) {
+            result.add(s);
+        }
+
+        return result;
+    }
+
+    @Override
     @PUT
     @UnitOfWork
     @Path("{listId}/newItem")
