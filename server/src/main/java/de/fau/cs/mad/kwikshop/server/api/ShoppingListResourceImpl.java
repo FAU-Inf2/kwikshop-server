@@ -189,7 +189,9 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         List<ShoppingListServer> result = new ArrayList<>();
 
         for(ShoppingListServer s : user.getSharedShoppingLists()) {
-            result.add(s);
+            // Only get ShoppingLists that are not deleted - could possibly done in the ManyToMany annotation, but this is easier
+            if(!s.getDeleted())
+                result.add(s);
         }
 
         return result;
