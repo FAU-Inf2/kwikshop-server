@@ -76,7 +76,19 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
         return result.get(0);
     }
 
+    public ShoppingListServer getListBySharingCode(String sharingCode) throws ListNotFoundException {
 
+        Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_BY_SHARINGCODE)
+                .setParameter(NamedQueryConstants.SHARING_CODE, sharingCode);
+
+        List<ShoppingListServer> result = list(query);
+
+        if (result.size() != 1) {
+            throw new ListNotFoundException(String.format("ShoppingList with sharingCode %s not found", sharingCode));
+        }
+
+        return result.get(0);
+    }
 
 
 

@@ -58,6 +58,14 @@ public interface ListDAO<TList>  {
     TList getListById(User user, int listId) throws ListNotFoundException;
 
     /**
+     * Gets a list identified by the specified sharingCode
+     * @param sharingCode The sharingCode to use
+     * @return Returns the list as it's stored on the server
+     * @throws ListNotFoundException Thrown if the list with the specified sharingCode could not be found
+     */
+    TList getListBySharingCode(String sharingCode) throws ListNotFoundException;
+
+    /**
      * Gets all the items the specified lsit contains
      * @param user The owner of the list to get deleted items for
      * @param listId The id of the list to get deleted items for

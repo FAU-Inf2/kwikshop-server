@@ -74,8 +74,10 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
         return result.get(0);
     }
 
-
-
+    @Override
+    public RecipeServer getListBySharingCode(String sharingCode) throws ListNotFoundException {
+        throw new ListNotFoundException("");
+    }
 
 
 }
