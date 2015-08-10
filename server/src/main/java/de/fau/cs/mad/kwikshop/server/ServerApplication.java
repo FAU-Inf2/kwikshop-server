@@ -9,9 +9,7 @@ import de.fau.cs.mad.kwikshop.server.api.RecipeResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.UserResourceImpl;
 import de.fau.cs.mad.kwikshop.server.auth.UserAuthenticator;
-import de.fau.cs.mad.kwikshop.server.dao.RecipeDAO;
-import de.fau.cs.mad.kwikshop.server.dao.ShoppingListDAO;
-import de.fau.cs.mad.kwikshop.server.dao.UserDAO;
+import de.fau.cs.mad.kwikshop.server.dao.*;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthFactory;
@@ -80,10 +78,17 @@ public class ServerApplication extends Application<ServerConfiguration> {
                 "SUPER SECRET STUFF",
                 User.class)));
 
-        final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(new ShoppingListDAO(hibernate.getSessionFactory()));
+
+        final UnitDAO unitDAO = new UnitDAO(hibernate.getSessionFactory());
+        final GroupDAO groupDAO = new GroupDAO(hibernate.getSessionFactory());
+        final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
+
+        final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
+                new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO));
         environment.jersey().register(shoppingListResource);
 
-        final RecipeResourceImpl recipeResource = new RecipeResourceImpl((new RecipeDAO(hibernate.getSessionFactory())));
+        final RecipeResourceImpl recipeResource = new RecipeResourceImpl(
+                new RecipeDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO));
         environment.jersey().register(recipeResource);
 
         final ApiListingResource api = new ApiListingResource();

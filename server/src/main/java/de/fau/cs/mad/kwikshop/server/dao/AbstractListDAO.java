@@ -18,14 +18,33 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
     protected final EqualityComparer comparer = new ServerEqualityComparer();
 
+    private final UnitDAO unitDAO;
+    private final GroupDAO groupDAO;
+    private final LocationDAO locationDAO;
 
     /**
      * Creates a new DAO with a given session provider.
      *
      * @param sessionFactory a session provider
      */
-    public AbstractListDAO(SessionFactory sessionFactory) {
+    public AbstractListDAO(SessionFactory sessionFactory, UnitDAO unitDAO, GroupDAO groupDAO, LocationDAO locationDAO) {
         super(sessionFactory);
+
+        if(unitDAO == null) {
+            throw new IllegalArgumentException("'unitDAO' must not be null");
+        }
+
+        if(groupDAO == null) {
+            throw new IllegalArgumentException("'groupDAO' must not be null");
+        }
+
+        if(locationDAO == null){
+            throw new IllegalArgumentException("'locationDAO' must not be null");
+        }
+
+        this.unitDAO = unitDAO;
+        this.groupDAO = groupDAO;
+        this.locationDAO = locationDAO;
     }
 
 
@@ -103,11 +122,16 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
         item.setVersion(1);
 
-        currentSession().persist(item);
+        item.setUnit(getServerUnit(user, item.getUnit()));
+        item.setGroup(getServerGroup(user, item.getGroup()));
+        item.setLocation(getServerLocation(user, item.getLocation()));
+
+
+        currentSession().saveOrUpdate(item);
         list.addItem(item);
         list.setVersion(list.getVersion() + 1);
 
-        persist(list);
+        currentSession().save(list);
 
         return item;
     }
@@ -131,15 +155,18 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
             existingItem.setHighlight(updatedItem.isHighlight());
             existingItem.setBrand(updatedItem.getBrand());
             existingItem.setComment(updatedItem.getComment());
-            existingItem.setGroup(updatedItem.getGroup());
-            existingItem.setUnit(updatedItem.getUnit());
             existingItem.setLastBought(updatedItem.getLastBought());
             existingItem.setRepeatType(updatedItem.getRepeatType());
             existingItem.setPeriodType(updatedItem.getPeriodType());
             existingItem.setSelectedRepeatTime(updatedItem.getSelectedRepeatTime());
             existingItem.setRemindFromNextPurchaseOn(updatedItem.isRemindFromNextPurchaseOn());
             existingItem.setRemindAtDate(updatedItem.getRemindAtDate());
-            existingItem.setLocation(updatedItem.getLocation());
+
+            existingItem.setUnit(getServerUnit(user, updatedItem.getUnit()));
+            existingItem.setGroup(getServerGroup(user, updatedItem.getGroup()));
+            existingItem.setLocation(getServerLocation(user, updatedItem.getLocation()));
+
+
 
             currentSession().persist(existingItem);
         }
@@ -186,6 +213,50 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
     }
 
 
+    private Unit getServerUnit(User user, Unit clientUnit) {
+        if(clientUnit == null) {
+            return null;
+        }
 
+        int id = clientUnit.getServerId();
+        Unit unit = unitDAO.getById(user, id);
+
+        if(unit == null) {
+            return unitDAO.createUnit(user, clientUnit);
+        } else {
+            return unit;
+        }
+    }
+
+    private Group getServerGroup(User user, Group clientGroup) {
+        if(clientGroup == null) {
+            return null;
+        }
+
+        int id = clientGroup.getServerId();
+        Group group = groupDAO.getById(user, id);
+
+        if(group == null) {
+            return groupDAO.createGroup(user, clientGroup);
+        } else {
+            return group;
+        }
+    }
+
+
+    private LastLocation getServerLocation(User user, LastLocation clientLocation) {
+        if(clientLocation == null) {
+            return null;
+        }
+
+        int id = clientLocation.getServerId();
+        LastLocation location = locationDAO.getById(user, id);
+
+        if(location == null) {
+            return locationDAO.createLocation(user, clientLocation);
+        } else {
+            return location;
+        }
+    }
 
 }

@@ -20,8 +20,8 @@ public class RecipeDAO extends AbstractListDAO<RecipeServer> {
      *
      * @param sessionFactory a session provider
      */
-    public RecipeDAO(SessionFactory sessionFactory) {
-        super(sessionFactory);
+    public RecipeDAO(SessionFactory sessionFactory, UnitDAO unitDAO, GroupDAO groupDAO, LocationDAO locationDAO) {
+        super(sessionFactory, unitDAO, groupDAO, locationDAO);
     }
 
 

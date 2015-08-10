@@ -18,8 +18,8 @@ public class ShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
      *
      * @param sessionFactory a session provider
      */
-    public ShoppingListDAO(SessionFactory sessionFactory) {
-        super(sessionFactory);
+    public ShoppingListDAO(SessionFactory sessionFactory, UnitDAO unitDAO, GroupDAO groupDAO, LocationDAO locationDAO) {
+        super(sessionFactory, unitDAO, groupDAO, locationDAO);
     }
 
 
