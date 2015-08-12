@@ -81,6 +81,10 @@ public class SharedShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
         throw new ListNotFoundException(String.format("SharedShoppingList with id %s for user %s not found", listId, user.getId()));
     }
 
+    private void unshare(User user, ShoppingListServer sharedList) {
+        user.getSharedShoppingLists().remove(sharedList); /* "sharedList.getSharedWith().remove()" does not work */
+    }
+
     @Override
     public boolean deleteList(User user, int listId) {
         ShoppingListServer sharedList;
@@ -90,11 +94,8 @@ public class SharedShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
             return false;
         }
 
-        // TODO: TEST THIS
-        user.getSharedShoppingLists().remove(sharedList);
-        //sharedList.getSharedWith().remove(user);
-        currentSession().persist(sharedList);
-        currentSession().persist(user);
+        /* When deleting a foreign shared ShoppingList, it is not deleted, but 'unshared' */
+        unshare(user, sharedList);
 
         return true;
     }
