@@ -25,15 +25,20 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
 
     private final ListDAO<ShoppingListServer> shoppingListDAO;
+    private final ListDAO<ShoppingListServer> sharedShoppingListDAO;
 
-
-    public ShoppingListResourceImpl(ListDAO<ShoppingListServer> shoppingListDAO) {
+    public ShoppingListResourceImpl(ListDAO<ShoppingListServer> shoppingListDAO, ListDAO<ShoppingListServer> sharedShoppingListDAO) {
 
         if(shoppingListDAO == null) {
             throw new IllegalArgumentException("'shoppingListDAO' must not be null");
         }
 
+        if(sharedShoppingListDAO == null) {
+            throw new IllegalArgumentException("'sharedShoppingListDAO' must not be null");
+        }
+
         this.shoppingListDAO = shoppingListDAO;
+        this.sharedShoppingListDAO = sharedShoppingListDAO;
     }
 
 
@@ -43,7 +48,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Produces(MediaType.APPLICATION_JSON)
     @UnitOfWork
     public List<ShoppingListServer> getList(@Auth User user) {
-        return shoppingListDAO.getLists(user);
+        List<ShoppingListServer> lists = new ArrayList<>();
+        lists.addAll(shoppingListDAO.getLists(user));
+        lists.addAll(sharedShoppingListDAO.getLists(user)); /* Add all shared Lists */
+        return lists;
+        //return shoppingListDAO.getLists(user);
     }
 
     @Override
@@ -56,7 +65,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         try {
             return shoppingListDAO.getListById(user, listId);
         } catch (ListNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                return sharedShoppingListDAO.getListById(user, listId);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
     }
@@ -91,7 +104,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         try {
             return shoppingListDAO.updateList(user, shoppingList);
         } catch (ListNotFoundException e) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                return sharedShoppingListDAO.updateList(user, shoppingList);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
     }
@@ -103,7 +120,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     public void deleteList(@Auth User user, @PathParam("listId") int listId) {
         boolean listFound = shoppingListDAO.deleteList(user, listId);
         if(!listFound) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            listFound = sharedShoppingListDAO.deleteList(user, listId);
+
+            if(!listFound)
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
 
@@ -116,6 +136,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         List<DeletionInfo> result = new ArrayList<>();
 
         for(ShoppingListServer s : shoppingListDAO.getDeletedLists(user)) {
+            result.add(new DeletionInfo(s.getId(), s.getVersion()));
+        }
+
+        for(ShoppingListServer s : sharedShoppingListDAO.getDeletedLists(user)) {
             result.add(new DeletionInfo(s.getId(), s.getVersion()));
         }
 
@@ -132,12 +156,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                             @PathParam("itemId") int itemId) {
 
         try {
-
             return shoppingListDAO.getListItem(user, listId, itemId);
-
         } catch (ListNotFoundException | ItemNotFoundException e) {
-
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                return sharedShoppingListDAO.getListItem(user, listId, itemId);
+            } catch (ListNotFoundException | ItemNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
 
@@ -186,15 +211,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("/sharedLists")
     @Produces(MediaType.APPLICATION_JSON)
     public List<ShoppingListServer> getSharedLists(@Auth User user) {
-        List<ShoppingListServer> result = new ArrayList<>();
-
-        for(ShoppingListServer s : user.getSharedShoppingLists()) {
-            // Only get ShoppingLists that are not deleted - could possibly done in the ManyToMany annotation, but this is easier
-            if(!s.getDeleted())
-                result.add(s);
-        }
-
-        return result;
+        return sharedShoppingListDAO.getLists(user);
     }
 
     @Override
@@ -212,12 +229,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         try {
-
             return shoppingListDAO.addListItem(user, listId, newItem);
-
         } catch (ListNotFoundException e) {
-
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                return sharedShoppingListDAO.addListItem(user, listId, newItem);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
 
@@ -240,12 +258,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         try {
-
             return shoppingListDAO.updateListItem(user, listId, item);
-
         } catch (ListNotFoundException | ItemNotFoundException e) {
-
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                return sharedShoppingListDAO.updateListItem(user, listId, item);
+            } catch (ListNotFoundException | ItemNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
     }
@@ -261,12 +280,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
                                @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId) {
 
         try {
-
             shoppingListDAO.deleteListItem(user, listId, itemId);
-
         } catch (ListNotFoundException e) {
-
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+            try {
+                sharedShoppingListDAO.deleteListItem(user, listId, itemId);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
     }
@@ -281,7 +301,12 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         try {
             return shoppingListDAO.getListItems(user, listId);
         } catch (ListNotFoundException ex) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+            try {
+                return sharedShoppingListDAO.getListItems(user, listId);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
     }
 
@@ -296,7 +321,12 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         try {
             deletedItems = shoppingListDAO.getDeletedListItems(user, listId);
         } catch (ListNotFoundException ex) {
-            throw new WebApplicationException(Response.Status.NOT_FOUND);
+
+            try {
+                deletedItems = sharedShoppingListDAO.getDeletedListItems(user, listId);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
         }
 
         List<DeletionInfo> result = new LinkedList<>();
