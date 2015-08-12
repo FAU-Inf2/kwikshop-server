@@ -82,7 +82,8 @@ public class SharedShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
     private void unshare(User user, ShoppingListServer sharedList) {
-        user.getSharedShoppingLists().remove(sharedList); /* "sharedList.getSharedWith().remove()" does not work */
+        //user.getSharedShoppingLists().remove(sharedList); /* this does not work */
+        sharedList.getSharedWith().remove(user);
     }
 
     @Override
