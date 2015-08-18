@@ -6,6 +6,8 @@ import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
+import de.fau.cs.mad.kwikshop.common.rest.responses.SharingCode;
+import de.fau.cs.mad.kwikshop.common.rest.responses.SharingResponse;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
@@ -147,8 +149,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @UnitOfWork
     @Path("{listId}/sharingCode")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String getSharingCode(@Auth User user, @PathParam("listId") int listId) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public SharingCode getSharingCode(@Auth User user, @PathParam("listId") int listId) {
         ShoppingListServer list;
 
         try {
@@ -157,15 +159,18 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        return list.getSharingCode();
+        SharingCode response = new SharingCode();
+        response.setSharingCode(list.getSharingCode());
+
+        return response;
     }
 
     @Override
     @POST
     @UnitOfWork
     @Path("share/{sharingCode}")
-    @Produces(MediaType.TEXT_PLAIN)
-    public String share(@Auth User user, @PathParam("sharingCode") String sharingCode) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public SharingResponse share(@Auth User user, @PathParam("sharingCode") String sharingCode) {
         ShoppingListServer list;
 
         try {
@@ -176,8 +181,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         list.shareWith(user);
+        SharingResponse response = new SharingResponse();
+        response.setShoppingListName(list.getName());
 
-        return list.getName();
+        return response;
     }
 
     @Override
