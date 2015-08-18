@@ -84,7 +84,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
         final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
-                new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO));
+                new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),
+                new SharedShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO));
+
         environment.jersey().register(shoppingListResource);
 
         final RecipeResourceImpl recipeResource = new RecipeResourceImpl(
