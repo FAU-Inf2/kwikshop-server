@@ -193,19 +193,24 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Override
     @POST
     @UnitOfWork
-    @Path("share/{sharingCode}")
+    @Path("/share/{sharingCode}")
     @Produces(MediaType.APPLICATION_JSON)
     public SharingResponse share(@Auth User user, @PathParam("sharingCode") String sharingCode) {
         ShoppingListServer list;
 
         try {
             list = shoppingListDAO.getListBySharingCode(sharingCode);
-        } catch (ListNotFoundException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
 
-        list.shareWith(user);
+        if(!list.getOwnerId().equals(user.getId())) {
+            list.shareWith(user);
+        } else {
+            throw new WebApplicationException(Response.Status.NOT_FOUND);
+        }
+
         SharingResponse response = new SharingResponse();
         response.setShoppingListName(list.getName());
 

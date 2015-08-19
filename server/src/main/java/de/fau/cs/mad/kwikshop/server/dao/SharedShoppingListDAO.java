@@ -1,15 +1,12 @@
 package de.fau.cs.mad.kwikshop.server.dao;
 
-import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import de.fau.cs.mad.kwikshop.common.ShoppingList;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
-import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 
 public class SharedShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
@@ -102,17 +99,7 @@ public class SharedShoppingListDAO extends AbstractListDAO<ShoppingListServer> {
     }
 
     public ShoppingListServer getListBySharingCode(String sharingCode) throws ListNotFoundException {
-
-        Query query = namedQuery(NamedQueryConstants.SHOPPINGLIST_GET_BY_SHARINGCODE)
-                .setParameter(NamedQueryConstants.SHARING_CODE, sharingCode);
-
-        List<ShoppingListServer> result = list(query);
-
-        if (result.size() != 1) {
-            throw new ListNotFoundException(String.format("ShoppingList with sharingCode %s not found", sharingCode));
-        }
-
-        return result.get(0);
+        throw new ListNotFoundException("");
     }
 
 
