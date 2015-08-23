@@ -89,6 +89,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
         final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
 
         final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(hibernate.getSessionFactory());
+        final EdgeDAO edgeDAO = new EdgeDAO(hibernate.getSessionFactory());
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
                 new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),

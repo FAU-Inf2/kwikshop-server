@@ -3,8 +3,16 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 import javax.persistence.*;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 
 @Entity
+@NamedQueries({
+        @NamedQuery(
+                name = NamedQueryConstants.EDGE_GET_BY_FROMTO,
+                query = "SELECT e FROM Edge e WHERE e.from = :" + NamedQueryConstants.EDGE_FROM_NAME +
+                        " AND e.to = :" + NamedQueryConstants.EDGE_TO_NAME
+        )
+})
 public class Edge {
 
     @Id
@@ -12,28 +20,30 @@ public class Edge {
     private int id;
 
     @ManyToOne
-    private BoughtItem start;
+    @JoinColumn(name="from")
+    private BoughtItem from;
 
     @ManyToOne
-    private BoughtItem end;
+    @JoinColumn(name="to")
+    private BoughtItem to;
 
     @Column(name="weight")
     private int weight;
 
-    public BoughtItem getStart() {
-        return start;
+    public BoughtItem getFrom() {
+        return from;
     }
 
-    public void setStart(BoughtItem start) {
-        this.start = start;
+    public void setFrom(BoughtItem from) {
+        this.from = from;
     }
 
-    public BoughtItem getEnd() {
-        return end;
+    public BoughtItem getTo() {
+        return to;
     }
 
-    public void setEnd(BoughtItem end) {
-        this.end = end;
+    public void setTo(BoughtItem to) {
+        this.to = to;
     }
 
     public int getWeight() {
