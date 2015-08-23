@@ -5,11 +5,14 @@ import com.wordnik.swagger.jaxrs.config.BeanConfig;
 import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.UserResource;
+import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.api.RecipeResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
 import de.fau.cs.mad.kwikshop.server.api.UserResourceImpl;
 import de.fau.cs.mad.kwikshop.server.auth.UserAuthenticator;
 import de.fau.cs.mad.kwikshop.server.dao.*;
+import de.fau.cs.mad.kwikshop.server.sorting.Edge;
+import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthFactory;
@@ -36,7 +39,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
                     LastLocation.class,
                     Group.class,
                     Unit.class,
-                    RecipeServer.class) {
+                    RecipeServer.class,
+                    BoughtItem.class,
+                    Edge.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                     DataSourceFactory fac = configuration.getDataSourceFactory();
@@ -82,6 +87,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
         final UnitDAO unitDAO = new UnitDAO(hibernate.getSessionFactory());
         final GroupDAO groupDAO = new GroupDAO(hibernate.getSessionFactory());
         final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
+
+        final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(hibernate.getSessionFactory());
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
                 new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),
