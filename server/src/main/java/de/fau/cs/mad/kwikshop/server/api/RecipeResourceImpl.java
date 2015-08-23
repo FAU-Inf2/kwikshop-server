@@ -113,7 +113,7 @@ public class RecipeResourceImpl implements RecipeResource {
         List<DeletionInfo> result = new ArrayList<>();
 
         for(RecipeServer r : recipeDAO.getDeletedLists(user)) {
-            result.add(new DeletionInfo(r.getId(), r.getVersion()));
+            result.add(new DeletionInfo(r.getId(), r.getVersion(), r.getPredefinedId()));
         }
 
         return result;
@@ -235,7 +235,7 @@ public class RecipeResourceImpl implements RecipeResource {
 
         List<DeletionInfo> result = new LinkedList<>();
         for(Item i : deletedItems) {
-            result.add(new DeletionInfo(i.getServerId(), i.getVersion()));
+            result.add(new DeletionInfo(i.getServerId(), i.getVersion(), i.getPredefinedId()));
         }
 
         return result;

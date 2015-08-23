@@ -97,7 +97,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public ShoppingListServer updateList(@Auth User user,
-                                   @PathParam("listId") int listId, ShoppingListServer shoppingList) {
+                                         @PathParam("listId") int listId, ShoppingListServer shoppingList) {
 
         if(shoppingList.getId() != listId) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
@@ -138,11 +138,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         List<DeletionInfo> result = new ArrayList<>();
 
         for(ShoppingListServer s : shoppingListDAO.getDeletedLists(user)) {
-            result.add(new DeletionInfo(s.getId(), s.getVersion()));
+            result.add(new DeletionInfo(s.getId(), s.getVersion(), s.getPredefinedId()));
         }
 
         for(ShoppingListServer s : sharedShoppingListDAO.getDeletedLists(user)) {
-            result.add(new DeletionInfo(s.getId(), s.getVersion()));
+            result.add(new DeletionInfo(s.getId(), s.getVersion(), 0));
         }
 
         return result;
@@ -343,7 +343,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
         List<DeletionInfo> result = new LinkedList<>();
         for(Item i : deletedItems) {
-            result.add(new DeletionInfo(i.getServerId(), i.getVersion()));
+            result.add(new DeletionInfo(i.getServerId(), i.getVersion(), i.getPredefinedId()));
         }
 
         return result;
