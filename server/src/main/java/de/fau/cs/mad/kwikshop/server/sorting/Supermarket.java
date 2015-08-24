@@ -13,8 +13,8 @@ public class Supermarket {
     @JoinColumn(name="supermarketChain")
     private SupermarketChain supermarketChain;
 
-    @Column(name="placesId")
-    private String placesId;
+    @Column(name="placeId")
+    private String placeId;
 
     public int getId() {
         return id;
@@ -32,11 +32,11 @@ public class Supermarket {
         this.supermarketChain = supermarketChain;
     }
 
-    public String getPlacesId() {
-        return placesId;
+    public String getPlaceId() {
+        return placeId;
     }
 
-    public void setPlacesId(String placesId) {
-        this.placesId = placesId;
+    public void setPlacesId(String placeId) {
+        this.placeId = placeId;
     }
 }

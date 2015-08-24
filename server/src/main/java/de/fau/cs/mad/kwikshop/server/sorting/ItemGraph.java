@@ -1,17 +1,49 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
+import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
+import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
+import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 
 public class ItemGraph {
 
-    protected Set<BoughtItem> vertices;
-    protected Set<Edge> edges;
+    private Set<BoughtItem> vertices;
+    private Set<Edge> edges;
 
-    public ItemGraph(Set<BoughtItem> vertices, Set<Edge> edges) {
-        this.vertices = vertices;
-        this.edges = edges;
+    private BoughtItemDAO boughtItemDAO;
+    private EdgeDAO edgeDAO;
+    private SupermarketDAO supermarketDAO;
+    private SupermarketChainDAO supermarketChainDAO;
+
+    public ItemGraph(String supermarketPlaceId,
+                     BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
+                     SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
+
+        this.boughtItemDAO = boughtItemDAO;
+        this.edgeDAO = edgeDAO;
+        this.supermarketDAO = supermarketDAO;
+        this.supermarketChainDAO = supermarketChainDAO;
+
+        Supermarket supermarket = supermarketDAO.getByPlaceId(supermarketPlaceId);
+
+        /* Load Edges */
+        List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
+        setEdges(new HashSet<>(edgeList));
+
+        /* Load Vertices */
+        vertices = new HashSet<>();
+        for(Edge edge : edgeList) {
+            if(!vertices.contains(edge.getFrom()))
+                vertices.add(edge.getFrom());
+
+            if(!vertices.contains(edge.getTo()))
+                vertices.add(edge.getTo());
+        }
     }
 
     public Set<BoughtItem> getVertices() {

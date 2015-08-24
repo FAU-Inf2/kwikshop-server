@@ -1,0 +1,39 @@
+package de.fau.cs.mad.kwikshop.server.dao;
+
+import org.hibernate.Criteria;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
+
+import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
+import io.dropwizard.hibernate.AbstractDAO;
+
+public class SupermarketDAO extends AbstractDAO<Supermarket> {
+
+    /**
+     * Creates a new DAO with a given session provider.
+     *
+     * @param sessionFactory a session provider
+     */
+    public SupermarketDAO(SessionFactory sessionFactory) {
+        super(sessionFactory);
+    }
+
+    public Supermarket getByPlaceId(String placeId) {
+        final Session session = currentSession();
+        Supermarket result = null;
+
+        try {
+            Criteria criteria = session.createCriteria(Supermarket.class)
+                    .add(Restrictions.eq("placeId", placeId));
+
+            Object tmp = criteria.uniqueResult();
+            if (tmp != null) {
+                result = (Supermarket) tmp;
+            }
+        } finally {
+            session.close();
+        }
+        return result;
+    }
+}
