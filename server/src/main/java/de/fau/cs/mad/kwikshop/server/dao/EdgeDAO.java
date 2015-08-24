@@ -5,8 +5,11 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
+import java.util.List;
+
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
+import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
 import io.dropwizard.hibernate.AbstractDAO;
 
 public class EdgeDAO extends AbstractDAO<Edge> {
@@ -34,6 +37,21 @@ public class EdgeDAO extends AbstractDAO<Edge> {
             if (tmp != null) {
                 result = (Edge) tmp;
             }
+        } finally {
+            session.close();
+        }
+        return result;
+    }
+
+    public List<Edge> getBySupermarket(Supermarket supermarket) {
+        final Session session = currentSession();
+        List<Edge> result = null;
+
+        try {
+            Criteria criteria = session.createCriteria(Edge.class)
+                    .add(Restrictions.eq("supermarket", supermarket.getId()));
+
+            result = criteria.list();
         } finally {
             session.close();
         }

@@ -1,6 +1,5 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
-import java.util.List;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;

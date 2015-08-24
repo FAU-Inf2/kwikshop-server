@@ -30,6 +30,10 @@ public class Edge {
     @Column(name="weight")
     private int weight;
 
+    @ManyToOne
+    @JoinColumn(name="supermarket")
+    private Supermarket supermarket;
+
     public BoughtItem getFrom() {
         return from;
     }

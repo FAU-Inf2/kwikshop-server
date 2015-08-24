@@ -8,6 +8,7 @@ import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingCode;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingResponse;
+import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
@@ -349,4 +350,22 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         return result;
 
     }
+
+    @POST
+    @UnitOfWork
+    @Path("/boughtItems/{supermarketPlaceId}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void postBoughtItems(@Auth User user,
+                                @PathParam("supermarketPlaceId") @ApiParam(value = "The placeId of the supermarket the items were bought at", required = true) String supermarketPlaceId,
+                                @ApiParam(value = "List of BoughtItems", required = true) List<BoughtItem> boughtItems) {
+        System.out.println("PlaceId:"+supermarketPlaceId);
+
+        for(BoughtItem boughtItem : boughtItems) {
+            System.out.println("Name:"+boughtItem.getName());
+        }
+
+
+    }
+
+
 }
