@@ -3,6 +3,7 @@ package de.fau.cs.mad.kwikshop.server.dao;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
@@ -14,47 +15,45 @@ import io.dropwizard.hibernate.AbstractDAO;
 
 public class EdgeDAO extends AbstractDAO<Edge> {
 
+    private BoughtItemDAO boughtItemDAO;
+
     /**
      * Creates a new DAO with a given session provider.
      *
      * @param sessionFactory a session provider
      */
-    public EdgeDAO(SessionFactory sessionFactory) {
+    public EdgeDAO(SessionFactory sessionFactory, BoughtItemDAO boughtItemDAO) {
         super(sessionFactory);
+        this.boughtItemDAO = boughtItemDAO;
     }
 
     public Edge getByFromTo(BoughtItem from, BoughtItem to) {
-
         final Session session = currentSession();
+
         Edge result = null;
 
-        try {
-            Criteria criteria = session.createCriteria(Edge.class)
-                    .add(Restrictions.eq("from", from.getId()))
-                    .add(Restrictions.eq("to", to.getId()));
+        Criteria criteria = session.createCriteria(Edge.class)
+                .add(Restrictions.eq("from.id", from.getId()))
+                .add(Restrictions.eq("to.id", to.getId()));
 
-            Object tmp = criteria.uniqueResult();
-            if (tmp != null) {
-                result = (Edge) tmp;
-            }
-        } finally {
-            session.close();
+        Object tmp = criteria.uniqueResult();
+
+        if (tmp != null) {
+            result = (Edge) tmp;
         }
+
         return result;
     }
 
     public List<Edge> getBySupermarket(Supermarket supermarket) {
         final Session session = currentSession();
+
         List<Edge> result = null;
 
-        try {
-            Criteria criteria = session.createCriteria(Edge.class)
-                    .add(Restrictions.eq("supermarket", supermarket.getId()));
+        Criteria criteria = session.createCriteria(Edge.class)
+                .add(Restrictions.eq("supermarket.id", supermarket.getId()));
 
-            result = criteria.list();
-        } finally {
-            session.close();
-        }
+        result = criteria.list();
         return result;
     }
 

@@ -9,9 +9,15 @@ import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingCode;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingResponse;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
+import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
+import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
+import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
+import de.fau.cs.mad.kwikshop.server.sorting.Edge;
+import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
@@ -29,8 +35,13 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
     private final ListDAO<ShoppingListServer> shoppingListDAO;
     private final ListDAO<ShoppingListServer> sharedShoppingListDAO;
+    private final EdgeDAO edgeDAO;
+    private final BoughtItemDAO boughtItemDAO;
+    private final SupermarketDAO supermarketDAO;
+    private final SupermarketChainDAO supermarketChainDAO;
 
-    public ShoppingListResourceImpl(ListDAO<ShoppingListServer> shoppingListDAO, ListDAO<ShoppingListServer> sharedShoppingListDAO) {
+    public ShoppingListResourceImpl(ListDAO<ShoppingListServer> shoppingListDAO, ListDAO<ShoppingListServer> sharedShoppingListDAO,
+                                    EdgeDAO edgeDAO, BoughtItemDAO boughtItemDAO, SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
 
         if(shoppingListDAO == null) {
             throw new IllegalArgumentException("'shoppingListDAO' must not be null");
@@ -42,6 +53,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
 
         this.shoppingListDAO = shoppingListDAO;
         this.sharedShoppingListDAO = sharedShoppingListDAO;
+        this.edgeDAO = edgeDAO;
+        this.boughtItemDAO = boughtItemDAO;
+        this.supermarketDAO = supermarketDAO;
+        this.supermarketChainDAO = supermarketChainDAO;
     }
 
 
@@ -364,6 +379,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             System.out.println("Name:"+boughtItem.getName());
         }
 
+        /* Single item 'lists' are not useable */
+        if(boughtItems.size() < 2)
+            return;
+
+        new ItemGraph(supermarketPlaceId, boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO).addBoughtItems(boughtItems);
 
     }
 

@@ -22,7 +22,6 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
 
 
     public BoughtItem getByName(String name) {
-
         Query query = namedQuery(NamedQueryConstants.BOUGHTITEM_GET_BY_NAME)
                 .setParameter(NamedQueryConstants.BOUGHTITEM_NAME, name);
 
@@ -37,8 +36,8 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
         }
     }
 
-    public BoughtItem createBoughtItem(BoughtItem boughtItem) {
-        return persist(boughtItem);
+    public void createBoughtItem(BoughtItem boughtItem) {
+        currentSession().saveOrUpdate(boughtItem);
     }
 
 }

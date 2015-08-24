@@ -15,6 +15,8 @@ public class ItemGraph {
     private Set<BoughtItem> vertices;
     private Set<Edge> edges;
 
+    private Supermarket supermarket;
+
     private BoughtItemDAO boughtItemDAO;
     private EdgeDAO edgeDAO;
     private SupermarketDAO supermarketDAO;
@@ -29,7 +31,11 @@ public class ItemGraph {
         this.supermarketDAO = supermarketDAO;
         this.supermarketChainDAO = supermarketChainDAO;
 
-        Supermarket supermarket = supermarketDAO.getByPlaceId(supermarketPlaceId);
+        this.supermarket = supermarketDAO.getByPlaceId(supermarketPlaceId);
+        if(supermarket == null) {
+            supermarket = new Supermarket(supermarketPlaceId);
+            supermarketDAO.createSupermarkt(supermarket);
+        }
 
         /* Load Edges */
         List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
@@ -70,4 +76,25 @@ public class ItemGraph {
         this.edges.add(edge);
     }
 
+    public void addBoughtItems(List<BoughtItem> boughtItems) {
+        /* Save all new boughtItems (vertices) */
+        for(BoughtItem boughtItem: boughtItems) {
+            if(boughtItemDAO.getByName(boughtItem.getName()) == null)
+                boughtItemDAO.createBoughtItem(boughtItem);
+        }
+
+        /* Save all new edges */
+        for(int i = 0; i < boughtItems.size()-1; i++) {
+            BoughtItem i1 = boughtItemDAO.getByName(boughtItems.get(i).getName());
+            BoughtItem i2 = boughtItemDAO.getByName(boughtItems.get(i+1).getName());
+
+            Edge edge = edgeDAO.getByFromTo(i1, i2);
+
+            if(edge == null) {
+                edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+            } else {
+                edge.setWeight(edge.getWeight()+1);
+            }
+        }
+    }
 }

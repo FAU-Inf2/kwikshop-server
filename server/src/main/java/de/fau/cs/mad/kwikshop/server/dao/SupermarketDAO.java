@@ -23,17 +23,19 @@ public class SupermarketDAO extends AbstractDAO<Supermarket> {
         final Session session = currentSession();
         Supermarket result = null;
 
-        try {
-            Criteria criteria = session.createCriteria(Supermarket.class)
-                    .add(Restrictions.eq("placeId", placeId));
+        Criteria criteria = session.createCriteria(Supermarket.class)
+                .add(Restrictions.eq("placeId", placeId));
 
-            Object tmp = criteria.uniqueResult();
-            if (tmp != null) {
-                result = (Supermarket) tmp;
-            }
-        } finally {
-            session.close();
+        Object tmp = criteria.uniqueResult();
+        if (tmp != null) {
+            result = (Supermarket) tmp;
         }
+
         return result;
     }
+
+    public Supermarket createSupermarkt(Supermarket supermarket) {
+        return persist(supermarket);
+    }
+
 }

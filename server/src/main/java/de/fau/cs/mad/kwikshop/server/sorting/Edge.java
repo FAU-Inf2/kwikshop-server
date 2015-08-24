@@ -19,20 +19,29 @@ public class Edge {
     @GeneratedValue
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name="from")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name="from_item")
     private BoughtItem from;
 
-    @ManyToOne
-    @JoinColumn(name="to")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinColumn(name="to_item")
     private BoughtItem to;
 
     @Column(name="weight")
-    private int weight;
+    private int weight = 1;
 
-    @ManyToOne
-    @JoinColumn(name="supermarket")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     private Supermarket supermarket;
+
+    public Edge() {
+
+    }
+
+    public Edge(BoughtItem from, BoughtItem to, Supermarket supermarket) {
+        this.from = from;
+        this.to = to;
+        this.supermarket = supermarket;
+    }
 
     public BoughtItem getFrom() {
         return from;

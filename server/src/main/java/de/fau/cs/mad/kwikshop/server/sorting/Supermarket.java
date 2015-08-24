@@ -9,12 +9,19 @@ public class Supermarket {
     @GeneratedValue
     private int id;
 
-    @ManyToOne
-    @JoinColumn(name="supermarketChain")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     private SupermarketChain supermarketChain;
 
     @Column(name="placeId")
     private String placeId;
+
+    public Supermarket() {
+
+    }
+
+    public Supermarket(String placeId) {
+        this.placeId = placeId;
+    }
 
     public int getId() {
         return id;
@@ -36,7 +43,7 @@ public class Supermarket {
         return placeId;
     }
 
-    public void setPlacesId(String placeId) {
+    public void setPlaceId(String placeId) {
         this.placeId = placeId;
     }
 }
