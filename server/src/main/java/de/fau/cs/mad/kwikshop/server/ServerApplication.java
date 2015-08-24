@@ -13,6 +13,8 @@ import de.fau.cs.mad.kwikshop.server.auth.UserAuthenticator;
 import de.fau.cs.mad.kwikshop.server.dao.*;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
+import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
+import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
 import io.dropwizard.Application;
 import io.dropwizard.assets.AssetsBundle;
 import io.dropwizard.auth.AuthFactory;
@@ -41,7 +43,9 @@ public class ServerApplication extends Application<ServerConfiguration> {
                     Unit.class,
                     RecipeServer.class,
                     BoughtItem.class,
-                    Edge.class) {
+                    Edge.class,
+                    Supermarket.class,
+                    SupermarketChain.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                     DataSourceFactory fac = configuration.getDataSourceFactory();
