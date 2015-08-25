@@ -26,14 +26,15 @@ public class EdgeDAO extends AbstractDAO<Edge> {
         this.boughtItemDAO = boughtItemDAO;
     }
 
-    public Edge getByFromTo(BoughtItem from, BoughtItem to) {
+    public Edge getByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
         final Session session = currentSession();
 
         Edge result = null;
 
         Criteria criteria = session.createCriteria(Edge.class)
                 .add(Restrictions.eq("from.id", from.getId()))
-                .add(Restrictions.eq("to.id", to.getId()));
+                .add(Restrictions.eq("to.id", to.getId()))
+                .add(Restrictions.eq("supermarket.id", supermarket.getId()));
 
         Object tmp = criteria.uniqueResult();
 

@@ -6,6 +6,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 
 import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
+import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
 import io.dropwizard.hibernate.AbstractDAO;
 
 public class SupermarketDAO extends AbstractDAO<Supermarket> {
@@ -32,6 +33,11 @@ public class SupermarketDAO extends AbstractDAO<Supermarket> {
         }
 
         return result;
+    }
+
+    public Supermarket getGlobalBySupermarketChain(SupermarketChain supermarketChain) {
+        /* This is a bit hacky, but it works */
+        return getByPlaceId(supermarketChain.getName());
     }
 
     public Supermarket createSupermarkt(Supermarket supermarket) {

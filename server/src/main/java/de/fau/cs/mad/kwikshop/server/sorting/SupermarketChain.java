@@ -12,6 +12,14 @@ public class SupermarketChain {
     @Column(name="name")
     private String name;
 
+    public SupermarketChain() {
+
+    }
+
+    public SupermarketChain(String name) {
+        this.name = name;
+    }
+
     public int getId() {
         return id;
     }

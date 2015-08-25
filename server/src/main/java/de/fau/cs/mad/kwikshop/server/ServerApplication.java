@@ -94,7 +94,7 @@ public class ServerApplication extends Application<ServerConfiguration> {
         final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(hibernate.getSessionFactory());
         final EdgeDAO edgeDAO = new EdgeDAO(hibernate.getSessionFactory(), boughtItemDAO);
         final SupermarketDAO supermarketDAO = new SupermarketDAO(hibernate.getSessionFactory());
-        final SupermarketChainDAO supermarketChainDAO = new SupermarketChainDAO(hibernate.getSessionFactory());
+        final SupermarketChainDAO supermarketChainDAO = new SupermarketChainDAO(hibernate.getSessionFactory(), supermarketDAO);
 
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
                 new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),
