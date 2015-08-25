@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -56,9 +57,9 @@ public class ItemGraph {
         /* Load Edges */
         List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
         if(edgeList != null)
-            setEdges(new HashSet<Edge>(edgeList));
+            edges = new HashSet<Edge>(edgeList);
         else
-            setEdges(new HashSet<Edge>());
+            edges = new HashSet<Edge>();
 
         /* Load Vertices */
         vertices = new HashSet<BoughtItem>();
@@ -82,31 +83,7 @@ public class ItemGraph {
         }
 
     }
-
-    public Set<BoughtItem> getVertices() {
-        return vertices;
-    }
-
-    public void setVertices(Set<BoughtItem> vertices) {
-        this.vertices = vertices;
-    }
-
-    public Set<Edge> getEdges() {
-        return edges;
-    }
-
-    public void setEdges(Set<Edge> edges) {
-        this.edges = edges;
-    }
-
-    public void addVertice(BoughtItem vertice) {
-        this.vertices.add(vertice);
-    }
-
-    public void addEdge(Edge edge) {
-        this.edges.add(edge);
-    }
-
+    
     /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
     public void createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
 
@@ -148,5 +125,37 @@ public class ItemGraph {
 
         update();
 
+    }
+
+    private List<BoughtItem> getParents(BoughtItem child) {
+        List<BoughtItem> parents = new ArrayList<BoughtItem>();
+
+        for(Edge edge: edges) {
+            if(edge.getTo() == child)
+                parents.add(edge.getFrom());
+        }
+
+        return parents;
+    }
+
+    private List<BoughtItem> getChildren(BoughtItem parent) {
+        List<BoughtItem> children = new ArrayList<BoughtItem>();
+
+        for(Edge edge: edges) {
+            if(edge.getFrom() == parent)
+                children.add(edge.getTo());
+        }
+
+        return children;
+    }
+
+    private List<BoughtItem> getSiblings(BoughtItem child) {
+        List<BoughtItem> siblings = new ArrayList<BoughtItem>();
+
+        for(BoughtItem parent: getParents(child)) {
+            siblings.addAll(getChildren(parent));
+        }
+        siblings.remove(child);
+        return siblings;
     }
 }
