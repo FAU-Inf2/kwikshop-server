@@ -56,12 +56,12 @@ public class ItemGraph {
         /* Load Edges */
         List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
         if(edgeList != null)
-            setEdges(new HashSet<>(edgeList));
+            setEdges(new HashSet<Edge>(edgeList));
         else
-            setEdges(new HashSet<>());
+            setEdges(new HashSet<Edge>());
 
         /* Load Vertices */
-        vertices = new HashSet<>();
+        vertices = new HashSet<BoughtItem>();
         for(Edge edge : edgeList) {
             if(!vertices.contains(edge.getFrom()))
                 vertices.add(edge.getFrom());
