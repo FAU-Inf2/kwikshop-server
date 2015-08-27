@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
 import com.wordnik.swagger.annotations.ApiParam;
+
 import de.fau.cs.mad.kwikshop.common.DeletionInfo;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
@@ -10,6 +11,7 @@ import de.fau.cs.mad.kwikshop.common.rest.responses.SharingCode;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingResponse;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.ItemOrderWrapper;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
 import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
@@ -17,8 +19,8 @@ import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
-import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
+import de.fau.cs.mad.kwikshop.server.sorting.MagicSort;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
@@ -373,6 +375,10 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void postBoughtItems(@Auth User user, @ApiParam(value = "ItemOrder", required = true) ItemOrderWrapper itemOrder) {
 
+        /* Supermarket name and placeId must be set */
+        if(itemOrder.getSupermarketName() == null || itemOrder.getSupermarketPlaceId() == null)
+            throw new WebApplicationException(Response.Status.BAD_REQUEST);
+
         System.out.println("PlaceId:" + itemOrder.getSupermarketPlaceId());
 
         for(BoughtItem boughtItem : itemOrder.getBoughtItemList()) {
@@ -383,9 +389,42 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         if(itemOrder.getBoughtItemList().size() < 2)
             return;
 
-        new ItemGraph(itemOrder, boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO)
-                .addBoughtItems(itemOrder.getBoughtItemList());
+        /* Add the itemOrder to the graph */
+        new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO).addItemOrder(itemOrder);
+    }
 
+    @GET
+    @UnitOfWork
+    @Path("{listId}/sort")
+    @Produces(MediaType.APPLICATION_JSON)
+    public ShoppingListServer sort(@Auth User user, @PathParam("listId") int listId,
+                                   @ApiParam(value = "SortingRequest", required = true) SortingRequest sortingRequest) {
+
+        ShoppingListServer shoppingList;
+        try {
+            shoppingList = shoppingListDAO.getListById(user, listId);
+        } catch (ListNotFoundException ex) {
+            try {
+                shoppingList = sharedShoppingListDAO.getListById(user, listId);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+        }
+
+        ItemGraph itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        ShoppingListServer result = itemGraph.executeAlgorithm(new MagicSort(), shoppingList, sortingRequest);
+
+        try {
+            shoppingListDAO.updateList(user, result);
+        } catch (ListNotFoundException ex) {
+            try {
+                sharedShoppingListDAO.updateList(user, result);
+            } catch (ListNotFoundException e2) {
+                throw new WebApplicationException(Response.Status.NOT_FOUND);
+            }
+        }
+
+        return result;
     }
 
 }

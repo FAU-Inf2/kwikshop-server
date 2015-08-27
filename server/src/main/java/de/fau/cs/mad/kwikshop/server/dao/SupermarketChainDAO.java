@@ -3,6 +3,7 @@ package de.fau.cs.mad.kwikshop.server.dao;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.criterion.Restrictions;
 
 import java.util.List;
 
@@ -50,6 +51,18 @@ public class SupermarketChainDAO extends AbstractDAO<SupermarketChain> {
         }
 
         return supermarketChainList;
+    }
+
+    public Supermarket getGlobalSupermarket(SupermarketChain supermarketChain) {
+        final Session session = currentSession();
+
+        Criteria criteria = session.createCriteria(Supermarket.class)
+                .add(Restrictions.eq("placeId", supermarketChain.getName()));
+
+        Supermarket globalSupermarket = (Supermarket) criteria.uniqueResult();
+
+        return globalSupermarket;
+
     }
 
 }

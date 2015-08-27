@@ -5,8 +5,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.ItemOrderWrapper;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
 import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
@@ -24,8 +26,7 @@ public class ItemGraph {
     private SupermarketDAO supermarketDAO;
     private SupermarketChainDAO supermarketChainDAO;
 
-    public ItemGraph(ItemOrderWrapper itemOrder,
-                     BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
+    public ItemGraph(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
                      SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
 
         this.boughtItemDAO = boughtItemDAO;
@@ -33,24 +34,45 @@ public class ItemGraph {
         this.supermarketDAO = supermarketDAO;
         this.supermarketChainDAO = supermarketChainDAO;
 
-        this.supermarket = supermarketDAO.getByPlaceId(itemOrder.getSupermarketPlaceId());
+    }
+
+    public Set<BoughtItem> getVertices() {
+        return vertices;
+    }
+
+    public Set<Edge> getEdges() {
+        return edges;
+    }
+
+    public boolean setSupermarket(String placeId, String supermarketName) {
+        boolean isNewSupermarket = false;
+
+        this.supermarket = supermarketDAO.getByPlaceId(placeId);
 
         /* Supermarket does not exist yet, create it and try to find a matching SupermarketChain */
         if(supermarket == null) {
-            supermarket = new Supermarket(itemOrder.getSupermarketPlaceId());
+            isNewSupermarket = true;
+            supermarket = new Supermarket(placeId);
 
             for(SupermarketChain supermarketChain : supermarketChainDAO.getAll()) {
                 /* If the supermarket's name contains the name of a chain, it (most likely) belongs to that chain */
-                if(itemOrder.getSupermarketName().toLowerCase().contains(supermarketChain.getName().toLowerCase())) {
+                if(supermarketName.toLowerCase().contains(supermarketChain.getName().toLowerCase())) {
                     supermarket.setSupermarketChain(supermarketChain);
                     break;
                 }
             }
             supermarketDAO.createSupermarkt(supermarket);
         }
+        return isNewSupermarket;
+    }
+
+
+    public void addItemOrder(ItemOrderWrapper itemOrder) {
+        setSupermarket(itemOrder.getSupermarketPlaceId(), itemOrder.getSupermarketName());
 
         update();
 
+        addBoughtItems(itemOrder.getBoughtItemList());
     }
 
     private void update() {
@@ -83,7 +105,7 @@ public class ItemGraph {
         }
 
     }
-    
+
     /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
     public void createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
 
@@ -99,7 +121,7 @@ public class ItemGraph {
         }
     }
 
-    public void addBoughtItems(List<BoughtItem> boughtItems) {
+    private void addBoughtItems(List<BoughtItem> boughtItems) {
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
@@ -109,14 +131,14 @@ public class ItemGraph {
 
         /* Save all new edges */
         for(int i = 0; i < boughtItems.size()-1; i++) {
-            /* BoughtItems need to be loaded from the db, otherwise Hibernate complains about unsaved objects */
+            /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
             BoughtItem i1 = boughtItemDAO.getByName(boughtItems.get(i).getName());
             BoughtItem i2 = boughtItemDAO.getByName(boughtItems.get(i+1).getName());
 
-            /* Specific supermarket */
+            /* Apply the Edge to this supermarket's graph */
             createOrUpdateEdge(i1, i2, supermarket);
 
-            /* If this supermarkt belongs to a chain, apply the edges to this chains global list */
+            /* If this supermarkt belongs to a chain, apply the Edge to this chain's global graph */
             if(supermarket.getSupermarketChain() != null) {
                 Supermarket globalSupermarket = supermarketDAO.getGlobalBySupermarketChain(supermarket.getSupermarketChain());
                 createOrUpdateEdge(i1, i2, globalSupermarket);
@@ -125,6 +147,15 @@ public class ItemGraph {
 
         update();
 
+    }
+
+    public ShoppingListServer executeAlgorithm(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+        if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
+            this.supermarket = supermarketChainDAO.getGlobalSupermarket(supermarket.getSupermarketChain());
+            System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
+        }
+        algorithm.setUp(this);
+        return algorithm.sort(shoppingList);
     }
 
     private List<BoughtItem> getParents(BoughtItem child) {
@@ -155,7 +186,11 @@ public class ItemGraph {
         for(BoughtItem parent: getParents(child)) {
             siblings.addAll(getChildren(parent));
         }
-        siblings.remove(child);
+
+        /* Remove all occurrences of this child */
+        while(siblings.remove(child)) {}
+
         return siblings;
     }
+
 }
