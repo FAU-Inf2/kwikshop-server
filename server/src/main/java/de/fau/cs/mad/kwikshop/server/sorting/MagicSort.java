@@ -2,7 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 
-public class MagicSort implements Algorithm {
+public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServer> {
 
     private ItemGraph itemGraph;
 
@@ -12,7 +12,7 @@ public class MagicSort implements Algorithm {
     }
 
     @Override
-    public ShoppingListServer sort(ShoppingListServer shoppingList) {
+    public ShoppingListServer execute(ShoppingListServer shoppingList) {
         return shoppingList;
     }
 

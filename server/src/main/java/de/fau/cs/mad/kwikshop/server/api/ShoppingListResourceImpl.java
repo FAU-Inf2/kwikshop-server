@@ -406,7 +406,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         ItemGraph itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
-        ShoppingListServer result = itemGraph.executeAlgorithm(new MagicSort(), shoppingList, sortingRequest);
+        ShoppingListServer result = itemGraph.sort(new MagicSort(), shoppingList, sortingRequest);
 
         try {
             shoppingListDAO.updateList(user, result);

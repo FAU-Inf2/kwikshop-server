@@ -57,8 +57,31 @@ public class EdgeDAO extends AbstractDAO<Edge> {
         return result;
     }
 
+    public List<Edge> getByFrom(BoughtItem from, Supermarket supermarket) {
+        final Session session = currentSession();
+
+        Criteria criteria = session.createCriteria(Edge.class)
+                .add(Restrictions.eq("from.id", from.getId()))
+                .add(Restrictions.eq("supermarket.id", supermarket.getId()));
+
+        return criteria.list();
+    }
+
+    public List<Edge> getByTo(BoughtItem to, Supermarket supermarket) {
+        final Session session = currentSession();
+
+        Criteria criteria = session.createCriteria(Edge.class)
+                .add(Restrictions.eq("to.id", to.getId()))
+                .add(Restrictions.eq("supermarket.id", supermarket.getId()));
+
+        return criteria.list();
+    }
+
     public Edge createEdge(Edge edge) {
         return persist(edge);
     }
 
+    public void deleteEdge(Edge edge) {
+        currentSession().delete(edge);
+    }
 }

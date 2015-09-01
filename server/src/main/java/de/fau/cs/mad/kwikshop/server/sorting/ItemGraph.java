@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.ShoppingList;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.ItemOrderWrapper;
@@ -64,6 +65,7 @@ public class ItemGraph {
             }
             supermarketDAO.createSupermarkt(supermarket);
         }
+
         return isNewSupermarket;
 
     }
@@ -107,8 +109,23 @@ public class ItemGraph {
         Edge edge = edgeDAO.getByFromTo(i1, i2, supermarket);
 
         if(edge == null) {
+
+            /* Check if there is an Edge in the opposite direction */
+            edge = edgeDAO.getByFromTo(i2, i1, supermarket);
+
+            if(edge != null) {
+                /* Edit existing edge - decrease weight */
+                edge.setWeight(edge.getWeight()-1);
+
+                if(edge.getWeight() < 0) {
+                    edgeDAO.deleteEdge(edge);
+                    edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+                }
+            } else {
             /* Create new edge */
-            edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+                edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+            }
+
         } else {
             /* Edit existing edge - increase weight */
             edge.setWeight(edge.getWeight()+1);
@@ -151,7 +168,7 @@ public class ItemGraph {
 
     }
 
-    public ShoppingListServer executeAlgorithm(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+    public ShoppingListServer sort(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
 
         /* setSupermarket() returns true if this supermarket is new - in this case, try to use the SupermarketChain's ItemGraph */
         if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
@@ -167,7 +184,7 @@ public class ItemGraph {
         /* Load the ItemGraph and sort the ShoppingList */
         update();
         algorithm.setUp(this);
-        return algorithm.sort(shoppingList);
+        return (ShoppingListServer) algorithm.execute(shoppingList);
 
     }
 

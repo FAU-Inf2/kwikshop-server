@@ -30,6 +30,9 @@ public class Edge {
     @Column(name="weight")
     private int weight = 1;
 
+    @Column(name="distance")
+    private int distance = 0;
+
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH})
     private Supermarket supermarket;
 
@@ -65,6 +68,14 @@ public class Edge {
 
     public void setWeight(int weight) {
         this.weight = weight;
+    }
+
+    public int getDistance() {
+        return distance;
+    }
+
+    public void setDistance(int distance) {
+        this.distance = distance;
     }
 
 }
