@@ -45,7 +45,7 @@ public class ItemGraph {
     }
 
     public boolean setSupermarket(String placeId, String supermarketName) {
-        
+
         boolean isNewSupermarket = false;
 
         this.supermarket = supermarketDAO.getByPlaceId(placeId);
@@ -132,14 +132,12 @@ public class ItemGraph {
 
             /* Continue if the Items are not from the same Supermarket */
             if(!i1.getSupermarketPlaceId().equals(i2.getSupermarketPlaceId())) {
-                System.out.println("Continue...");
                 continue;
             }
 
             /* Load / create the Supermarket */
             setSupermarket(i1.getSupermarketPlaceId(), i1.getSupermarketName());
 
-            /* Apply the Edge to this supermarket's graph */
             createOrUpdateEdge(i1, i2, supermarket);
 
             /* If this supermarkt belongs to a chain, apply the Edge to this chain's global graph */
@@ -159,7 +157,7 @@ public class ItemGraph {
         if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
             this.supermarket = supermarketChainDAO.getGlobalSupermarket(supermarket.getSupermarketChain());
 
-            /* If the Supermarket does not belong to a chain, we can't sort it - just return the ShoppingList in this case */
+            /* If the Supermarket is new and does not belong to a chain, we can't sort the ShoppingList - just return the ShoppingList in this case */
             if(supermarket == null)
                 return shoppingList;
 
