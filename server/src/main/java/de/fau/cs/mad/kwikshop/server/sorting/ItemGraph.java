@@ -134,7 +134,47 @@ public class ItemGraph {
 
     }
 
+    /* Adds the start and end Items for each Supermarket */
+    private List<BoughtItem> addStartEnd(List<BoughtItem> boughtItemList) {
+        int start = 0;
+        int end = 0;
+        String lastPlaceId = boughtItemList.get(0).getSupermarketPlaceId();
+        String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
+
+        /* Add the very first start item and the very last end item */
+        BoughtItem first = new BoughtItem(boughtItemDAO.START_ITEM, lastPlaceId, lastSupermarketName);
+        BoughtItem last  = new BoughtItem(boughtItemDAO.END_ITEM, boughtItemList.get(boughtItemList.size()-1).getSupermarketPlaceId(), boughtItemList.get(boughtItemList.size()-1).getSupermarketName());
+        boughtItemList.add(0, first);
+        boughtItemList.add(boughtItemList.size(), last);
+
+        for(int i = 0; i < boughtItemList.size(); i++) {
+            BoughtItem current = boughtItemList.get(i);
+
+            if(current == boughtItemDAO.getStart() || current == boughtItemDAO.getEnd())
+                continue;
+
+            if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
+                BoughtItem startItem = new BoughtItem(boughtItemDAO.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
+                BoughtItem endItem   = new BoughtItem(boughtItemDAO.END_ITEM, lastPlaceId, lastSupermarketName);
+                boughtItemList.add(i, startItem);
+                boughtItemList.add(i, endItem);
+
+                lastPlaceId = current.getSupermarketPlaceId();
+                lastSupermarketName = current.getSupermarketName();
+            }
+        }
+
+        for(BoughtItem item : boughtItemList) {
+            System.out.println(item.getName() + " - (" + item.getSupermarketName() + ")");
+        }
+
+        return boughtItemList;
+
+    }
+
     public void addBoughtItems(List<BoughtItem> boughtItems) {
+
+        boughtItems = addStartEnd(boughtItems);
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {

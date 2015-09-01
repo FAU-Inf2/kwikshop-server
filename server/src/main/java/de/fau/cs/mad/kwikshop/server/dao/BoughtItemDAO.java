@@ -11,6 +11,10 @@ import io.dropwizard.hibernate.AbstractDAO;
 
 public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
 
+    public final String END_ITEM = "END_ITEM";
+    public final String START_ITEM = "START_ITEM";
+
+
     /**
      * Creates a new DAO with a given session provider.
      *
@@ -34,6 +38,24 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
         } else {
             throw new UnsupportedOperationException("Query for BoughtItem by Name yielded more than one result");
         }
+    }
+
+    public BoughtItem getStart() {
+        BoughtItem start = getByName(START_ITEM);
+        if(start == null) {
+            createBoughtItem(new BoughtItem(START_ITEM));
+            start = getByName(START_ITEM);
+        }
+        return start;
+    }
+
+    public BoughtItem getEnd() {
+        BoughtItem end = getByName(END_ITEM);
+        if(end == null) {
+            createBoughtItem(new BoughtItem(END_ITEM));
+            end = getByName(END_ITEM);
+        }
+        return end;
     }
 
     public void createBoughtItem(BoughtItem boughtItem) {

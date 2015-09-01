@@ -384,7 +384,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             return;
 
         /* Add the itemOrder to the graph */
-        new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO).addBoughtItems(itemOrder.getBoughtItemList());
+        ItemGraph itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
     }
 
     @GET
