@@ -117,6 +117,7 @@ public class ItemGraph {
                 /* Edit existing edge - decrease weight */
                 edge.setWeight(edge.getWeight()-1);
 
+                /* Create edge in the opposite direction */
                 if(edge.getWeight() < 0) {
                     edgeDAO.deleteEdge(edge);
                     edgeDAO.createEdge(new Edge(i1, i2, supermarket));
