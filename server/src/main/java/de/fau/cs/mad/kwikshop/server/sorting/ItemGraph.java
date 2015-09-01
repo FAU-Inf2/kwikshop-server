@@ -45,6 +45,7 @@ public class ItemGraph {
     }
 
     public boolean setSupermarket(String placeId, String supermarketName) {
+        
         boolean isNewSupermarket = false;
 
         this.supermarket = supermarketDAO.getByPlaceId(placeId);
@@ -64,18 +65,11 @@ public class ItemGraph {
             supermarketDAO.createSupermarkt(supermarket);
         }
         return isNewSupermarket;
-    }
 
-
-    public void addItemOrder(ItemOrderWrapper itemOrder) {
-        setSupermarket(itemOrder.getSupermarketPlaceId(), itemOrder.getSupermarketName());
-
-        update();
-
-        addBoughtItems(itemOrder.getBoughtItemList());
     }
 
     private void update() {
+
         /* Load Edges */
         List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
         if(edgeList != null)
@@ -119,9 +113,10 @@ public class ItemGraph {
             /* Edit existing edge - increase weight */
             edge.setWeight(edge.getWeight()+1);
         }
+
     }
 
-    private void addBoughtItems(List<BoughtItem> boughtItems) {
+    public void addBoughtItems(List<BoughtItem> boughtItems) {
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
@@ -134,6 +129,15 @@ public class ItemGraph {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
             BoughtItem i1 = boughtItemDAO.getByName(boughtItems.get(i).getName());
             BoughtItem i2 = boughtItemDAO.getByName(boughtItems.get(i+1).getName());
+
+            /* Continue if the Items are not from the same Supermarket */
+            if(!i1.getSupermarketPlaceId().equals(i2.getSupermarketPlaceId())) {
+                System.out.println("Continue...");
+                continue;
+            }
+
+            /* Load / create the Supermarket */
+            setSupermarket(i1.getSupermarketPlaceId(), i1.getSupermarketName());
 
             /* Apply the Edge to this supermarket's graph */
             createOrUpdateEdge(i1, i2, supermarket);
@@ -150,12 +154,23 @@ public class ItemGraph {
     }
 
     public ShoppingListServer executeAlgorithm(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+
+        /* setSupermarket() returns true if this supermarket is new - in this case, try to use the SupermarketChain's ItemGraph */
         if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
             this.supermarket = supermarketChainDAO.getGlobalSupermarket(supermarket.getSupermarketChain());
+
+            /* If the Supermarket does not belong to a chain, we can't sort it - just return the ShoppingList in this case */
+            if(supermarket == null)
+                return shoppingList;
+
             System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
         }
+
+        /* Load the ItemGraph and sort the ShoppingList */
+        update();
         algorithm.setUp(this);
         return algorithm.sort(shoppingList);
+
     }
 
     private List<BoughtItem> getParents(BoughtItem child) {

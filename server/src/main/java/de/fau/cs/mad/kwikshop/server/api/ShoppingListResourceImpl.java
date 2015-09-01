@@ -375,12 +375,6 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Consumes(MediaType.APPLICATION_JSON)
     public void postBoughtItems(@Auth User user, @ApiParam(value = "ItemOrder", required = true) ItemOrderWrapper itemOrder) {
 
-        /* Supermarket name and placeId must be set */
-        if(itemOrder.getSupermarketName() == null || itemOrder.getSupermarketPlaceId() == null)
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-
-        System.out.println("PlaceId:" + itemOrder.getSupermarketPlaceId());
-
         for(BoughtItem boughtItem : itemOrder.getBoughtItemList()) {
             System.out.println("Name:" + boughtItem.getName());
         }
@@ -390,7 +384,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             return;
 
         /* Add the itemOrder to the graph */
-        new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO).addItemOrder(itemOrder);
+        new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO).addBoughtItems(itemOrder.getBoughtItemList());
     }
 
     @GET
