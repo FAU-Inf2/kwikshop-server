@@ -136,8 +136,6 @@ public class ItemGraph {
 
     /* Adds the start and end Items for each Supermarket */
     private List<BoughtItem> addStartEnd(List<BoughtItem> boughtItemList) {
-        int start = 0;
-        int end = 0;
         String lastPlaceId = boughtItemList.get(0).getSupermarketPlaceId();
         String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
 
