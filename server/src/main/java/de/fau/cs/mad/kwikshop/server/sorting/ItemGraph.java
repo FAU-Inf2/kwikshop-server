@@ -130,13 +130,13 @@ public class ItemGraph {
             BoughtItem i1 = boughtItemDAO.getByName(boughtItems.get(i).getName());
             BoughtItem i2 = boughtItemDAO.getByName(boughtItems.get(i+1).getName());
 
-            /* Continue if the Items are not from the same Supermarket */
-            if(!i1.getSupermarketPlaceId().equals(i2.getSupermarketPlaceId())) {
+            /* Continue if the Items are not from the same Supermarket. Here we have to use the parameter boughtItems because the placeId is not stored in the DB */
+            if(!boughtItems.get(i).getSupermarketPlaceId().equals(boughtItems.get(i + 1).getSupermarketPlaceId())) {
                 continue;
             }
 
             /* Load / create the Supermarket */
-            setSupermarket(i1.getSupermarketPlaceId(), i1.getSupermarketName());
+            setSupermarket(boughtItems.get(i).getSupermarketPlaceId(), boughtItems.get(i).getSupermarketName());
 
             createOrUpdateEdge(i1, i2, supermarket);
 
