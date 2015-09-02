@@ -172,6 +172,7 @@ public class ItemGraph {
 
     public void addBoughtItems(List<BoughtItem> boughtItems) {
 
+        /* Add start and end Items for every Supermarket */
         boughtItems = addStartEnd(boughtItems);
 
         /* Save all new boughtItems (vertices) */
