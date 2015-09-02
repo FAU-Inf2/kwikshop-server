@@ -40,8 +40,8 @@ public class SupermarketDAO extends AbstractDAO<Supermarket> {
         return getByPlaceId(supermarketChain.getName());
     }
 
-    public Supermarket createSupermarkt(Supermarket supermarket) {
-        return persist(supermarket);
+    public void createSupermarkt(Supermarket supermarket) {
+        persist(supermarket);
     }
 
 }

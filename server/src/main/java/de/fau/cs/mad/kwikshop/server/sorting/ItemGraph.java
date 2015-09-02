@@ -37,6 +37,22 @@ public class ItemGraph {
 
     }
 
+    public BoughtItemDAO getBoughtItemDAO() {
+        return boughtItemDAO;
+    }
+
+    public EdgeDAO getEdgeDAO() {
+        return edgeDAO;
+    }
+
+    public SupermarketDAO getSupermarketDAO() {
+        return supermarketDAO;
+    }
+
+    public SupermarketChainDAO getSupermarketChainDAO() {
+        return supermarketChainDAO;
+    }
+
     public Set<BoughtItem> getVertices() {
         return vertices;
     }
@@ -68,6 +84,10 @@ public class ItemGraph {
 
         return isNewSupermarket;
 
+    }
+
+    public Supermarket getSupermarket() {
+        return supermarket;
     }
 
     private void update() {
@@ -103,7 +123,7 @@ public class ItemGraph {
     }
 
     /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
-    public void createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
+    public Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
 
         /* Supermarket must be included because different supermarkets have different edges */
         Edge edge = edgeDAO.getByFromTo(i1, i2, supermarket);
@@ -123,7 +143,7 @@ public class ItemGraph {
                     edgeDAO.createEdge(new Edge(i1, i2, supermarket));
                 }
             } else {
-            /* Create new edge */
+                /* Create new edge */
                 edgeDAO.createEdge(new Edge(i1, i2, supermarket));
             }
 
@@ -131,6 +151,8 @@ public class ItemGraph {
             /* Edit existing edge - increase weight */
             edge.setWeight(edge.getWeight()+1);
         }
+
+        return edge;
 
     }
 
@@ -226,6 +248,12 @@ public class ItemGraph {
         algorithm.setUp(this);
         return (ShoppingListServer) algorithm.execute(shoppingList);
 
+    }
+
+    public void executeAlgorithm(Algorithm algorithm, List<BoughtItem> boughtItemList) {
+        update();
+        algorithm.setUp(this);
+        algorithm.execute(boughtItemList);
     }
 
     private List<BoughtItem> getParents(BoughtItem child) {
