@@ -256,7 +256,7 @@ public class ItemGraph {
         algorithm.execute(boughtItemList);
     }
 
-    private List<BoughtItem> getParents(BoughtItem child) {
+    public List<BoughtItem> getParents(BoughtItem child) {
         List<BoughtItem> parents = new ArrayList<BoughtItem>();
 
         for(Edge edge: edges) {
@@ -267,7 +267,7 @@ public class ItemGraph {
         return parents;
     }
 
-    private List<BoughtItem> getChildren(BoughtItem parent) {
+    public List<BoughtItem> getChildren(BoughtItem parent) {
         List<BoughtItem> children = new ArrayList<BoughtItem>();
 
         for(Edge edge: edges) {
@@ -278,7 +278,7 @@ public class ItemGraph {
         return children;
     }
 
-    private List<BoughtItem> getSiblings(BoughtItem child) {
+    public List<BoughtItem> getSiblings(BoughtItem child) {
         List<BoughtItem> siblings = new ArrayList<BoughtItem>();
 
         for(BoughtItem parent: getParents(child)) {
@@ -289,6 +289,17 @@ public class ItemGraph {
         while(siblings.remove(child)) {}
 
         return siblings;
+    }
+
+    public Set<Edge> getEdgesFrom(BoughtItem boughtItem) {
+        Set<Edge> edges = new HashSet<Edge>();
+
+        for(Edge edge: getEdges()) {
+            if(edge.getFrom() == boughtItem)
+                edges.add(edge);
+        }
+
+        return edges;
     }
 
 }
