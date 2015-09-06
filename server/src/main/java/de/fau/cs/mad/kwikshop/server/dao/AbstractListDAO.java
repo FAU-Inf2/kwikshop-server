@@ -7,11 +7,10 @@ import de.fau.cs.mad.kwikshop.server.ServerEqualityComparer;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import io.dropwizard.hibernate.AbstractDAO;
+import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 public abstract class AbstractListDAO<TList extends DomainListObjectServer> extends AbstractDAO<TList> implements ListDAO<TList> {
@@ -212,6 +211,16 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
 
     }
 
+    @Override
+    public Set<Integer> getListLeases(User user) {
+
+        //TODO: replace by querying the database directly
+        Set<Integer> result = new HashSet<>();
+        for(TList list : getLists(user)) {
+            result.add(list.getLeaseId());
+        }
+        return result;
+    }
 
     private Unit getServerUnit(User user, Unit clientUnit) {
         if(clientUnit == null) {
@@ -243,7 +252,6 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
         }
     }
 
-
     private LastLocation getServerLocation(User user, LastLocation clientLocation) {
         if(clientLocation == null) {
             return null;
@@ -258,5 +266,7 @@ public abstract class AbstractListDAO<TList extends DomainListObjectServer> exte
             return location;
         }
     }
+
+
 
 }

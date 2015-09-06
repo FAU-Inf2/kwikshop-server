@@ -6,6 +6,7 @@ import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ListDAO<TList>  {
 
@@ -124,5 +125,7 @@ public interface ListDAO<TList>  {
      * @throws ListNotFoundException Thrown if the specified list could not be found
      */
     List<Item> getDeletedListItems(User user, int listId) throws ListNotFoundException;
+
+    Set<Integer> getListLeases(User user);
 
 }
