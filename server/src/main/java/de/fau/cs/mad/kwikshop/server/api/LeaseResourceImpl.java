@@ -36,29 +36,28 @@ public class LeaseResourceImpl implements LeaseResource {
     LeaseValidator leaseValidator;
 
 
-
     public LeaseResourceImpl(@NotNull SynchronizationLeaseDAO leaseDAO, @NotNull ListDAO<RecipeServer> recipeDAO,
                              @NotNull ListDAO<ShoppingListServer> shoppingListDAO,
                              @NotNull ListDAO<ShoppingListServer> sharedShoppingListDAO,
                              @NotNull LeaseValidator leaseValidator) {
 
-        if(leaseDAO == null) {
+        if (leaseDAO == null) {
             throw new ArgumentNullException("leaseDAO");
         }
 
-        if(recipeDAO == null) {
+        if (recipeDAO == null) {
             throw new ArgumentNullException("recipeDAO");
         }
 
-        if(shoppingListDAO == null) {
+        if (shoppingListDAO == null) {
             throw new ArgumentNullException("shoppingListDAO");
         }
 
-        if(sharedShoppingListDAO == null) {
+        if (sharedShoppingListDAO == null) {
             throw new ArgumentNullException("sharedShoppingListDAO");
         }
 
-        if(leaseValidator == null) {
+        if (leaseValidator == null) {
             throw new ArgumentNullException("leaseValidator");
         }
 
@@ -81,12 +80,17 @@ public class LeaseResourceImpl implements LeaseResource {
         // check if a lease can currently be granted
 
         //  Only a single lease per user can be granted
-         if(leaseDAO.getLeaseByUser(user) != null) {
-             throw new WebApplicationException(LEASE_DENIED_STATUS_CODE);
-         }
+
+
+        SynchronizationLease currentLease = leaseDAO.getLeaseByUser(user);
+        if (currentLease != null && leaseValidator.isLeaseStillValid(currentLease.getId())) {
+            throw new WebApplicationException(LEASE_DENIED_STATUS_CODE);
+        }
+
 
         // Only a single lease per client can be granted
-        if(leaseDAO.getLeaseByClientId(clientId) != null) {
+        currentLease = leaseDAO.getLeaseByClientId(clientId);
+        if (currentLease != null && leaseValidator.isLeaseStillValid(currentLease.getId())) {
             throw new WebApplicationException(LEASE_DENIED_STATUS_CODE);
         }
 
@@ -103,8 +107,8 @@ public class LeaseResourceImpl implements LeaseResource {
             leaseIds.addAll(sharedShoppingListDAO.getListLeases(user));
 
             // if any of the lease is still valid, we cannot grant the lease
-            for(int leaseId : leaseIds) {
-                if(leaseValidator.isLeaseStillValid(leaseId)) {
+            for (int leaseId : leaseIds) {
+                if (leaseValidator.isLeaseStillValid(leaseId)) {
                     throw new WebApplicationException(LEASE_DENIED_STATUS_CODE);
                 }
             }
@@ -146,7 +150,7 @@ public class LeaseResourceImpl implements LeaseResource {
         synchronized (leaseCreationLock) {
 
             //return error if the lease is no longer valid
-            if(!leaseValidator.isLeaseStillValid(leaseId)) {
+            if (!leaseValidator.isLeaseStillValid(leaseId)) {
                 throw new WebApplicationException(LEASE_DENIED_STATUS_CODE);
             }
 
@@ -191,15 +195,15 @@ public class LeaseResourceImpl implements LeaseResource {
     }
 
 
-
     /**
      * Throws a WebApplicationException with status "Bad Request" if the specified value is not an valid client id
+     *
      * @param value The value to check for validity
      */
     private void ensureClientIdIsValid(String value) {
 
         // currently the only condition for validity: String must not be empty
-        if(StringHelper.isNullOrWhiteSpace(value)) {
+        if (StringHelper.isNullOrWhiteSpace(value)) {
             throw new WebApplicationException(Response.Status.BAD_REQUEST);
         }
     }
@@ -207,8 +211,8 @@ public class LeaseResourceImpl implements LeaseResource {
     /**
      * Sets the leaseId for all of the Lists provied by the specified DAO and User to the specified value
      */
-    private <T extends DomainListObjectServer>void setLeaseIds(ListDAO<T> listDAO, User user, SynchronizationLease lease) {
-        for(T list : listDAO.getLists(user)) {
+    private <T extends DomainListObjectServer> void setLeaseIds(ListDAO<T> listDAO, User user, SynchronizationLease lease) {
+        for (T list : listDAO.getLists(user)) {
             list.setLeaseId(lease.getId());
             try {
                 listDAO.updateList(user, list);

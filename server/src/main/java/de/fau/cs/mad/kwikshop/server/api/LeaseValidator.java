@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
+import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.SynchronizationLease;
 import de.fau.cs.mad.kwikshop.server.dao.SynchronizationLeaseDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.LeaseNotFoundException;
@@ -9,6 +10,18 @@ import java.util.Date;
 public class LeaseValidator {
 
     SynchronizationLeaseDAO leaseDAO;
+
+
+
+    public LeaseValidator(SynchronizationLeaseDAO leaseDAO) {
+        if(leaseDAO == null) {
+            throw new ArgumentNullException("leaseDAO");
+        }
+
+        this.leaseDAO = leaseDAO;
+    }
+
+
 
     public boolean isLeaseStillValid(int leaseId) {
 
@@ -33,7 +46,7 @@ public class LeaseValidator {
         long expirationTime = lease.getExpirationTime().getTime();
         long now = new Date().getTime();
 
-        boolean valid  = expirationTime < now;
+        boolean valid  = now < expirationTime;
 
         // if lease is invalid, delete it from the database
         if(!valid) {

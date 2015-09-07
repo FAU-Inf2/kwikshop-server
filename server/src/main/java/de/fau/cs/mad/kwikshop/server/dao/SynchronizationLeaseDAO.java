@@ -58,7 +58,7 @@ public class SynchronizationLeaseDAO extends AbstractDAO<SynchronizationLease> {
     public SynchronizationLease getLease(int leaseId, User user) throws LeaseNotFoundException{
 
         SynchronizationLease lease = queryLease(
-                namedQuery(NamedQueryConstants.SYNCHRONIZATIONLEASE_GET_BY_ID)
+                namedQuery(NamedQueryConstants.SYNCHRONIZATIONLEASE_GET_BY_ID_AND_OWNER)
                         .setParameter(NamedQueryConstants.USER_ID, user.getId())
                         .setParameter(NamedQueryConstants.SYNCHRONIZATIONLEASE_ID, leaseId));
 
