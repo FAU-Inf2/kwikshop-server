@@ -392,11 +392,11 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), itemOrder.getBoughtItemList());
     }
 
-    @GET
+    @POST
     @UnitOfWork
     @Path("{listId}/sort")
-    @Produces(MediaType.APPLICATION_JSON)
-    public ShoppingListServer sort(@Auth User user, @PathParam("listId") int listId,
+    @Consumes(MediaType.APPLICATION_JSON)
+    public void sort(@Auth User user, @PathParam("listId") int listId,
                                    @ApiParam(value = "SortingRequest", required = true) SortingRequest sortingRequest) {
 
         ShoppingListServer shoppingList;
@@ -423,7 +423,6 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             }
         }
 
-        return result;
     }
 
 }
