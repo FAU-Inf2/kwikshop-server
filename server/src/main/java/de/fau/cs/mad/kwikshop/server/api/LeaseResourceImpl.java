@@ -4,7 +4,7 @@ import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.interfaces.DomainListObjectServer;
 import de.fau.cs.mad.kwikshop.common.rest.Constants;
 import de.fau.cs.mad.kwikshop.common.rest.LeaseResource;
-import de.fau.cs.mad.kwikshop.common.util.StringHelper;
+import de.fau.cs.mad.kwikshop.server.api.annotations.RequiresClientId;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SynchronizationLeaseDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.LeaseNotFoundException;
@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+@RequiresClientId
 public class LeaseResourceImpl implements LeaseResource {
 
     private static final Object leaseCreationLock = new Object();
@@ -74,7 +75,6 @@ public class LeaseResourceImpl implements LeaseResource {
     public SynchronizationLease getSynchronizationLease(@Auth User user,
                                                         @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
 
-        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // check if a lease can currently be granted
 
@@ -131,8 +131,6 @@ public class LeaseResourceImpl implements LeaseResource {
     public SynchronizationLease extendSynchronizationLease(@Auth User user,
                                                            @PathParam("leaseId") int leaseId,
                                                            @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
-        // make sure the client provided a valid id
-        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // try to find the specified lease in the database
         SynchronizationLease lease;
@@ -169,8 +167,6 @@ public class LeaseResourceImpl implements LeaseResource {
                                            @PathParam("leaseId") int leaseId,
                                            @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
 
-        // make sure the client provided a valid id
-        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // try to find the specified lease in the database
         SynchronizationLease lease;

@@ -6,6 +6,7 @@ import de.fau.cs.mad.kwikshop.common.rest.Constants;
 import de.fau.cs.mad.kwikshop.common.rest.LeaseResource;
 import de.fau.cs.mad.kwikshop.server.dao.SynchronizationLeaseDAO;
 
+import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
@@ -14,6 +15,7 @@ import java.io.IOException;
 
 
 @Provider
+@Priority(200)
 public class RequiresLeaseFilter implements ContainerRequestFilter {
 
 
@@ -38,9 +40,8 @@ public class RequiresLeaseFilter implements ContainerRequestFilter {
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
-        String clientId = requestContext.getHeaderString(Constants.KWIKSHOP_CLIENT_ID);
 
-        LeaseHelpers.ensureClientIdIsValid(clientId);
+        String clientId = requestContext.getHeaderString(Constants.KWIKSHOP_CLIENT_ID);
 
         SynchronizationLease lease = leaseDAO.getLeaseByClientId(clientId);
         if(!leaseValidator.isLeaseStillValid(lease)) {
