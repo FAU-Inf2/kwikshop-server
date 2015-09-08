@@ -15,7 +15,7 @@ public class RequiresLeaseFeature implements DynamicFeature {
         if (hasRequiresLeaseAnnotation(resourceInfo.getResourceClass())  ||
             hasRequiresLeaseAnnotation(resourceInfo.getResourceMethod())) {
 
-            context.register(RequiresLeaseFeature.class);
+            context.register(RequiresLeaseFilter.class);
         }
 
     }
