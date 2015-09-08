@@ -57,4 +57,12 @@ public class LeaseValidator {
         return valid;
     }
 
+    public boolean isLeaseStillValid(SynchronizationLease lease) {
+        if(lease == null) {
+            return false;
+        } else {
+            return  isLeaseStillValid(lease.getId());
+        }
+    }
+
 }

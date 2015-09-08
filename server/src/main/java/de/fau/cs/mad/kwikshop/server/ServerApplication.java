@@ -116,6 +116,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
         // lease resource
         environment.jersey().register(new LeaseResourceImpl(leaseDAO, recipeDAO, shoppingListDAO, sharedShoppingListDAO, new LeaseValidator(leaseDAO)));
 
+        // register feature that ensures only requests from clients with leases are process for resources annotated with @RequiresLease
+        environment.jersey().register(RequiresLeaseFeature.class);
 
         //set up swagger
         configureSwagger(environment);

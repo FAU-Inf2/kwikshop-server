@@ -25,7 +25,6 @@ public class LeaseResourceImpl implements LeaseResource {
 
     private static final Object leaseCreationLock = new Object();
 
-    private static final Response.Status LEASE_DENIED_STATUS_CODE = Response.Status.FORBIDDEN;
     private static final long LEASE_LENGTH = TimeUnit.MILLISECONDS.convert(2, TimeUnit.MINUTES);
 
 
@@ -75,7 +74,7 @@ public class LeaseResourceImpl implements LeaseResource {
     public SynchronizationLease getSynchronizationLease(@Auth User user,
                                                         @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
 
-        ensureClientIdIsValid(clientId);
+        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // check if a lease can currently be granted
 
@@ -133,7 +132,7 @@ public class LeaseResourceImpl implements LeaseResource {
                                                            @PathParam("leaseId") int leaseId,
                                                            @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
         // make sure the client provided a valid id
-        ensureClientIdIsValid(clientId);
+        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // try to find the specified lease in the database
         SynchronizationLease lease;
@@ -171,7 +170,7 @@ public class LeaseResourceImpl implements LeaseResource {
                                            @HeaderParam(Constants.KWIKSHOP_CLIENT_ID) String clientId) {
 
         // make sure the client provided a valid id
-        ensureClientIdIsValid(clientId);
+        LeaseHelpers.ensureClientIdIsValid(clientId);
 
         // try to find the specified lease in the database
         SynchronizationLease lease;
@@ -195,21 +194,10 @@ public class LeaseResourceImpl implements LeaseResource {
     }
 
 
-    /**
-     * Throws a WebApplicationException with status "Bad Request" if the specified value is not an valid client id
-     *
-     * @param value The value to check for validity
-     */
-    private void ensureClientIdIsValid(String value) {
 
-        // currently the only condition for validity: String must not be empty
-        if (StringHelper.isNullOrWhiteSpace(value)) {
-            throw new WebApplicationException(Response.Status.BAD_REQUEST);
-        }
-    }
 
     /**
-     * Sets the leaseId for all of the Lists provied by the specified DAO and User to the specified value
+     * Sets the leaseId for all of the Lists provided by the specified DAO and User to the specified value
      */
     private <T extends DomainListObjectServer> void setLeaseIds(ListDAO<T> listDAO, User user, SynchronizationLease lease) {
         for (T list : listDAO.getLists(user)) {
