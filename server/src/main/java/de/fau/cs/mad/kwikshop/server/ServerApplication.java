@@ -6,9 +6,7 @@ import com.wordnik.swagger.jaxrs.listing.ApiListingResource;
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.UserResource;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
-import de.fau.cs.mad.kwikshop.server.api.RecipeResourceImpl;
-import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
-import de.fau.cs.mad.kwikshop.server.api.UserResourceImpl;
+import de.fau.cs.mad.kwikshop.server.api.*;
 import de.fau.cs.mad.kwikshop.server.auth.UserAuthenticator;
 import de.fau.cs.mad.kwikshop.server.dao.*;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
@@ -44,7 +42,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
                     Supermarket.class,
                     SupermarketChain.class,
                     BoughtItem.class,
-                    Edge.class) {
+                    Edge.class,
+                    SynchronizationLease.class) {
                 @Override
                 public DataSourceFactory getDataSourceFactory(ServerConfiguration configuration) {
                     DataSourceFactory fac = configuration.getDataSourceFactory();
@@ -73,42 +72,52 @@ public class ServerApplication extends Application<ServerConfiguration> {
 
     @Override
     public void run(ServerConfiguration configuration, Environment environment) throws Exception {
+
+        //create DAOs
         final UserDAO dao = new UserDAO(hibernate.getSessionFactory());
         final UserFacade facade = new UserFacade(dao);
+        final UnitDAO unitDAO = new UnitDAO(hibernate.getSessionFactory());
+        final GroupDAO groupDAO = new GroupDAO(hibernate.getSessionFactory());
+        final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
+        final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(hibernate.getSessionFactory());
+        final EdgeDAO edgeDAO = new EdgeDAO(hibernate.getSessionFactory(), boughtItemDAO);
+        final SupermarketDAO supermarketDAO = new SupermarketDAO(hibernate.getSessionFactory());
+        final SupermarketChainDAO supermarketChainDAO = new SupermarketChainDAO(hibernate.getSessionFactory(), supermarketDAO);
+        final SynchronizationLeaseDAO leaseDAO = new SynchronizationLeaseDAO(hibernate.getSessionFactory());
+        final RecipeDAO recipeDAO = new RecipeDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO);
+        final ShoppingListDAO shoppingListDAO = new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO);
+        final SharedShoppingListDAO sharedShoppingListDAO = new SharedShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO);
 
+        //authentication setuup
         final UserResourceImpl userResource = new UserResourceImpl(facade);
         environment.jersey().register(userResource);
-
         final UserAuthenticator authenticator = new UserAuthenticator(facade);
-
         environment.jersey().register(AuthFactory.binder(
                 new BasicAuthFactory<>(authenticator,
                 "SUPER SECRET STUFF",
                 User.class)));
 
-
-        final UnitDAO unitDAO = new UnitDAO(hibernate.getSessionFactory());
-        final GroupDAO groupDAO = new GroupDAO(hibernate.getSessionFactory());
-        final LocationDAO locationDAO = new LocationDAO(hibernate.getSessionFactory());
-
-        final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(hibernate.getSessionFactory());
-        final EdgeDAO edgeDAO = new EdgeDAO(hibernate.getSessionFactory(), boughtItemDAO);
-        final SupermarketDAO supermarketDAO = new SupermarketDAO(hibernate.getSessionFactory());
-        final SupermarketChainDAO supermarketChainDAO = new SupermarketChainDAO(hibernate.getSessionFactory(), supermarketDAO);
-
+        // shopping list resource
         final ShoppingListResourceImpl shoppingListResource = new ShoppingListResourceImpl(
-                new ShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),
-                new SharedShoppingListDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO),
+                shoppingListDAO,
+                sharedShoppingListDAO,
                 edgeDAO, boughtItemDAO, supermarketDAO, supermarketChainDAO);
 
         environment.jersey().register(shoppingListResource);
 
-        final RecipeResourceImpl recipeResource = new RecipeResourceImpl(
-                new RecipeDAO(hibernate.getSessionFactory(), unitDAO, groupDAO, locationDAO));
+
+        // recipe resource
+        final RecipeResourceImpl recipeResource = new RecipeResourceImpl(recipeDAO);
         environment.jersey().register(recipeResource);
 
         final ApiListingResource api = new ApiListingResource();
         environment.jersey().register(api);
+
+        // lease resource
+        environment.jersey().register(new LeaseResourceImpl(leaseDAO, recipeDAO, shoppingListDAO, sharedShoppingListDAO, new LeaseValidator(leaseDAO)));
+
+
+        //set up swagger
         configureSwagger(environment);
     }
 
