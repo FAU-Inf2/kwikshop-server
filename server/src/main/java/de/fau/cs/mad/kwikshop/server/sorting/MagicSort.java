@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -36,16 +37,19 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         unknownItems = new ArrayList<BoughtItem>();
         sortedList = new ArrayList<BoughtItem>();
 
+        sortedList.add(boughtItemDAO.getStart());
+
         /* Split the ShoppingList's Items into known and unknown Items */
         for(Item item: shoppingList.getItems()) {
             BoughtItem boughtItem = boughtItemDAO.getByName(item.getName());
-            boughtItem.setItemId(item.getId());
 
             /* Item doesn't exist in the DB */
             if(boughtItem == null) {
                 unknownItems.add(boughtItem);
                 continue;
             }
+
+            boughtItem.setItemId(item.getServerId()); /* Set ItemId - used to map BoughtItems to ShoppingList Items */
 
             if(itemGraph.getVertices().contains(boughtItem)) {
                 knownItems.add(boughtItem);
@@ -63,6 +67,8 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
         /* Add unknown Items at the end */
         sortedList.addAll(unknownItems);
+
+        sortedList.remove(boughtItemDAO.getStart());
 
         for(BoughtItem item: sortedList) {
             System.out.println("====> " + item.getName());
@@ -109,7 +115,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         List<Edge> parentEdges = edgeDAO.getByTo(item, itemGraph.getSupermarket());
 
         for(Edge edge: parentEdges) {
-            double currentWeightDistanceRatio = (double)edge.getWeight()+1 / (double)edge.getDistance()+1;
+            double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
 
             System.out.println("MISSING ITEM EDGE: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
 
@@ -142,9 +148,13 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     private void applyOrderToShoppingList() {
         int i = 0;
         for(BoughtItem boughtItem: sortedList) {
-            shoppingList.getItem(boughtItem.getId()).setOrder(i);
+            Item item = shoppingList.getItem(boughtItem.getItemId());
+            item.setOrder(i);
+            item.setVersion(item.getVersion()+1);
             i++;
         }
+        shoppingList.setVersion(shoppingList.getVersion()+1);
+        shoppingList.setLastModifiedDate(new Date());
     }
 
 
