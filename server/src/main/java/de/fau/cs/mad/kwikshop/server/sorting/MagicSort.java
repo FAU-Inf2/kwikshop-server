@@ -64,7 +64,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         /* Step 3-5 */
         traverse(boughtItemDAO.getStart());
 
-        System.out.println("----------");
+        System.out.println("-----TRAVERSE-----");
         for(BoughtItem item: sortedList) {
             System.out.println("---> " + item.getName());
         }
@@ -79,9 +79,11 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
         sortedList.remove(boughtItemDAO.getStart());
 
+        System.out.println("=====FINAL=====");
         for(BoughtItem item: sortedList) {
             System.out.println("===> " + item.getName());
         }
+        System.out.println("==========");
 
         /* Apply the order of BoughtItems to the ShoppingList */
         applyOrderToShoppingList();
