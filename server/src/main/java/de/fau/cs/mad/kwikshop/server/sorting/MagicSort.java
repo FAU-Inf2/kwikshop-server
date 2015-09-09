@@ -41,6 +41,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
         /* Split the ShoppingList's Items into known and unknown Items */
         for(Item item: shoppingList.getItems()) {
+            if(item.getDeleted())
+                continue;
+
             BoughtItem boughtItem = boughtItemDAO.getByName(item.getName());
 
             /* Item doesn't exist in the DB */
