@@ -149,9 +149,14 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         if(insertAfter != null) {
 
             if(!sortedList.contains(insertAfter)) {
+                knownItems.remove(insertAfter);
                 knownItems.add(0, insertAfter);
                 addMissingItems(knownItems.get(0));
             }
+
+            /* If insertAfter is the START_ITEM, do not insert at position 0, but at position 1 */
+            if(insertAfter.equals(boughtItemDAO.getStart()))
+                insertAfter = sortedList.get(1);
 
             System.out.println("INSERT AFTER: " + insertAfter.getName());
             sortedList.add(sortedList.indexOf(insertAfter) + 1, item);
@@ -171,6 +176,8 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         for(BoughtItem boughtItem: sortedList) {
             Item item = shoppingList.getItem(boughtItem.getItemId());
             if(item == null)
+                continue;
+            if(item.getDeleted())
                 continue;
 
             System.out.println("Setting order for: "+item.getName());
