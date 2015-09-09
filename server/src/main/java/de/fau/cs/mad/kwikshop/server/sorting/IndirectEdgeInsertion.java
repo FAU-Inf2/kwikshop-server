@@ -31,7 +31,7 @@ public class IndirectEdgeInsertion implements Algorithm<List<BoughtItem>, ItemGr
         System.out.println("INDIRECT EDGE - " + startItem.getName() + " -> " + endItem.getName() + "(" + distance + ")");
 
         if(edge != null) {
-            edge.setWeight(edge.getWeight()+1);
+            //edge.setWeight(edge.getWeight()+1);
 
             if(edge.getDistance() > distance)
                 edge.addDistance(distance);
