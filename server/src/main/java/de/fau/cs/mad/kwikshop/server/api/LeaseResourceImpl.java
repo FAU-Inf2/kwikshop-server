@@ -4,7 +4,7 @@ import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.interfaces.DomainListObjectServer;
 import de.fau.cs.mad.kwikshop.common.rest.Constants;
 import de.fau.cs.mad.kwikshop.common.rest.LeaseResource;
-import de.fau.cs.mad.kwikshop.server.api.annotations.RequiresClientId;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresClientId;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SynchronizationLeaseDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.LeaseNotFoundException;
@@ -22,6 +22,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @RequiresClientId
+@Path("lease")
 public class LeaseResourceImpl implements LeaseResource {
 
     private static final Object leaseCreationLock = new Object();

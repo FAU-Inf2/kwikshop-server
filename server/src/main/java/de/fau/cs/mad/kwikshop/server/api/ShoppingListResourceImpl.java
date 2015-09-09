@@ -7,6 +7,8 @@ import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.User;
 import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresClientId;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresLease;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingCode;
 import de.fau.cs.mad.kwikshop.common.rest.responses.SharingResponse;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
@@ -34,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Path("shoppinglist")
+@RequiresClientId
 public class ShoppingListResourceImpl implements ShoppingListResource {
 
 
@@ -69,6 +72,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @UnitOfWork
+    @RequiresLease
     public List<ShoppingListServer> getList(@Auth User user) {
         List<ShoppingListServer> lists = new ArrayList<>();
         lists.addAll(shoppingListDAO.getLists(user));
@@ -82,6 +86,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{listId}")
     @UnitOfWork
+    @RequiresLease
     public ShoppingListServer getList(@Auth User user, @PathParam("listId") int listId) {
 
         try {
@@ -101,6 +106,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public ShoppingListServer createList(@Auth User user, ShoppingListServer shoppingList) {
 
         if(shoppingList.getId() != 0) {
@@ -116,6 +122,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public ShoppingListServer updateList(@Auth User user,
                                          @PathParam("listId") int listId, ShoppingListServer shoppingList) {
 
@@ -139,6 +146,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @DELETE
     @UnitOfWork
     @Path("{listId}")
+    @RequiresLease
     public void deleteList(@Auth User user, @PathParam("listId") int listId) {
         boolean listFound = shoppingListDAO.deleteList(user, listId);
         if(!listFound) {
@@ -153,6 +161,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Path("/deleted")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public List<DeletionInfo> getDeletedLists(@Auth User user) {
 
         List<DeletionInfo> result = new ArrayList<>();
@@ -173,6 +182,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Path("{listId}/{itemId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public Item getListItem(@Auth User user,
                             @PathParam("listId") int listId,
                             @PathParam("itemId") int itemId) {
@@ -242,6 +252,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Path("/sharedLists")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public List<ShoppingListServer> getSharedLists(@Auth User user) {
         return sharedShoppingListDAO.getLists(user);
     }
@@ -252,6 +263,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}/newItem")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public Item createItem(@Auth User user,
                            @PathParam("listId") int listId,
                            @ApiParam(value = "Item to create", required = true) Item newItem) {
@@ -280,6 +292,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}/{itemId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public Item updateItem(@Auth User user,
                            @PathParam("listId") @ApiParam(value = "id of the list the item belongs to", required = true) int listId,
                            @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId,
@@ -307,6 +320,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}/{itemId}")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public void deleteListItem(@Auth User user,
                                @PathParam("listId") @ApiParam(value = "id of the list the item belongs to", required = true) int listId,
                                @PathParam("itemId") @ApiParam(value = "id of the Item to update", required = true) int itemId) {
@@ -328,6 +342,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}/items")
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public List<Item> getListItems(@Auth User user, @PathParam("listId") int listId) {
 
         try {
@@ -347,6 +362,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @UnitOfWork
     @Path("{listId}/items/deleted")
     @Produces(MediaType.APPLICATION_JSON)
+    @RequiresLease
     public List<DeletionInfo> getDeletedListItems(@Auth User user, @PathParam("listId") int listId) {
 
         List<Item> deletedItems;
@@ -397,7 +413,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     @Path("{listId}/sort")
     @Consumes(MediaType.APPLICATION_JSON)
     public void sort(@Auth User user, @PathParam("listId") int listId,
-                                   @ApiParam(value = "SortingRequest", required = true) SortingRequest sortingRequest) {
+                     @ApiParam(value = "SortingRequest", required = true) SortingRequest sortingRequest) {
 
         ShoppingListServer shoppingList;
         try {

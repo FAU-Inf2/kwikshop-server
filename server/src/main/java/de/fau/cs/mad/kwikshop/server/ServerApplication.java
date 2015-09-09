@@ -117,7 +117,8 @@ public class ServerApplication extends Application<ServerConfiguration> {
         environment.jersey().register(new LeaseResourceImpl(leaseDAO, recipeDAO, shoppingListDAO, sharedShoppingListDAO, new LeaseValidator(leaseDAO)));
 
         // register feature that enables the @RequiresLease annotation
-        environment.jersey().register(RequiresLeaseFeature.class);
+        final RequiresLeaseFilter requiresLeaseFilter = new RequiresLeaseFilter(hibernate.getSessionFactory(), leaseDAO, new LeaseValidator(leaseDAO));
+        environment.jersey().register(new RequiresLeaseFeature(requiresLeaseFilter));
 
         // register feature that enables the @RequiresClientId annotation
         environment.jersey().register(RequiresClientIdFeature.class);
