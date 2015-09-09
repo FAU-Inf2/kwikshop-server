@@ -101,13 +101,15 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         BoughtItem nextItem = null;
 
         for(Edge edge: currentEdges) {
-            if(edge.getDistance() > 0)
-                continue;
+            //if(edge.getDistance() > 0)
+            //    continue;
 
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
 
-            if( (currentWeightDistanceRatio > maxWeightDistanceRatio) &&
-                    (knownItems.contains(edge.getTo())) ) {
+            System.out.println("Traverse: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
+
+            if( (currentWeightDistanceRatio > maxWeightDistanceRatio) ) /*&&
+                    (knownItems.contains(edge.getTo())) ) */{
                 maxWeightDistanceRatio = currentWeightDistanceRatio;
                 nextItem = edge.getTo();
             }
