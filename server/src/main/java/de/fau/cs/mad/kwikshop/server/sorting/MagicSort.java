@@ -48,6 +48,8 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
             /* Item doesn't exist in the DB */
             if(boughtItem == null) {
+                boughtItem = new BoughtItem(item.getName());
+                boughtItemDAO.createBoughtItem(boughtItem);
                 unknownItems.add(boughtItem);
                 continue;
             }
