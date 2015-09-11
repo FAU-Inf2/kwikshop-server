@@ -3,6 +3,8 @@ package de.fau.cs.mad.kwikshop.server.api;
 import com.wordnik.swagger.annotations.ApiParam;
 import de.fau.cs.mad.kwikshop.common.*;
 import de.fau.cs.mad.kwikshop.common.rest.RecipeResource;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresClientId;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresLease;
 import de.fau.cs.mad.kwikshop.server.dao.ListDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
@@ -17,6 +19,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Path("recipe")
+@RequiresClientId
+@RequiresLease
 public class RecipeResourceImpl implements RecipeResource {
 
     private final ListDAO<RecipeServer> recipeDAO;

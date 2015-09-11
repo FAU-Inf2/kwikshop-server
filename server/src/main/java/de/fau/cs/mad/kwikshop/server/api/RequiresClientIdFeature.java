@@ -1,6 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.api;
 
-import de.fau.cs.mad.kwikshop.server.api.annotations.RequiresClientId;
+import de.fau.cs.mad.kwikshop.common.rest.annotations.RequiresClientId;
 
 
 import javax.ws.rs.container.ResourceInfo;
