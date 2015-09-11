@@ -35,6 +35,8 @@ public class ItemGraph {
         this.supermarketDAO = supermarketDAO;
         this.supermarketChainDAO = supermarketChainDAO;
 
+        supermarketChainDAO.setUp();
+
     }
 
     public BoughtItemDAO getBoughtItemDAO() {
@@ -109,7 +111,7 @@ public class ItemGraph {
                 vertices.add(edge.getTo());
         }
 
-        /* Debug output
+        /* Debug output */
         System.out.println(String.format("ItemGraph refreshed, containing %s Edges and %s vertices.", edgeList.size(), vertices.size()));
         System.out.println("Vertices:");
         for(BoughtItem boughtItem : vertices) {
@@ -118,7 +120,7 @@ public class ItemGraph {
         System.out.println("Edges:");
         for(Edge edge: edgeList) {
             System.out.println(String.format("%s -> %s (%s)", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(edge.getWeight())));
-        }*/
+        }
 
     }
 
