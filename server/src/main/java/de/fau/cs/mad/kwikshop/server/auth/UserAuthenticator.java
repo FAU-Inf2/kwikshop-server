@@ -21,7 +21,7 @@ public class UserAuthenticator implements Authenticator<BasicCredentials, User> 
     @Override
     public Optional<User> authenticate(BasicCredentials credentials) throws AuthenticationException {
 
-        if(credentials.getUsername().equals("DEBUG") && credentials.getPassword().equals("DEBUG")) {
+        /*if(credentials.getUsername().equals("DEBUG") && credentials.getPassword().equals("DEBUG")) {
 
             List<User> debugUsers = facade.searchBySessionToken("debugToken");
             if(debugUsers.size()  == 0) {
@@ -32,7 +32,7 @@ public class UserAuthenticator implements Authenticator<BasicCredentials, User> 
             } else {
                 return Optional.of(debugUsers.get(0));
             }
-        }
+        }*/
 
         User authUser = facade.getUserById(credentials.getUsername());
         if(authUser != null) {
