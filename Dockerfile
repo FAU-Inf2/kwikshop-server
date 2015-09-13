@@ -7,6 +7,6 @@ RUN apt-get install -y --no-install-recommends gradle openjdk-7-jdk git unzip ss
 
 ADD . /kwikshop-server
 
-CMD cd /kwikshop-server ; git pull ; ./gradlew run
+CMD cd /kwikshop-server ; git fetch ; git checkout release ; git pull ; ./gradlew run
 
 EXPOSE 443

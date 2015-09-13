@@ -5,13 +5,24 @@ buildscript {
 
 import org.ajoberstar.grgit.*
 
+def grgitserver = Grgit.open('.')
+def serverbranch = grgitserver.branch.getCurrent().name
+println 'Current branch: ' + serverbranch
+
 File dir = new File('../kwikshop-common')
 if (!dir.exists()) {
     println 'Cloning kwikshop-common repository...'
     def grgit = Grgit.clone(dir: dir, uri: 'https://github.com/FAU-Inf2/kwikshop-common')
 } else {
     println 'Pulling changes from kwikshop-common repository...'
+
     def grgit = Grgit.open(dir)
+
+    /* If the server is using the release branch, checkout the release branch of the common repo */
+    if(serverbranch == 'release') {
+      grgit.checkout(branch: 'release')
+    }
+
     grgit.pull()
 }
 
