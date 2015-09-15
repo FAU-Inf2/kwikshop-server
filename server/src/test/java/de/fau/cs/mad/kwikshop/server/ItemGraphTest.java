@@ -8,16 +8,22 @@ import org.hibernate.SessionFactory;
 import org.junit.*;
 
 import java.lang.reflect.*;
+import java.util.List;
 
 import javax.validation.Validator;
 
 import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
+import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
 import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
 import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
+import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
+import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
+import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
+import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
 import io.dropwizard.db.DataSourceFactory;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.SessionFactoryFactory;
@@ -29,66 +35,85 @@ public class ItemGraphTest {
 
     private ItemGraph itemGraph;
 
-    /*@Before
-    public void setup() throws Exception {
-        ServerApplication serverApplication = new ServerApplication();
-        Field hibernateField = ServerApplication.class.getDeclaredField("hibernate");
-        hibernateField.setAccessible(true);
-        HibernateBundle<ServerConfiguration> hibernate = (HibernateBundle<ServerConfiguration>) hibernateField.get(serverApplication);
-
-        ServerConfiguration serverConfiguration = new ServerConfiguration();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Validator validator = null;
-        MetricRegistry metricRegistry = new MetricRegistry();
-        ClassLoader classLoader = new ClassLoader() {
-            @Override
-            public Class<?> loadClass(String name) throws ClassNotFoundException {
-                return super.loadClass(name);
-            }
-        };
-        Environment environment = new Environment("Test", objectMapper, validator, metricRegistry, classLoader);
-
-        Field sessionFactoryFactoryField = HibernateBundle.class.getDeclaredField("sessionFactoryFactory");
-        sessionFactoryFactoryField.setAccessible(true);
-        final SessionFactoryFactory sessionFactoryFactory = (SessionFactoryFactory) sessionFactoryFactoryField.get(hibernate);
-
-        Field entitiesField = HibernateBundle.class.getDeclaredField("entities");
-        entitiesField.setAccessible(true);
-        final ImmutableList<Class<?>> entities = (ImmutableList<Class<?>>) entitiesField.get(hibernate);
-
-        String defaultName = "hibernate";
-
-        final DataSourceFactory dbConfig = hibernate.getDataSourceFactory(serverConfiguration);
-        SessionFactory sessionFactory = sessionFactoryFactory.build(hibernate, environment, dbConfig, entities, defaultName);
-
-
-        //String[] args = {};
-        //serverApplication.run("server");
-        //serverApplication.run();
-
-
-        final BoughtItemDAO boughtItemDAO = new BoughtItemDAO(sessionFactory);
-        final EdgeDAO edgeDAO = new EdgeDAO(hibernate.getSessionFactory(), boughtItemDAO);
-        final SupermarketDAO supermarketDAO = new SupermarketDAO(hibernate.getSessionFactory());
-        final SupermarketChainDAO supermarketChainDAO = new SupermarketChainDAO(hibernate.getSessionFactory(), supermarketDAO);
-
-        itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
-    }*/
+    private ItemGraph createNewItemGraph() {
+        return new ItemGraph(new DAODummyHelper());
+    }
 
     @Test
     public void dummyTest() {
         assertTrue(true);
     }
 
-    @Ignore
-    @Test
-    public void failureTest() {
-        assertTrue("It is all right that this test fails", false);
-    }
+    private class DAODummyHelper implements DAOHelper {
 
-    @Ignore
-    @Test(expected = IllegalArgumentException.class)
-    public void exceptionTest() {
-        throw new IllegalArgumentException();
+        @Override
+        public Supermarket getSupermarketByPlaceID(String placeId) {
+            return null;
+        }
+
+        @Override
+        public List<SupermarketChain> getAllSupermarketChains() {
+            return null;
+        }
+
+        @Override
+        public void createSupermarket(Supermarket supermarket) {
+
+        }
+
+        @Override
+        public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
+            return null;
+        }
+
+        @Override
+        public Edge getEdgeByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
+            return null;
+        }
+
+        @Override
+        public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
+            return null;
+        }
+
+        @Override
+        public Edge createEdge(Edge edge) {
+            return null;
+        }
+
+        @Override
+        public void deleteEdge(Edge edge) {
+
+        }
+
+        @Override
+        public BoughtItem getStartBoughtItem() {
+            return null;
+        }
+
+        @Override
+        public BoughtItem getEndBoughtItem() {
+            return null;
+        }
+
+        @Override
+        public BoughtItem getBoughtItemByName(String name) {
+            return null;
+        }
+
+        @Override
+        public void createBoughtItem(BoughtItem boughtItem) {
+
+        }
+
+        @Override
+        public Supermarket getGlobalSupermarketBySupermarketChain(SupermarketChain supermarketChain) {
+            return null;
+        }
+
+        @Override
+        public Supermarket getGlobalSupermarket(SupermarketChain supermarketChain) {
+            return null;
+        }
     }
 }
