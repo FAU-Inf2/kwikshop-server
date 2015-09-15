@@ -21,6 +21,8 @@ import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
+import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
+import de.fau.cs.mad.kwikshop.server.sorting.DAOHelperImpl;
 import de.fau.cs.mad.kwikshop.server.sorting.IndirectEdgeInsertion;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import de.fau.cs.mad.kwikshop.server.sorting.MagicSort;
@@ -401,7 +403,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             return;
 
         /* Add the itemOrder to the graph */
-        ItemGraph itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        ItemGraph itemGraph = new ItemGraph(daoHelper);
         itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
 
         /* Add indirect edges */
@@ -426,7 +429,8 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             }
         }
 
-        ItemGraph itemGraph = new ItemGraph(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        ItemGraph itemGraph = new ItemGraph(daoHelper);
         ShoppingListServer result = itemGraph.sort(new MagicSort(), shoppingList, sortingRequest);
 
         try {
