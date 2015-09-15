@@ -8,6 +8,8 @@ import org.hibernate.SessionFactory;
 import org.junit.*;
 
 import java.lang.reflect.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.validation.Validator;
@@ -46,28 +48,94 @@ public class ItemGraphTest {
 
     private class DAODummyHelper implements DAOHelper {
 
+        private final String ONE = "ONE";
+        private final String TWO = "TWO";
+        private final String THREE = "THREE";
+        private final String FOUR = "FOUR";
+        private final String CHAIN_ONE = "CHAIN_ONE";
+        private final String CHAIN_TWO = "CHAIN_TWO";
+
+        private final Supermarket defaultSupermarketOne;
+        private final Supermarket defaultSupermarketTwo;
+        private final Supermarket defaultSupermarketThree;
+        private final Supermarket defaultSupermarketFour;
+        private final SupermarketChain defaultSupermarketChainOne;
+        private final SupermarketChain defaultSupermarketChainTwo;
+
+        private final HashMap<String, List<Edge>> edges;
+        private HashMap<String, Supermarket> supermarkets;
+
+        public DAODummyHelper() {
+            defaultSupermarketChainOne = new SupermarketChain();
+            defaultSupermarketChainOne.setId(1);
+            defaultSupermarketChainOne.setName(CHAIN_ONE);
+
+            defaultSupermarketChainTwo = new SupermarketChain();
+            defaultSupermarketChainTwo.setId(2);
+            defaultSupermarketChainTwo.setName(CHAIN_TWO);
+
+            defaultSupermarketOne = new Supermarket();
+            defaultSupermarketOne.setId(1);
+            defaultSupermarketOne.setPlaceId(ONE);
+            defaultSupermarketOne.setSupermarketChain(defaultSupermarketChainOne);
+
+            defaultSupermarketTwo = new Supermarket();
+            defaultSupermarketOne.setId(2);
+            defaultSupermarketOne.setPlaceId(TWO);
+            defaultSupermarketTwo.setSupermarketChain(defaultSupermarketChainTwo);
+
+            defaultSupermarketThree = new Supermarket();
+            defaultSupermarketOne.setId(3);
+            defaultSupermarketOne.setPlaceId(THREE);
+            defaultSupermarketThree.setSupermarketChain(defaultSupermarketChainTwo);
+
+            defaultSupermarketFour = new Supermarket();
+            defaultSupermarketFour.setId(4);
+            defaultSupermarketFour.setPlaceId(FOUR);
+
+            supermarkets = new HashMap<>();
+            supermarkets.put(ONE, defaultSupermarketOne);
+            supermarkets.put(TWO, defaultSupermarketTwo);
+            supermarkets.put(THREE, defaultSupermarketThree);
+            supermarkets.put(FOUR, defaultSupermarketFour);
+
+            edges = new HashMap<>();
+        }
+
         @Override
         public Supermarket getSupermarketByPlaceID(String placeId) {
-            return null;
+            return supermarkets.get(placeId);
         }
 
         @Override
         public List<SupermarketChain> getAllSupermarketChains() {
-            return null;
+            List<SupermarketChain> supermarketChains = new ArrayList<>(2);
+            supermarketChains.add(0, defaultSupermarketChainOne);
+            supermarketChains.add(1, defaultSupermarketChainTwo);
+            return supermarketChains;
         }
 
         @Override
         public void createSupermarket(Supermarket supermarket) {
-
+            if (supermarkets.containsKey(supermarket.getPlaceId())) {
+                throw new IllegalArgumentException("Supermarket already created");
+            }
+            supermarkets.put(supermarket.getPlaceId(), supermarket);
         }
 
         @Override
         public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
-            return null;
+            return edges.get(supermarket.getPlaceId());
         }
 
         @Override
         public Edge getEdgeByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
+            List<Edge> edges = getEdgesBySupermarket(supermarket);
+            for (Edge edge : edges) {
+                if (edge.getFrom().equals(from) && edge.getTo().equals(to)) {
+                    return edge;
+                }
+            }
             return null;
         }
 
