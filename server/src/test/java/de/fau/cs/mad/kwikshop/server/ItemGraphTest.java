@@ -10,7 +10,9 @@ import org.junit.*;
 import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Validator;
 
@@ -60,19 +62,32 @@ public class ItemGraphTest {
         private final Supermarket defaultSupermarketThree;
         private final Supermarket defaultSupermarketFour;
         private final SupermarketChain defaultSupermarketChainOne;
+        private final Supermarket defaultSupermarketChainOneGlobalSupermarket;
         private final SupermarketChain defaultSupermarketChainTwo;
+        private final Supermarket defaultSupermarketChainTwoGlobalSupermarket;
 
         private final HashMap<String, List<Edge>> edges;
-        private HashMap<String, Supermarket> supermarkets;
+        private final HashMap<String, Supermarket> supermarkets;
+
+        private final BoughtItem startBoughtItem;
+        private final BoughtItem endBoughtItem;
+        private final HashMap<String, BoughtItem> boughtItems;
+
 
         public DAODummyHelper() {
             defaultSupermarketChainOne = new SupermarketChain();
             defaultSupermarketChainOne.setId(1);
             defaultSupermarketChainOne.setName(CHAIN_ONE);
+            defaultSupermarketChainOneGlobalSupermarket = new Supermarket();
+            defaultSupermarketChainOneGlobalSupermarket.setId(-1);
+            defaultSupermarketChainOneGlobalSupermarket.setPlaceId(CHAIN_ONE);
 
             defaultSupermarketChainTwo = new SupermarketChain();
             defaultSupermarketChainTwo.setId(2);
             defaultSupermarketChainTwo.setName(CHAIN_TWO);
+            defaultSupermarketChainTwoGlobalSupermarket = new Supermarket();
+            defaultSupermarketChainTwoGlobalSupermarket.setId(-2);
+            defaultSupermarketChainTwoGlobalSupermarket.setPlaceId(CHAIN_TWO);
 
             defaultSupermarketOne = new Supermarket();
             defaultSupermarketOne.setId(1);
@@ -100,6 +115,12 @@ public class ItemGraphTest {
             supermarkets.put(FOUR, defaultSupermarketFour);
 
             edges = new HashMap<>();
+
+            startBoughtItem = new BoughtItem(START_ITEM);
+            endBoughtItem = new BoughtItem(END_ITEM);
+            boughtItems = new HashMap<>();
+            boughtItems.put(START_ITEM, startBoughtItem);
+            boughtItems.put(END_ITEM, endBoughtItem);
         }
 
         @Override
@@ -154,44 +175,61 @@ public class ItemGraphTest {
 
         @Override
         public Edge createEdge(Edge edge) {
-            List<Edge> edges = this.edges.get(edge.getSupermarket().getPlaceId());
+            String supermarketPlaceId = edge.getSupermarket().getPlaceId();
+            List<Edge> edges = this.edges.get(supermarketPlaceId);
+            if (edges == null) {
+                // the specified supermarket doesn't have edges yet
+                edges = new ArrayList<>();
+                this.edges.put(supermarketPlaceId, edges);
+            }
             edges.add(edge);
             return edge;
         }
 
         @Override
         public void deleteEdge(Edge edge) {
-
+            List<Edge> edges = this.edges.get(edge.getSupermarket().getPlaceId());
+            if (edges != null) {
+                edges.remove(edge);
+            }
         }
 
         @Override
         public BoughtItem getStartBoughtItem() {
-            return null;
+            return startBoughtItem;
         }
 
         @Override
         public BoughtItem getEndBoughtItem() {
-            return null;
+            return endBoughtItem;
         }
 
         @Override
         public BoughtItem getBoughtItemByName(String name) {
-            return null;
+            return boughtItems.get(name);
         }
 
         @Override
         public void createBoughtItem(BoughtItem boughtItem) {
-
+            if (!boughtItems.containsValue(boughtItem)) {
+                boughtItems.put(boughtItem.getName(), boughtItem);
+            }
         }
 
         @Override
         public Supermarket getGlobalSupermarketBySupermarketChain(SupermarketChain supermarketChain) {
-            return null;
+            if (supermarketChain.getName().equals(CHAIN_ONE)) {
+                return defaultSupermarketChainOneGlobalSupermarket;
+            } else if (supermarketChain.getName().equals(CHAIN_TWO)) {
+                return defaultSupermarketChainTwoGlobalSupermarket;
+            } else {
+                return null;
+            }
         }
 
         @Override
         public Supermarket getGlobalSupermarket(SupermarketChain supermarketChain) {
-            return null;
+            return getGlobalSupermarketBySupermarketChain(supermarketChain);
         }
     }
 }
