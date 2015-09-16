@@ -1,4 +1,4 @@
-package de.fau.cs.mad.kwikshop.server;
+package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 import java.util.ArrayList;
@@ -14,8 +14,6 @@ import static org.junit.Assert.*;
 
 public class ItemGraphTest {
 
-    private ItemGraph itemGraph;
-
     private ItemGraph createNewItemGraph() {
         return new ItemGraph(new DAODummyHelper());
     }
@@ -23,6 +21,12 @@ public class ItemGraphTest {
     @Test
     public void dummyTest() {
         assertTrue(true);
+    }
+
+    @Test
+    public void newItemGraphShouldNotHaveAnyEdges() {
+        ItemGraph itemGraph = createNewItemGraph();
+        assertTrue("Newly created ItemGraph already had edges",itemGraph.getEdges().isEmpty());
     }
 
     private class DAODummyHelper implements DAOHelper {
