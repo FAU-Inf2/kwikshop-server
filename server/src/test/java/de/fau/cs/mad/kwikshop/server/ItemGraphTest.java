@@ -1,38 +1,15 @@
 package de.fau.cs.mad.kwikshop.server;
 
-import com.codahale.metrics.MetricRegistry;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableList;
-
-import org.hibernate.SessionFactory;
 import org.junit.*;
-
-import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-
-import javax.validation.Validator;
-
-import de.fau.cs.mad.kwikshop.common.rest.ShoppingListResource;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
-import de.fau.cs.mad.kwikshop.server.api.ShoppingListResourceImpl;
-import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
-import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
-import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
-import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
 import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
-import io.dropwizard.db.DataSourceFactory;
-import io.dropwizard.hibernate.HibernateBundle;
-import io.dropwizard.hibernate.SessionFactoryFactory;
-import io.dropwizard.setup.Environment;
-
 import static org.junit.Assert.*;
 
 public class ItemGraphTest {
