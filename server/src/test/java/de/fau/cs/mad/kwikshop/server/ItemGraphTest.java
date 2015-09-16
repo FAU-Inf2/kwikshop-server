@@ -125,7 +125,8 @@ public class ItemGraphTest {
 
         @Override
         public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
-            return edges.get(supermarket.getPlaceId());
+            List<Edge> edges = this.edges.get(supermarket.getPlaceId());
+            return new ArrayList<>(edges);
         }
 
         @Override
@@ -141,12 +142,21 @@ public class ItemGraphTest {
 
         @Override
         public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
-            return null;
+            List<Edge> allEdges = getEdgesBySupermarket(supermarket);
+            List<Edge> foundEdges = new ArrayList<>();
+            for (Edge edge : allEdges) {
+                if (edge.getTo().equals(boughtItem)) {
+                    foundEdges.add(edge);
+                }
+            }
+            return foundEdges;
         }
 
         @Override
         public Edge createEdge(Edge edge) {
-            return null;
+            List<Edge> edges = this.edges.get(edge.getSupermarket().getPlaceId());
+            edges.add(edge);
+            return edge;
         }
 
         @Override
