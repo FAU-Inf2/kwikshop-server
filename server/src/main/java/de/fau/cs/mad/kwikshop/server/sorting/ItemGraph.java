@@ -22,37 +22,14 @@ public class ItemGraph {
 
     private Supermarket supermarket;
 
-    private BoughtItemDAO boughtItemDAO;
-    private EdgeDAO edgeDAO;
-    private SupermarketDAO supermarketDAO;
-    private SupermarketChainDAO supermarketChainDAO;
+    private DAOHelper daoHelper;
 
-    public ItemGraph(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
-                     SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
-
-        this.boughtItemDAO = boughtItemDAO;
-        this.edgeDAO = edgeDAO;
-        this.supermarketDAO = supermarketDAO;
-        this.supermarketChainDAO = supermarketChainDAO;
-
-        supermarketChainDAO.setUp();
-
+    public ItemGraph(DAOHelper daoHelper) {
+        this.daoHelper = daoHelper;
     }
 
-    public BoughtItemDAO getBoughtItemDAO() {
-        return boughtItemDAO;
-    }
-
-    public EdgeDAO getEdgeDAO() {
-        return edgeDAO;
-    }
-
-    public SupermarketDAO getSupermarketDAO() {
-        return supermarketDAO;
-    }
-
-    public SupermarketChainDAO getSupermarketChainDAO() {
-        return supermarketChainDAO;
+    public DAOHelper getDaoHelper() {
+        return daoHelper;
     }
 
     public Set<BoughtItem> getVertices() {
@@ -67,21 +44,21 @@ public class ItemGraph {
 
         boolean isNewSupermarket = false;
 
-        this.supermarket = supermarketDAO.getByPlaceId(placeId);
+        this.supermarket = daoHelper.getSupermarketByPlaceID(placeId);
 
         /* Supermarket does not exist yet, create it and try to find a matching SupermarketChain */
         if(supermarket == null) {
             isNewSupermarket = true;
             supermarket = new Supermarket(placeId);
 
-            for(SupermarketChain supermarketChain : supermarketChainDAO.getAll()) {
+            for(SupermarketChain supermarketChain : daoHelper.getAllSupermarketChains()) {
                 /* If the supermarket's name contains the name of a chain, it (most likely) belongs to that chain */
                 if(supermarketName.toLowerCase().contains(supermarketChain.getName().toLowerCase())) {
                     supermarket.setSupermarketChain(supermarketChain);
                     break;
                 }
             }
-            supermarketDAO.createSupermarkt(supermarket);
+            daoHelper.createSupermarket(supermarket);
         }
 
         return isNewSupermarket;
@@ -95,7 +72,7 @@ public class ItemGraph {
     private void update() {
 
         /* Load Edges */
-        List<Edge> edgeList = edgeDAO.getBySupermarket(supermarket);
+        List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
         if(edgeList != null)
             edges = new HashSet<Edge>(edgeList);
         else
@@ -128,12 +105,12 @@ public class ItemGraph {
     public Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
 
         /* Supermarket must be included because different supermarkets have different edges */
-        Edge edge = edgeDAO.getByFromTo(i1, i2, supermarket);
+        Edge edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
 
         if(edge == null) {
 
             /* Check if there is an Edge in the opposite direction */
-            edge = edgeDAO.getByFromTo(i2, i1, supermarket);
+            edge = daoHelper.getEdgeByFromTo(i2, i1, supermarket);
 
             if(edge != null) {
                 /* Edit existing edge - decrease weight */
@@ -141,12 +118,12 @@ public class ItemGraph {
 
                 /* Create edge in the opposite direction */
                 if(edge.getWeight() < 0) {
-                    edgeDAO.deleteEdge(edge);
-                    edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+                    daoHelper.deleteEdge(edge);
+                    daoHelper.createEdge(new Edge(i1, i2, supermarket));
                 }
             } else {
                 /* Create new edge */
-                edgeDAO.createEdge(new Edge(i1, i2, supermarket));
+                daoHelper.createEdge(new Edge(i1, i2, supermarket));
             }
 
         } else {
@@ -164,20 +141,20 @@ public class ItemGraph {
         String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
 
         /* Add the very first start item and the very last end item */
-        BoughtItem first = new BoughtItem(boughtItemDAO.START_ITEM, lastPlaceId, lastSupermarketName);
-        BoughtItem last  = new BoughtItem(boughtItemDAO.END_ITEM, boughtItemList.get(boughtItemList.size()-1).getSupermarketPlaceId(), boughtItemList.get(boughtItemList.size()-1).getSupermarketName());
+        BoughtItem first = new BoughtItem(DAOHelper.START_ITEM, lastPlaceId, lastSupermarketName);
+        BoughtItem last  = new BoughtItem(DAOHelper.END_ITEM, boughtItemList.get(boughtItemList.size()-1).getSupermarketPlaceId(), boughtItemList.get(boughtItemList.size()-1).getSupermarketName());
         boughtItemList.add(0, first);
         boughtItemList.add(boughtItemList.size(), last);
 
         for(int i = 0; i < boughtItemList.size(); i++) {
             BoughtItem current = boughtItemList.get(i);
 
-            if(current == boughtItemDAO.getStart() || current == boughtItemDAO.getEnd())
+            if(current == daoHelper.getStartBoughtItem() || current == daoHelper.getEndBoughtItem())
                 continue;
 
             if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
-                BoughtItem startItem = new BoughtItem(boughtItemDAO.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
-                BoughtItem endItem   = new BoughtItem(boughtItemDAO.END_ITEM, lastPlaceId, lastSupermarketName);
+                BoughtItem startItem = new BoughtItem(DAOHelper.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
+                BoughtItem endItem   = new BoughtItem(DAOHelper.END_ITEM, lastPlaceId, lastSupermarketName);
                 boughtItemList.add(i, startItem);
                 boughtItemList.add(i, endItem);
 
@@ -201,15 +178,15 @@ public class ItemGraph {
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
-            if(boughtItemDAO.getByName(boughtItem.getName()) == null)
-                boughtItemDAO.createBoughtItem(boughtItem);
+            if(daoHelper.getBoughtItemByName(boughtItem.getName()) == null)
+                daoHelper.createBoughtItem(boughtItem);
         }
 
         /* Save all new edges */
         for(int i = 0; i < boughtItems.size()-1; i++) {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
-            BoughtItem i1 = boughtItemDAO.getByName(boughtItems.get(i).getName());
-            BoughtItem i2 = boughtItemDAO.getByName(boughtItems.get(i+1).getName());
+            BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
+            BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
 
             /* Continue if the Items are not from the same Supermarket. Here we have to use the parameter boughtItems because the placeId is not stored in the DB */
             if(!boughtItems.get(i).getSupermarketPlaceId().equals(boughtItems.get(i + 1).getSupermarketPlaceId())) {
@@ -223,7 +200,7 @@ public class ItemGraph {
 
             /* If this supermarkt belongs to a chain, apply the Edge to this chain's global graph */
             if(supermarket.getSupermarketChain() != null) {
-                Supermarket globalSupermarket = supermarketDAO.getGlobalBySupermarketChain(supermarket.getSupermarketChain());
+                Supermarket globalSupermarket = daoHelper.getGlobalSupermarketBySupermarketChain(supermarket.getSupermarketChain());
                 createOrUpdateEdge(i1, i2, globalSupermarket);
             }
         }
@@ -236,7 +213,7 @@ public class ItemGraph {
 
         /* setSupermarket() returns true if this supermarket is new - in this case, try to use the SupermarketChain's ItemGraph */
         if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
-            this.supermarket = supermarketChainDAO.getGlobalSupermarket(supermarket.getSupermarketChain());
+            this.supermarket = daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain());
 
             /* If the Supermarket is new and does not belong to a chain, we can't sort the ShoppingList - just return the ShoppingList in this case */
             if(supermarket == null)

@@ -14,8 +14,7 @@ import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServer> {
 
     private ItemGraph itemGraph;
-    private BoughtItemDAO boughtItemDAO;
-    private EdgeDAO edgeDAO;
+    private DAOHelper daoHelper;
 
     private ShoppingListServer shoppingList;
 
@@ -26,8 +25,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     @Override
     public void setUp(ItemGraph itemGraph) {
         this.itemGraph = itemGraph;
-        this.boughtItemDAO = itemGraph.getBoughtItemDAO();
-        this.edgeDAO = itemGraph.getEdgeDAO();
+        this.daoHelper = itemGraph.getDaoHelper();
     }
 
     @Override
@@ -37,19 +35,19 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         unknownItems = new ArrayList<BoughtItem>();
         sortedList = new ArrayList<BoughtItem>();
 
-        sortedList.add(boughtItemDAO.getStart());
+        sortedList.add(daoHelper.getStartBoughtItem());
 
         /* Split the ShoppingList's Items into known and unknown Items */
         for(Item item: shoppingList.getItems()) {
             if(item.getDeleted())
                 continue;
 
-            BoughtItem boughtItem = boughtItemDAO.getByName(item.getName());
+            BoughtItem boughtItem = daoHelper.getBoughtItemByName(item.getName());
 
             /* Item doesn't exist in the DB */
             if(boughtItem == null) {
                 boughtItem = new BoughtItem(item.getName());
-                boughtItemDAO.createBoughtItem(boughtItem);
+                daoHelper.createBoughtItem(boughtItem);
                 unknownItems.add(boughtItem);
                 continue;
             }
@@ -64,7 +62,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         }
 
         /* Step 3-5 */
-        traverse(boughtItemDAO.getStart());
+        traverse(daoHelper.getStartBoughtItem());
 
         System.out.println("-----TRAVERSE-----");
         for(BoughtItem item: sortedList) {
@@ -79,7 +77,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         /* Add unknown Items at the end */
         sortedList.addAll(unknownItems);
 
-        sortedList.remove(boughtItemDAO.getStart());
+        sortedList.remove(daoHelper.getStartBoughtItem());
 
         System.out.println("=====FINAL=====");
         for(BoughtItem item: sortedList) {
@@ -130,7 +128,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         double maxWeightDistanceRatio = 0;
 
         BoughtItem insertAfter = null;
-        List<Edge> parentEdges = edgeDAO.getByTo(item, itemGraph.getSupermarket());
+        List<Edge> parentEdges = daoHelper.getEdgesByTo(item, itemGraph.getSupermarket());
 
         for(Edge edge: parentEdges) {
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
@@ -155,7 +153,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
             }
 
             /* If insertAfter is the START_ITEM, do not insert at position 0, but at position 1 */
-            if(insertAfter.equals(boughtItemDAO.getStart()))
+            if(insertAfter.equals(daoHelper.getStartBoughtItem()))
                 insertAfter = sortedList.get(1);
 
             System.out.println("INSERT AFTER: " + insertAfter.getName());

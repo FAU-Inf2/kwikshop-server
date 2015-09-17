@@ -78,4 +78,7 @@ public class Edge {
         this.distance = this.distance + distance;
     }
 
+    public Supermarket getSupermarket() {
+        return supermarket;
+    }
 }

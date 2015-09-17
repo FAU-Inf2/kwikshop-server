@@ -11,22 +11,16 @@ import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 public class IndirectEdgeInsertion implements Algorithm<List<BoughtItem>, ItemGraph> {
 
     private ItemGraph itemGraph;
-    private EdgeDAO edgeDAO;
-    private BoughtItemDAO boughtItemDAO;
-    private SupermarketDAO supermarketDAO;
-    private SupermarketChainDAO supermarketChainDAO;
+    private DAOHelper daoHelper;
 
     @Override
     public void setUp(ItemGraph itemGraph) {
         this.itemGraph = itemGraph;
-        this.edgeDAO = itemGraph.getEdgeDAO();
-        this.boughtItemDAO = itemGraph.getBoughtItemDAO();
-        this.supermarketDAO = itemGraph.getSupermarketDAO();
-        this.supermarketChainDAO = itemGraph.getSupermarketChainDAO();
+        this.daoHelper = itemGraph.getDaoHelper();
     }
 
     private void createEdge(BoughtItem startItem, BoughtItem endItem, Supermarket supermarket, int distance) {
-        Edge edge = edgeDAO.getByFromTo(startItem, endItem, supermarket);
+        Edge edge = daoHelper.getEdgeByFromTo(startItem, endItem, supermarket);
 
         System.out.println("INDIRECT EDGE - " + startItem.getName() + " -> " + endItem.getName() + "(" + distance + ")");
 
@@ -36,7 +30,7 @@ public class IndirectEdgeInsertion implements Algorithm<List<BoughtItem>, ItemGr
         } else {
             edge = new Edge(startItem, endItem, supermarket);
             edge.addDistance(distance);
-            edgeDAO.createEdge(edge);
+            daoHelper.createEdge(edge);
         }
     }
 
@@ -50,20 +44,20 @@ public class IndirectEdgeInsertion implements Algorithm<List<BoughtItem>, ItemGr
                 if(distance < 1)
                     continue;
 
-                BoughtItem startItem = boughtItemDAO.getByName(boughtItemList.get(start).getName());
-                BoughtItem endItem   = boughtItemDAO.getByName(boughtItemList.get(end).getName());
+                BoughtItem startItem = daoHelper.getBoughtItemByName(boughtItemList.get(start).getName());
+                BoughtItem endItem   = daoHelper.getBoughtItemByName(boughtItemList.get(end).getName());
 
                 if(!boughtItemList.get(start).getSupermarketPlaceId().equals(boughtItemList.get(end).getSupermarketPlaceId())) {
                     break;
                 }
 
-                Supermarket supermarket = supermarketDAO.getByPlaceId(boughtItemList.get(start).getSupermarketPlaceId());
+                Supermarket supermarket = daoHelper.getSupermarketByPlaceID(boughtItemList.get(start).getSupermarketPlaceId());
 
                 createEdge(startItem, endItem, supermarket, distance);
 
                 /* Also add the indirect Edge to the global SupermarketChain's ItemGraph */
                 if(supermarket.getSupermarketChain() != null) {
-                    createEdge(startItem, endItem, supermarketChainDAO.getGlobalSupermarket(supermarket.getSupermarketChain()), distance);
+                    createEdge(startItem, endItem, daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain()), distance);
                 }
 
             }

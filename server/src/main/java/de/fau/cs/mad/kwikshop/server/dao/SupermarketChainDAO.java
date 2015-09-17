@@ -7,7 +7,6 @@ import org.hibernate.criterion.Restrictions;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class SupermarketChainDAO extends AbstractDAO<SupermarketChain> {
                 Supermarket globalSupermarket = new Supermarket();
                 globalSupermarket.setSupermarketChain(chain);
                 globalSupermarket.setPlaceId(name); /* Set the SupermarketChain's name as the Supermarket's PlaceId */
-                supermarketDAO.createSupermarkt(globalSupermarket);
+                supermarketDAO.createSupermarket(globalSupermarket);
 
                 System.out.println("Created SupermarketChain " + name);
             }
