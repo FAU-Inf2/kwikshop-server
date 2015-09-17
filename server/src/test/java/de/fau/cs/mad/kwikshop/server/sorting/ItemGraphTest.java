@@ -73,7 +73,7 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void createOrUpdateEdgeForEmptyGraphShouldCreateAEdge() {
+    public void createOrUpdateEdgeForEmptyGraphShouldReturnAEdge() {
         ItemGraph itemGraph = createNewItemGraph();
         BoughtItem i1 = new BoughtItem("i1", ONE, "");
         BoughtItem i2 = new BoughtItem("i2", ONE, "");
@@ -81,6 +81,16 @@ public class ItemGraphTest {
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
         assertNotNull("createOrUpdateEdge returns null", edge);
+    }
+
+    @Test
+    public void createdEdgeShouldBeContainedInResultOfGetEdges() {
+        ItemGraph itemGraph = createNewItemGraph();
+        BoughtItem i1 = new BoughtItem("i1", ONE, "");
+        BoughtItem i2 = new BoughtItem("i2", ONE, "");
+        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
+
+        Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
 
         Set<Edge> edges = itemGraph.getEdges();
         assertNotNull("getEdges returns null although an edge was just added", edges);
@@ -181,7 +191,7 @@ public class ItemGraphTest {
         public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
             List<Edge> edges = this.edges.get(supermarket.getPlaceId());
             if (edges == null) {
-                return new ArrayList();
+                return new ArrayList<Edge>();
             }
             return new ArrayList<>(edges);
         }
