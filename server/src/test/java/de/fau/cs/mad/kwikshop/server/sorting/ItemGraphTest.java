@@ -49,7 +49,7 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void newItemGraphShouldNotHaveASupermerket() {
+    public void newItemGraphShouldNotHaveASupermarket() {
         ItemGraph itemGraph = createNewItemGraph();
         assertNull("Newly created ItemGraph already has supermarket set", itemGraph.getSupermarket());
     }
