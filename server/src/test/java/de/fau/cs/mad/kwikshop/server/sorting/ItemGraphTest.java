@@ -72,6 +72,22 @@ public class ItemGraphTest {
         assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", ""));
     }
 
+    @Test
+    public void createOrUpdateEdgeForEmptyGraphShouldCreateAEdge() {
+        ItemGraph itemGraph = createNewItemGraph();
+        BoughtItem i1 = new BoughtItem("i1", ONE, "");
+        BoughtItem i2 = new BoughtItem("i2", ONE, "");
+        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
+
+        Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
+        assertNotNull("createOrUpdateEdge returns null", edge);
+
+        Set<Edge> edges = itemGraph.getEdges();
+        assertNotNull("getEdges returns null although an edge was just added", edges);
+        assertTrue("newly added edge is not contained in the item graph", edges.contains(edge));
+        assertEquals("getEdges returns more than just one edge, although no other edges were added", 1, edges.size());
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
@@ -164,6 +180,9 @@ public class ItemGraphTest {
         @Override
         public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
             List<Edge> edges = this.edges.get(supermarket.getPlaceId());
+            if (edges == null) {
+                return new ArrayList();
+            }
             return new ArrayList<>(edges);
         }
 
