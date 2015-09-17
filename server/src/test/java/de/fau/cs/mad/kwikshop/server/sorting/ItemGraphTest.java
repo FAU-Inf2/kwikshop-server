@@ -16,13 +16,15 @@ import static org.junit.Assert.*;
 
 public class ItemGraphTest {
 
+    private final String ONE = "ONE";
+    private final String TWO = "TWO";
+    private final String THREE = "THREE";
+    private final String FOUR = "FOUR";
+    private final String CHAIN_ONE = "CHAIN_ONE";
+    private final String CHAIN_TWO = "CHAIN_TWO";
+
     private ItemGraph createNewItemGraph() {
         return new ItemGraph(new DAODummyHelper());
-    }
-
-    @Test
-    public void dummyTest() {
-        assertTrue(true);
     }
 
     @Test
@@ -46,14 +48,16 @@ public class ItemGraphTest {
         }
     }
 
-    private class DAODummyHelper implements DAOHelper {
+    @Test
+    public void setAndGetSupermarketTest() {
+        ItemGraph itemGraph = createNewItemGraph();
+        DAOHelper daoHelper = itemGraph.getDaoHelper();
+        Supermarket supermarket = daoHelper.getSupermarketByPlaceID(ONE);
+        itemGraph.setSupermarket(supermarket.getPlaceId(), "");
+        assertEquals("The returned supermarket by getSupermarket should be the same as the supermarket that was set", supermarket.getPlaceId(), itemGraph.getSupermarket().getPlaceId());
+    }
 
-        private final String ONE = "ONE";
-        private final String TWO = "TWO";
-        private final String THREE = "THREE";
-        private final String FOUR = "FOUR";
-        private final String CHAIN_ONE = "CHAIN_ONE";
-        private final String CHAIN_TWO = "CHAIN_TWO";
+    private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
         private final Supermarket defaultSupermarketTwo;
@@ -93,13 +97,13 @@ public class ItemGraphTest {
             defaultSupermarketOne.setSupermarketChain(defaultSupermarketChainOne);
 
             defaultSupermarketTwo = new Supermarket();
-            defaultSupermarketOne.setId(2);
-            defaultSupermarketOne.setPlaceId(TWO);
+            defaultSupermarketTwo.setId(2);
+            defaultSupermarketTwo.setPlaceId(TWO);
             defaultSupermarketTwo.setSupermarketChain(defaultSupermarketChainTwo);
 
             defaultSupermarketThree = new Supermarket();
-            defaultSupermarketOne.setId(3);
-            defaultSupermarketOne.setPlaceId(THREE);
+            defaultSupermarketThree.setId(3);
+            defaultSupermarketThree.setPlaceId(THREE);
             defaultSupermarketThree.setSupermarketChain(defaultSupermarketChainTwo);
 
             defaultSupermarketFour = new Supermarket();
