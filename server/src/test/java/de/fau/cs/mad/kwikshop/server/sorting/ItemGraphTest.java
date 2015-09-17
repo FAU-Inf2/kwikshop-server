@@ -33,6 +33,19 @@ public class ItemGraphTest {
         assertTrue("Newly created ItemGraph already had edges",edges.isEmpty());
     }
 
+    @Test
+    public void newItemGraphShouldHaveNoVerticesOrStartAndEndVertices() {
+        ItemGraph itemGraph = createNewItemGraph();
+        Set<BoughtItem> vertices = itemGraph.getVertices();
+        assertNotNull("getVertices returned null instead of an empty set or a set containing only start and end vertices", vertices);
+        boolean isEmpty = vertices.isEmpty();
+        if (!isEmpty) {
+            assertEquals("getVertices should return either an empty set or a set containing only start and end vertices. But it is not empty and not containing 2 elements.", 2, vertices.size());
+            assertTrue("\"getVertices should return either an empty set or a set containing only start and end vertices. But it is not containing the start vertex", vertices.contains(itemGraph.getDaoHelper().getStartBoughtItem()));
+            assertTrue("\"getVertices should return either an empty set or a set containing only start and end vertices. But it is not containing the end vertex", vertices.contains(itemGraph.getDaoHelper().getEndBoughtItem()));
+        }
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final String ONE = "ONE";
