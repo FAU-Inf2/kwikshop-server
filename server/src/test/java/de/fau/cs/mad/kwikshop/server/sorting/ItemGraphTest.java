@@ -4,6 +4,8 @@ import org.junit.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
+
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
@@ -26,7 +28,9 @@ public class ItemGraphTest {
     @Test
     public void newItemGraphShouldNotHaveAnyEdges() {
         ItemGraph itemGraph = createNewItemGraph();
-        assertTrue("Newly created ItemGraph already had edges",itemGraph.getEdges().isEmpty());
+        Set<Edge> edges = itemGraph.getEdges();
+        assertNotNull("getEdges returned null instead of an empty set", edges);
+        assertTrue("Newly created ItemGraph already had edges",edges.isEmpty());
     }
 
     private class DAODummyHelper implements DAOHelper {
