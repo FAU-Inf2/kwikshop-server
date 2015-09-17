@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.ShoppingList;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
@@ -33,10 +34,14 @@ public class ItemGraph {
     }
 
     public Set<BoughtItem> getVertices() {
+        if(vertices == null)
+            vertices = new HashSet<BoughtItem>();
         return vertices;
     }
 
     public Set<Edge> getEdges() {
+        if(edges == null)
+            edges = new HashSet<Edge>();
         return edges;
     }
 
@@ -69,7 +74,12 @@ public class ItemGraph {
         return supermarket;
     }
 
-    private void update() {
+    public void update() {
+
+        /* Update() loads all Edges and Vertices of one specific supermarket -> supermarket may not be null */
+        if(supermarket == null) {
+            throw new ArgumentNullException("supermarket");
+        }
 
         /* Load Edges */
         List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
@@ -120,10 +130,12 @@ public class ItemGraph {
                 if(edge.getWeight() < 0) {
                     daoHelper.deleteEdge(edge);
                     daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                    edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
                 }
             } else {
                 /* Create new edge */
                 daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
             }
 
         } else {

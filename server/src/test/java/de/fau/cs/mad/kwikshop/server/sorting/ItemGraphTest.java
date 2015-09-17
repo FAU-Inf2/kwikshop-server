@@ -75,8 +75,8 @@ public class ItemGraphTest {
     @Test
     public void createOrUpdateEdgeForEmptyGraphShouldReturnAEdge() {
         ItemGraph itemGraph = createNewItemGraph();
-        BoughtItem i1 = new BoughtItem("i1", ONE, "");
-        BoughtItem i2 = new BoughtItem("i2", ONE, "");
+        BoughtItem i1 = new BoughtItem("i1", ONE, ONE);
+        BoughtItem i2 = new BoughtItem("i2", ONE, ONE);
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
@@ -86,11 +86,13 @@ public class ItemGraphTest {
     @Test
     public void createdEdgeShouldBeContainedInResultOfGetEdges() {
         ItemGraph itemGraph = createNewItemGraph();
-        BoughtItem i1 = new BoughtItem("i1", ONE, "");
-        BoughtItem i2 = new BoughtItem("i2", ONE, "");
+        BoughtItem i1 = new BoughtItem("i1", ONE, ONE);
+        BoughtItem i2 = new BoughtItem("i2", ONE, ONE);
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
+        itemGraph.setSupermarket(ONE, ONE);
+        itemGraph.update();
 
         Set<Edge> edges = itemGraph.getEdges();
         assertNotNull("getEdges returns null although an edge was just added", edges);
@@ -115,7 +117,7 @@ public class ItemGraphTest {
 
     private void getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(int n) {
         ItemGraph itemGraph = createNewItemGraph();
-        itemGraph.setSupermarket(ONE, "");
+        itemGraph.setSupermarket(ONE, ONE);
         List<BoughtItem> items = createBoughtItems(n, ONE);
         itemGraph.addBoughtItems(items);
 
@@ -224,6 +226,10 @@ public class ItemGraphTest {
 
         @Override
         public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
+            if(supermarket == null) {
+                return new ArrayList<Edge>();
+            }
+
             List<Edge> edges = this.edges.get(supermarket.getPlaceId());
             if (edges == null) {
                 return new ArrayList<Edge>();
