@@ -49,6 +49,12 @@ public class ItemGraphTest {
     }
 
     @Test
+    public void newItemGraphShouldNotHaveASupermerket() {
+        ItemGraph itemGraph = createNewItemGraph();
+        assertNull("Newly created ItemGraph already has supermarket set", itemGraph.getSupermarket());
+    }
+
+    @Test
     public void setAndGetSupermarketTest() {
         ItemGraph itemGraph = createNewItemGraph();
         DAOHelper daoHelper = itemGraph.getDaoHelper();
