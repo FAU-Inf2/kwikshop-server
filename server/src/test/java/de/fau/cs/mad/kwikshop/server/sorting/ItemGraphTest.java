@@ -98,6 +98,41 @@ public class ItemGraphTest {
         assertEquals("getEdges returns more than just one edge, although no other edges were added", 1, edges.size());
     }
 
+    @Test
+    public void getVerticesReturnsTheItemsThatWereAddedBeforeForOneItem() {
+        getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(1);
+    }
+
+    @Test
+    public void getVerticesReturnsTheItemsThatWereAddedBeforeForTwoItems() {
+        getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(2);
+    }
+
+    @Test
+    public void getVerticesReturnsTheItemsThatWereAddedBeforeForFiveItems() {
+        getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(5);
+    }
+
+    private void getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(int n) {
+        ItemGraph itemGraph = createNewItemGraph();
+        itemGraph.setSupermarket(ONE, "");
+        List<BoughtItem> items = createBoughtItems(n, ONE);
+        itemGraph.addBoughtItems(items);
+
+        Set<BoughtItem> vertices = itemGraph.getVertices();
+        assertNotNull("getVertices returns null although items were added", vertices);
+        assertEquals("getVertices does not have size " + n+2 + "although " + n + "item(s) were added (+start/end)", n+2, vertices.size());
+    }
+
+    private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
+        List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
+        for (int i = 0; i < numberOfItemsToCreate; i++) {
+            BoughtItem item = new BoughtItem("i" + i, supermarketPlaceId, "");
+            items.add(item);
+        }
+        return items;
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
