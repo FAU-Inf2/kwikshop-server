@@ -57,10 +57,19 @@ public class ItemGraphTest {
     @Test
     public void setAndGetSupermarketTest() {
         ItemGraph itemGraph = createNewItemGraph();
-        DAOHelper daoHelper = itemGraph.getDaoHelper();
-        Supermarket supermarket = daoHelper.getSupermarketByPlaceID(ONE);
+        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
         itemGraph.setSupermarket(supermarket.getPlaceId(), "");
         assertEquals("The returned supermarket by getSupermarket should be the same as the supermarket that was set", supermarket.getPlaceId(), itemGraph.getSupermarket().getPlaceId());
+    }
+
+    @Test
+    public void setSupermarketReturnsCorrectValue() {
+        ItemGraph itemGraph = createNewItemGraph();
+        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), ""));
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), ""));
+        assertTrue("setSupermarket returned false although it is a new supermarket", itemGraph.setSupermarket("blah", ""));
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", ""));
     }
 
     private class DAODummyHelper implements DAOHelper {
