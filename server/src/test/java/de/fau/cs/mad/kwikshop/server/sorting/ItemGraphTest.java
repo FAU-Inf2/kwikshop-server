@@ -153,6 +153,8 @@ public class ItemGraphTest {
         BoughtItem i1 = items.get(1);
         List<BoughtItem> i0sChildren = itemGraph.getChildren(i0);
         assertTrue("item i1 is not recognized as i0's child", i0sChildren.contains(i1));
+        List<BoughtItem> i1sChildren = itemGraph.getChildren(i1);
+        assertFalse("item i0 is recognized as child of i1 incorrectly", i1sChildren.contains(i0));
     }
 
     @Test
@@ -164,6 +166,33 @@ public class ItemGraphTest {
         BoughtItem i1 = items.get(1);
         List<BoughtItem> i1sParents = itemGraph.getParents(i1);
         assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
+        List<BoughtItem> i0sParents = itemGraph.getParents(i0);
+        assertFalse("item i1 is recognized as parent of i0 incorrectly", i0sParents.contains(i1));
+    }
+
+    @Test
+    public void getSiblingsWorksForTwoSimpleLists() {
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        BoughtItem i0, i1, i2;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        List<BoughtItem> firstPurchase, secondPurchase;
+        firstPurchase = new ArrayList<>(2);
+        secondPurchase = new ArrayList<>(2);
+
+        firstPurchase.add(i0);
+        firstPurchase.add(i1);
+
+        secondPurchase.add(i0);
+        secondPurchase.add(i2);
+
+        itemGraph.addBoughtItems(firstPurchase);
+        itemGraph.addBoughtItems(secondPurchase);
+
+        assertTrue("i2 is not recognized as sibling for i1", itemGraph.getSiblings(i1).contains(i2));
+        assertTrue("i1 is not recognized as sibling for i2", itemGraph.getSiblings(i2).contains(i1));
     }
 
     private class DAODummyHelper implements DAOHelper {
