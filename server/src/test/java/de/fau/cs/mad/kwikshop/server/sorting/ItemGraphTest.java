@@ -4,6 +4,7 @@ import org.junit.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.Item;
@@ -228,20 +229,66 @@ public class ItemGraphTest {
 
     @Test
     public void twoItemsAreSortedIdenticallyASecondTime() {
-        List<BoughtItem> items = createBoughtItems(2, ONE);
+        nItemsAreSortedIdenticallyASecondTime(2, false);
+    }
+
+    @Test
+    public void threeItemsAreSortedIdenticallyASecondTime() {
+        nItemsAreSortedIdenticallyASecondTime(3, false);
+    }
+    @Test
+    public void fiveItemsAreSortedIdenticallyASecondTime() {
+        nItemsAreSortedIdenticallyASecondTime(5, false);
+    }
+
+    @Test
+    public void tenItemsAreSortedIdenticallyASecondTime() {
+        nItemsAreSortedIdenticallyASecondTime(10, false);
+    }
+
+    @Test
+    public void twoItemsAreSortedIdenticallyASecondTimeWhenTheOrderIsDifferent() {
+        nItemsAreSortedIdenticallyASecondTime(2, true);
+    }
+
+    @Test
+    public void threeItemsAreSortedIdenticallyASecondTimeWhenTheOrderIsDifferent() {
+        nItemsAreSortedIdenticallyASecondTime(3, true);
+    }
+    @Test
+    public void fiveItemsAreSortedIdenticallyASecondTimeWhenTheOrderIsDifferent() {
+        nItemsAreSortedIdenticallyASecondTime(5, true);
+    }
+
+    @Test
+    public void tenItemsAreSortedIdenticallyASecondTimeWhenTheOrderIsDifferent() {
+        nItemsAreSortedIdenticallyASecondTime(10, true);
+    }
+
+    private void nItemsAreSortedIdenticallyASecondTime(int n, boolean mixItemsBeforeSorting) {
+        List<BoughtItem> items = createBoughtItems(n, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         itemGraph.addBoughtItems(items);
 
         Algorithm magicSort = new MagicSort();
 
-        ShoppingListServer shoppingListServer = createShoppingListServerWithNItems(2);
-        /*shoppingListServer now has items with exactly the same name as the items in itemGraph*/
+        ShoppingListServer shoppingListServer;
+
+        if (mixItemsBeforeSorting) {
+            shoppingListServer = createShoppingListServerWithNItemsMixedUp(n);
+            /*shoppingListServer now has items with exactly the same name as the items in itemGraph
+                but in a different order*/
+        } else {
+            shoppingListServer = createShoppingListServerWithNItems(n);
+            /*shoppingListServer now has items with exactly the same name as the items in itemGraph
+                and in the same order*/
+        }
 
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
         Item[] sortedItems = (Item[]) sortedList.getItems().toArray();
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < n; i++) {
             assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i]);
         }
     }
@@ -253,6 +300,25 @@ public class ItemGraphTest {
             item.setName("i" + i);
             shoppingListServer.addItem(item);
         }
+        return shoppingListServer;
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
+        List<Item> orderedItems = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) {
+            Item item = new Item();
+            item.setName("i" + i);
+            orderedItems.add(item);
+        }
+        ShoppingListServer shoppingListServer = new ShoppingListServer();
+        Random random = new Random(n*n); // random generator with some random seed
+
+        while (!orderedItems.isEmpty()) {
+            int index = random.nextInt(orderedItems.size());
+            Item item = orderedItems.remove(index);
+            shoppingListServer.addItem(item);
+        }
+
         return shoppingListServer;
     }
 
