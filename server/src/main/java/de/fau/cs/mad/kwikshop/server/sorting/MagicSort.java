@@ -135,8 +135,8 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
             System.out.println("MISSING ITEM EDGE: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
 
-            if(currentWeightDistanceRatio > maxWeightDistanceRatio) /*&&
-                    (sortedList.contains(edge.getFrom())) )*/ {
+            if( (currentWeightDistanceRatio > maxWeightDistanceRatio) && edge.getFrom() != daoHelper.getStartBoughtItem() )
+                /*&& (sortedList.contains(edge.getFrom())) )*/ {
                 maxWeightDistanceRatio = currentWeightDistanceRatio;
                 insertAfter = edge.getFrom();
             }
