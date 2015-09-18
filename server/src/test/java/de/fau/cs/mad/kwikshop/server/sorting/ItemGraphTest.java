@@ -289,7 +289,7 @@ public class ItemGraphTest {
         Item[] sortedItems = (Item[]) sortedList.getItems().toArray();
 
         for (int i = 0; i < n; i++) {
-            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i]);
+            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i].getName());
         }
     }
 
