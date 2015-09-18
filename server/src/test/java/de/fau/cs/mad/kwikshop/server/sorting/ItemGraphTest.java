@@ -349,29 +349,14 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void CycleOfThreeItemsShouldNotOccur() {
+    public void cycleOfThreeItemsShouldNotOccur() {
         BoughtItem i1, i2, i3;
         i1 = new BoughtItem("i1", ONE, ONE);
         i2 = new BoughtItem("i2", ONE, ONE);
         i3 = new BoughtItem("i3", ONE, ONE);
 
-        List<BoughtItem> first, second, third;
-        first = new ArrayList<>(2);
-        first.add(i1);
-        first.add(i2);
-
-        second = new ArrayList<>(2);
-        second.add(i2);
-        second.add(i3);
-
-        third = new ArrayList<>(2);
-        third.add(i3);
-        third.add(i1);
-
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
+        addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
 
         /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
         item graph -> if there are edges i1->i2 and i2->i3, i3->i1 must not exist; only two of these
@@ -390,6 +375,45 @@ public class ItemGraphTest {
         } else {
             assertTrue("Missing edge in item Graph", i2ToI3Exists);
             assertTrue("Missing edge in item Graph", i3ToI1Exists);
+        }
+    }
+
+    private void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
+        List<BoughtItem> first, second, third;
+        first = new ArrayList<>(2);
+        first.add(i1);
+        first.add(i2);
+
+        second = new ArrayList<>(2);
+        second.add(i2);
+        second.add(i3);
+
+        third = new ArrayList<>(2);
+        third.add(i3);
+        third.add(i1);
+
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+    }
+
+    @Test
+    public void sortWillReturnSomethingEvenIfTheDataIsInsufficient() {
+        BoughtItem i1, i2, i0;
+        i1 = new BoughtItem("i1", ONE, ONE);
+        i2 = new BoughtItem("i2", ONE, ONE);
+        i0 = new BoughtItem("i0", ONE, ONE);
+
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i0);
+
+        ShoppingListServer shoppingList = createShoppingListServerWithNItems(2);
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        Algorithm magicSort = new MagicSort();
+
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingList, sortingRequest);
+        for (Item item : shoppingList.getItems()) {
+            assertTrue("Item that was to be sorted is not contained in the sorted list", sortedList.getItems().contains(item));
         }
     }
 
