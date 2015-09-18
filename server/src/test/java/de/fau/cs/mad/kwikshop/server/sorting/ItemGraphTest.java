@@ -11,11 +11,6 @@ import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
-import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
-import de.fau.cs.mad.kwikshop.server.sorting.Edge;
-import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
-import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
-import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
 import static org.junit.Assert.*;
 
 public class ItemGraphTest {
@@ -143,6 +138,7 @@ public class ItemGraphTest {
         List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
         for (int i = 0; i < numberOfItemsToCreate; i++) {
             BoughtItem item = new BoughtItem("i" + i, supermarketPlaceId, "");
+            item.setId(i);
             items.add(item);
         }
         return items;
@@ -286,20 +282,24 @@ public class ItemGraphTest {
 
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-        Item[] sortedItems = (Item[]) sortedList.getItems().toArray();
+        ArrayList<Item> sortedItems = new ArrayList<>();
+        for(Item item: sortedList.getItems()) {
+            sortedItems.add(item);
+        }
 
         for (int i = 0; i < n; i++) {
-            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i].getName());
+            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems.get(i).getName());
         }
     }
 
     private ShoppingListServer createShoppingListServerWithNItems(int n) {
-        ShoppingListServer shoppingListServer = new ShoppingListServer();
+        ArrayList<Item> items = new ArrayList<Item>();
         for (int i = 0; i < n; i++) {
             Item item = new Item();
             item.setName("i" + i);
-            shoppingListServer.addItem(item);
+            items.add(item);
         }
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
         return shoppingListServer;
     }
 
@@ -310,14 +310,16 @@ public class ItemGraphTest {
             item.setName("i" + i);
             orderedItems.add(item);
         }
-        ShoppingListServer shoppingListServer = new ShoppingListServer();
+
         Random random = new Random(n*n); // random generator with some random seed
 
+        ArrayList<Item> randomItems = new ArrayList<Item>();
         while (!orderedItems.isEmpty()) {
             int index = random.nextInt(orderedItems.size());
             Item item = orderedItems.remove(index);
-            shoppingListServer.addItem(item);
+            randomItems.add(item);
         }
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, randomItems);
 
         return shoppingListServer;
     }
