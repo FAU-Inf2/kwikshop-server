@@ -35,4 +35,29 @@ public class SupermarketChain {
     public void setName(String name) {
         this.name = name;
     }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        SupermarketChain supermarketChain = (SupermarketChain) o;
+
+        if(!this.name.equals(supermarketChain.getName()))
+            return false;
+
+        return true;
+    }
 }

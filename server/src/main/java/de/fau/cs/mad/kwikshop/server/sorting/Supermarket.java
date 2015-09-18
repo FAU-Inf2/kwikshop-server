@@ -46,4 +46,37 @@ public class Supermarket {
     public void setPlaceId(String placeId) {
         this.placeId = placeId;
     }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+
+        result = 37 * result + supermarketChain.hashCode();
+        result = 37 * result + placeId.hashCode();
+
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Supermarket supermarket = (Supermarket) o;
+
+        if(!this.supermarketChain.equals(supermarket.getSupermarketChain()))
+            return false;
+
+        if(!this.placeId.equals(supermarket.getPlaceId()))
+            return false;
+
+        return true;
+    }
 }
