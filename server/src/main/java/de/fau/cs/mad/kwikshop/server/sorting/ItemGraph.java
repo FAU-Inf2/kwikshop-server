@@ -183,7 +183,9 @@ public class ItemGraph {
 
     }
 
-    public void addBoughtItems(List<BoughtItem> boughtItems) {
+    public void addBoughtItems(List<BoughtItem> newBoughtItems) {
+
+        List<BoughtItem> boughtItems = new ArrayList<BoughtItem>(newBoughtItems);
 
         /* Add start and end Items for every Supermarket */
         boughtItems = addStartEnd(boughtItems);
