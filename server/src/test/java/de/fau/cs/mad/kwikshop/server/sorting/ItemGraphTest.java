@@ -412,7 +412,8 @@ public class ItemGraphTest {
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         Algorithm magicSort = new MagicSort();
 
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingList, sortingRequest);
+        // create a new shopping list, because it might be overwritten in sort()
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, new ShoppingListServer(42, shoppingList.getItems()), sortingRequest);
         for (Item item : shoppingList.getItems()) {
             assertTrue("Item that was to be sorted is not contained in the sorted list", sortedList.getItems().contains(item));
         }
@@ -583,6 +584,14 @@ public class ItemGraphTest {
     @Test
     public void ifNoDataIsAvailableTheOriginalListShouldNotBeAltered() {
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItems(5);
+
+        // copy the names before sorting, because the list might be altered
+        String[] unSortedNames = new String[5];
+        int j = 0;
+        for (Item item : shoppingListServer.getItems()) {
+            unSortedNames[j++] = item.getName();
+        }
+
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         Algorithm magicSort = new MagicSort();
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
@@ -593,13 +602,8 @@ public class ItemGraphTest {
         for (Item item : sortedList.getItems()) {
             sortedNames[i++] = item.getName();
         }
-        String[] unSortedNames = new String[5];
-        int j = 0;
-        for (Item item : shoppingListServer.getItems()) {
-            unSortedNames[j++] = item.getName();
-        }
 
-        assertArrayEquals("The list has been re-ordered although no data was available", unSortedNames , sortedNames);
+        assertArrayEquals("The list has been re-ordered although no data was available", unSortedNames, sortedNames);
     }
 
     @Test 
@@ -640,6 +644,8 @@ public class ItemGraphTest {
             iteration++;
         }
 
+        /*And the same test the other way round*/
+
         shoppingListItems = new ArrayList<>(2);
         shoppingListItems.add(item3);
         shoppingListItems.add(item2);
@@ -659,9 +665,62 @@ public class ItemGraphTest {
             }
             iteration++;
         }
-
     }
-    
+
+    @Test
+    @Ignore
+    public void sortingDoesNotAlterTheOriginalListButWorksOnACopy() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        int n = 6;
+        ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
+        ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
+
+        assertNotSame(shoppingList, sorted);
+    }
+
+    @Test
+    public void sortingDoesNotSortAnItemBeforeAnotherAlthoughItWasAlwaysBoughtTheOtherWayRound() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        int n = 6;
+        ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
+        ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
+
+        ArrayList<String> orderedItemNames = new ArrayList<>(6);
+        for (Item item : sorted.getItems()) {
+            orderedItemNames.add(item.getName());
+        }
+
+        /*
+        * There are several possibilities how the items can be ordered
+        * 0-1-2-5-3-4 OR
+        * 0-1-5-2-3-4 OR
+        * 0-1-5-3-2-4 OR
+        * 0-1-5-3-4-2
+        */
+
+        assertEquals("i0 is not the first item, although it should be", "i0", orderedItemNames.get(0));
+        assertEquals("i1 is not the second item, although it should be", "i1", orderedItemNames.get(1));
+        if (orderedItemNames.get(2).equals("i2")) {
+            assertEquals("i5 is not the fourth item, although it should be, as i2 was the third item", "i5", orderedItemNames.get(3));
+            assertEquals("i3 is not the fifth item, although it should be, as i2 was the third item", "i3", orderedItemNames.get(4));
+            assertEquals("i4 is not the sixth item, although it should be, as i2 was the third item", "i4", orderedItemNames.get(5));
+        } else {
+            assertEquals("i5 is not the third item, although it should be, as i2 was not the third item", "i5", orderedItemNames.get(2));
+            if (orderedItemNames.get(3).equals("i2")) {
+                assertEquals("i3 is not the fifth item, although it should be, as i2 was the fourth item", "i3", orderedItemNames.get(4));
+                assertEquals("i4 is not the sixth item, although it should be, as i2 was the fourth item", "i4", orderedItemNames.get(5));
+            } else {
+                assertEquals("i3 is not the fourth item, although it should be, as i2 was not the third or fourth item", "i5", orderedItemNames.get(3));
+                if (orderedItemNames.get(4).equals("i2")) {
+                    assertEquals("i4 is not the sixth item, although it should be, as i2 was the fifth item", "i4", orderedItemNames.get(5));
+                } else {
+                    assertEquals("i4 is not the fifth item, although it should be, as i2 was not the third, fourth or fifth item", "i4", orderedItemNames.get(4));
+                    assertEquals("i2 is not the sixth item, although it should be, as it was not the third, fourth or fifth item either", "i2", orderedItemNames.get(5));
+                }
+            }
+        }
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
