@@ -580,6 +580,28 @@ public class ItemGraphTest {
         assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
     }
 
+    @Test
+    public void ifNoDataIsAvailableTheOriginalListShouldNotBeAltered() {
+        ShoppingListServer shoppingListServer = createShoppingListServerWithNItems(5);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        Algorithm magicSort = new MagicSort();
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+
+        String[] sortedNames = new String[5];
+        int i = 0;
+        for (Item item : sortedList.getItems()) {
+            sortedNames[i++] = item.getName();
+        }
+        String[] unSortedNames = new String[5];
+        int j = 0;
+        for (Item item : shoppingListServer.getItems()) {
+            unSortedNames[j++] = item.getName();
+        }
+
+        assertArrayEquals("The list has been re-ordered although no data was available", unSortedNames , sortedNames);
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
