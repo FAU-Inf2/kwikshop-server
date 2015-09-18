@@ -195,6 +195,26 @@ public class ItemGraphTest {
         assertTrue("i1 is not recognized as sibling for i2", itemGraph.getSiblings(i2).contains(i1));
     }
 
+    @Test
+    public void getSiblingsDoesntReturnFalseSiblings() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+
+        BoughtItem i0, i1;
+        i0 = items.get(0);
+        i1 = items.get(1);
+
+        List<BoughtItem> i0sSiblings, i1sSiblings;
+        i0sSiblings = itemGraph.getSiblings(i0);
+        i1sSiblings = itemGraph.getSiblings(i1);
+
+        assertFalse("i0 is contained in i0's siblings incorrectly", i0sSiblings.contains(i0));
+        assertFalse("i0 is contained in i1's siblings incorrectly", i1sSiblings.contains(i0));
+        assertFalse("i1 is contained in i0's siblings incorrectly", i0sSiblings.contains(i1));
+        assertFalse("i1 is contained in i1's siblings incorrectly", i1sSiblings.contains(i1));
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
