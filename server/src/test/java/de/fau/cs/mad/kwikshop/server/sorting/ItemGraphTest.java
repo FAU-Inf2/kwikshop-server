@@ -602,6 +602,66 @@ public class ItemGraphTest {
         assertArrayEquals("The list has been re-ordered although no data was available", unSortedNames , sortedNames);
     }
 
+    @Test 
+    public void ifInsufficientDataIsAvailableTheOriginalShoppingListShouldNotBeAltered() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        Algorithm magicSort = new MagicSort();
+
+
+        Item item2 = new Item();
+        item2.setName("i2");
+        item2.setID(2);
+        item2.setServerId(2);
+
+        Item item3 = new Item();
+        item3.setName("i3");
+        item3.setID(3);
+        item3.setServerId(3);
+
+        List<Item> shoppingListItems = new ArrayList<>(2);
+        shoppingListItems.add(item2);
+        shoppingListItems.add(item3);
+
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+
+        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
+        Collection<Item> items = sortedList.getItems();
+        int iteration = 0;
+        for (Item item : items) {
+            if (iteration == 0) {
+                assertEquals("Item was not sorted correctly", item2.getName(), item.getName());
+            } else {
+                assertEquals("An extra item was added while sorting", 1, iteration);
+                assertEquals("Item was not sorted correctly", item3.getName(), item.getName());
+            }
+            iteration++;
+        }
+
+        shoppingListItems = new ArrayList<>(2);
+        shoppingListItems.add(item3);
+        shoppingListItems.add(item2);
+
+        shoppingListServer = new ShoppingListServer(0, shoppingListItems);
+        sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+
+        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
+        items = sortedList.getItems();
+        iteration = 0;
+        for (Item item : items) {
+            if (iteration == 0) {
+                assertEquals("Item was not sorted correctly", item3.getName(), item.getName());
+            } else {
+                assertEquals("An extra item was added while sorting", 1, iteration);
+                assertEquals("Item was not sorted correctly", item2.getName(), item.getName());
+            }
+            iteration++;
+        }
+
+    }
+    
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
