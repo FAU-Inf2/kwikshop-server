@@ -558,6 +558,28 @@ public class ItemGraphTest {
         return itemGraph;
     }
 
+    @Test
+    public void edgeShouldFlipIfItemsAreAddedTheOtherWayRoundMoreOften() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+
+        List<BoughtItem> itemsOrderedTheOtherWayRound = new ArrayList<>(2);
+        itemsOrderedTheOtherWayRound.add(i1);
+        itemsOrderedTheOtherWayRound.add(i0);
+
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("The edge was not added for the first two items", itemGraph.edgeFromToExists(i0, i1));
+
+        itemGraph.addBoughtItems(itemsOrderedTheOtherWayRound);
+        itemGraph.addBoughtItems(itemsOrderedTheOtherWayRound);
+
+        assertTrue("The inverted edge has not been added after the data changed", itemGraph.edgeFromToExists(i1, i0));
+        assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
