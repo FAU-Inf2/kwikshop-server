@@ -187,5 +187,30 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         shoppingList.setLastModifiedDate(new Date());
     }
 
+    //sorts the missing items according to the direction of the existing edges
+    private void sortMissingItems(){
+
+        for(int i = 0; i < knownItems.size(); i++){
+            for(int j = i + 1; j < knownItems.size(); j++){
+                if(itemGraph.edgeFromToExists(knownItems.get(i), knownItems.get(j))){
+                    //edge exists: those two items have the correct order
+                    continue;
+                }else if(itemGraph.edgeFromToExists(knownItems.get(j), knownItems.get(i))){
+                    //edge is the other way around: put j before i
+                    knownItems.add(i, knownItems.get(j));
+                    knownItems.remove(j+1);
+
+                    //repeat this step with a new from node
+                    i--;
+                    break;
+                }else{
+                    //no edge between the two items: leave order unchanged
+                    continue;
+                }
+            }
+        }
+
+    }
+
 
 }
