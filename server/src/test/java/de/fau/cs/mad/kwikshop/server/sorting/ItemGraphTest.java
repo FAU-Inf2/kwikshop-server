@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
@@ -213,6 +214,26 @@ public class ItemGraphTest {
         assertFalse("i0 is contained in i1's siblings incorrectly", i1sSiblings.contains(i0));
         assertFalse("i1 is contained in i0's siblings incorrectly", i0sSiblings.contains(i1));
         assertFalse("i1 is contained in i1's siblings incorrectly", i1sSiblings.contains(i1));
+    }
+
+    @Test
+    public void executeAlgorithmDoesNotCrash() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        itemGraph.executeAlgorithm(new MagicSort(), items);
+    }
+
+    @Ignore
+    @Test
+    public void twoItemsAreSortedIdenticallyASecondTime() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+
+        Algorithm magicSort = new MagicSort();
+
+       // ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
+
     }
 
     private class DAODummyHelper implements DAOHelper {
