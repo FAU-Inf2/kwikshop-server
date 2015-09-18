@@ -398,7 +398,7 @@ public class ItemGraphTest {
         itemGraph.addBoughtItems(third);
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void sortWillReturnSomethingEvenIfTheDataIsInsufficient() {
         BoughtItem i1, i2, i0;
         i1 = new BoughtItem("i1", ONE, ONE);
