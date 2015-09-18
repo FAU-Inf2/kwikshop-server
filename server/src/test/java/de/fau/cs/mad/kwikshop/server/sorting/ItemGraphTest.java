@@ -348,6 +348,51 @@ public class ItemGraphTest {
         return shoppingListServer;
     }
 
+    @Test
+    public void CycleOfThreeItemsShouldNotOccur() {
+        BoughtItem i1, i2, i3;
+        i1 = new BoughtItem("i1", ONE, ONE);
+        i2 = new BoughtItem("i2", ONE, ONE);
+        i3 = new BoughtItem("i3", ONE, ONE);
+
+        List<BoughtItem> first, second, third;
+        first = new ArrayList<>(2);
+        first.add(i1);
+        first.add(i2);
+
+        second = new ArrayList<>(2);
+        second.add(i2);
+        second.add(i3);
+
+        third = new ArrayList<>(2);
+        third.add(i3);
+        third.add(i1);
+
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+
+        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
+        item graph -> if there are edges i1->i2 and i2->i3, i3->i1 must not exist; only two of these
+        three edges may exist at one time*/
+        boolean i1ToI2Exists, i2ToI3Exists, i3ToI1Exists;
+        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
+        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
+        i3ToI1Exists = itemGraph.edgeFromToExists(i3, i1);
+
+        if (i1ToI2Exists) {
+            if (i2ToI3Exists) {
+                assertFalse("Cycle in item graph detected", i3ToI1Exists);
+            } else {
+                assertTrue("Missing edge in item Graph", i3ToI1Exists);
+            }
+        } else {
+            assertTrue("Missing edge in item Graph", i2ToI3Exists);
+            assertTrue("Missing edge in item Graph", i3ToI1Exists);
+        }
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
