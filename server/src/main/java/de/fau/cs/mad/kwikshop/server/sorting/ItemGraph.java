@@ -300,8 +300,11 @@ public class ItemGraph {
 
     //checks if there is an edge from node from to node to
     public boolean edgeFromToExists(BoughtItem from, BoughtItem to){
-        if(this.getEdgesFrom(from).contains(to)) return true;
-
+        for(Edge edge : getEdgesFrom(from)) {
+            if(edge.getTo() == to)
+                return true;
+        }
+        
         return false;
     }
 
