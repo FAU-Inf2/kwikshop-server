@@ -145,7 +145,7 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void parentAndChildAreSetCorrectlyForAListOfTwoItems() {
+    public void childIsSetCorrectlyForAListOfTwoItems() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         itemGraph.addBoughtItems(items);
@@ -153,6 +153,15 @@ public class ItemGraphTest {
         BoughtItem i1 = items.get(1);
         List<BoughtItem> i0sChildren = itemGraph.getChildren(i0);
         assertTrue("item i1 is not recognized as i0's child", i0sChildren.contains(i1));
+    }
+
+    @Test
+    public void parentIsSetCorrectlyForAListOfTwoItems() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
         List<BoughtItem> i1sParents = itemGraph.getParents(i1);
         assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
     }
