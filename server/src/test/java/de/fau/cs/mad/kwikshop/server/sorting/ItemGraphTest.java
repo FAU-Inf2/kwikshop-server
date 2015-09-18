@@ -6,7 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.Item;
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
@@ -25,6 +28,12 @@ public class ItemGraphTest {
 
     private ItemGraph createNewItemGraph() {
         return new ItemGraph(new DAODummyHelper());
+    }
+
+    private ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {
+        ItemGraph itemGraph = new ItemGraph(new DAODummyHelper());
+        itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
+        return itemGraph;
     }
 
     @Test
@@ -124,6 +133,9 @@ public class ItemGraphTest {
         Set<BoughtItem> vertices = itemGraph.getVertices();
         assertNotNull("getVertices returns null although items were added", vertices);
         assertEquals("getVertices does not have size " + n+2 + "although " + n + "item(s) were added (+start/end)", n+2, vertices.size());
+        for (int i = 0; i < n; i++) {
+            assertTrue("The " + i + "th item is not contained in getVertices", vertices.contains(items.get(i)));
+        }
     }
 
     private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
@@ -133,6 +145,115 @@ public class ItemGraphTest {
             items.add(item);
         }
         return items;
+    }
+
+    @Test
+    public void childIsSetCorrectlyForAListOfTwoItems() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        List<BoughtItem> i0sChildren = itemGraph.getChildren(i0);
+        assertTrue("item i1 is not recognized as i0's child", i0sChildren.contains(i1));
+        List<BoughtItem> i1sChildren = itemGraph.getChildren(i1);
+        assertFalse("item i0 is recognized as child of i1 incorrectly", i1sChildren.contains(i0));
+    }
+
+    @Test
+    public void parentIsSetCorrectlyForAListOfTwoItems() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        List<BoughtItem> i1sParents = itemGraph.getParents(i1);
+        assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
+        List<BoughtItem> i0sParents = itemGraph.getParents(i0);
+        assertFalse("item i1 is recognized as parent of i0 incorrectly", i0sParents.contains(i1));
+    }
+
+    @Test
+    public void getSiblingsWorksForTwoSimpleLists() {
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        BoughtItem i0, i1, i2;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        List<BoughtItem> firstPurchase, secondPurchase;
+        firstPurchase = new ArrayList<>(2);
+        secondPurchase = new ArrayList<>(2);
+
+        firstPurchase.add(i0);
+        firstPurchase.add(i1);
+
+        secondPurchase.add(i0);
+        secondPurchase.add(i2);
+
+        itemGraph.addBoughtItems(firstPurchase);
+        itemGraph.addBoughtItems(secondPurchase);
+
+        assertTrue("i2 is not recognized as sibling for i1", itemGraph.getSiblings(i1).contains(i2));
+        assertTrue("i1 is not recognized as sibling for i2", itemGraph.getSiblings(i2).contains(i1));
+    }
+
+    @Test
+    public void getSiblingsDoesntReturnFalseSiblings() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+
+        BoughtItem i0, i1;
+        i0 = items.get(0);
+        i1 = items.get(1);
+
+        List<BoughtItem> i0sSiblings, i1sSiblings;
+        i0sSiblings = itemGraph.getSiblings(i0);
+        i1sSiblings = itemGraph.getSiblings(i1);
+
+        assertFalse("i0 is contained in i0's siblings incorrectly", i0sSiblings.contains(i0));
+        assertFalse("i0 is contained in i1's siblings incorrectly", i1sSiblings.contains(i0));
+        assertFalse("i1 is contained in i0's siblings incorrectly", i0sSiblings.contains(i1));
+        assertFalse("i1 is contained in i1's siblings incorrectly", i1sSiblings.contains(i1));
+    }
+
+    @Test
+    public void executeAlgorithmDoesNotCrash() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        itemGraph.executeAlgorithm(new MagicSort(), items);
+    }
+
+
+    @Test
+    public void twoItemsAreSortedIdenticallyASecondTime() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+
+        Algorithm magicSort = new MagicSort();
+
+        ShoppingListServer shoppingListServer = createShoppingListServerWithNItems(2);
+        /*shoppingListServer now has items with exactly the same name as the items in itemGraph*/
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        Item[] sortedItems = (Item[]) sortedList.getItems().toArray();
+
+        for (int i = 0; i < 2; i++) {
+            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i]);
+        }
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItems(int n) {
+        ShoppingListServer shoppingListServer = new ShoppingListServer();
+        for (int i = 0; i < n; i++) {
+            Item item = new Item();
+            item.setName("i" + i);
+            shoppingListServer.addItem(item);
+        }
+        return shoppingListServer;
     }
 
     private class DAODummyHelper implements DAOHelper {
