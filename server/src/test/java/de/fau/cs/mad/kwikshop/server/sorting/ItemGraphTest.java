@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
@@ -282,10 +283,13 @@ public class ItemGraphTest {
 
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-        ArrayList<Item> sortedItems = new ArrayList<>();
+        List<Item> sortedItems = new ArrayList<>();
         for(Item item: sortedList.getItems()) {
             sortedItems.add(item);
         }
+
+        /* Sort according to the order of each Item */
+        Collections.sort(sortedItems);
 
         for (int i = 0; i < n; i++) {
             assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems.get(i).getName());
@@ -297,6 +301,8 @@ public class ItemGraphTest {
         for (int i = 0; i < n; i++) {
             Item item = new Item();
             item.setName("i" + i);
+            item.setID(i);
+            item.setServerId(i);
             items.add(item);
         }
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
@@ -308,6 +314,8 @@ public class ItemGraphTest {
         for (int i = 0; i < n; i++) {
             Item item = new Item();
             item.setName("i" + i);
+            item.setID(i);
+            item.setServerId(i);
             orderedItems.add(item);
         }
 

@@ -172,6 +172,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     private void applyOrderToShoppingList() {
         int i = 0;
         for(BoughtItem boughtItem: sortedList) {
+            if(boughtItem.equals(daoHelper.getEndBoughtItem()))
+                continue;
+
             Item item = shoppingList.getItem(boughtItem.getItemId());
             if(item == null)
                 continue;
