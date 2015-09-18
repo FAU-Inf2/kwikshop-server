@@ -108,9 +108,11 @@ public class ItemGraph {
         System.out.println("");
         System.out.println("digraph G {");
         for(Edge edge: edgeList) {
-            System.out.println(String.format("%s -> %s [label=\"%s\"]", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(edge.getWeight())));
+            double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
+            System.out.println(String.format("%s -> %s [label=\"%s\"]", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(Math.round(currentWeightDistanceRatio*1000.0)/1000.0)));
         }
         System.out.println("}");
+        System.out.println("");
     }
 
     /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
