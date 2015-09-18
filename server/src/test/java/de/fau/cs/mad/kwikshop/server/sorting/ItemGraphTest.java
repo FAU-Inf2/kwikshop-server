@@ -27,6 +27,12 @@ public class ItemGraphTest {
         return new ItemGraph(new DAODummyHelper());
     }
 
+    private ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {
+        ItemGraph itemGraph = new ItemGraph(new DAODummyHelper());
+        itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
+        return itemGraph;
+    }
+
     @Test
     public void newItemGraphShouldNotHaveAnyEdges() {
         ItemGraph itemGraph = createNewItemGraph();
@@ -124,6 +130,9 @@ public class ItemGraphTest {
         Set<BoughtItem> vertices = itemGraph.getVertices();
         assertNotNull("getVertices returns null although items were added", vertices);
         assertEquals("getVertices does not have size " + n+2 + "although " + n + "item(s) were added (+start/end)", n+2, vertices.size());
+        for (int i = 0; i < n; i++) {
+            assertTrue("The " + i + "th item is not contained in getVertices", vertices.contains(items.get(i)));
+        }
     }
 
     private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
@@ -133,6 +142,19 @@ public class ItemGraphTest {
             items.add(item);
         }
         return items;
+    }
+
+    @Test
+    public void parentAndChildAreSetCorrectlyForAListOfTwoItems() {
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        List<BoughtItem> i0sChildren = itemGraph.getChildren(i0);
+        assertTrue("item i1 is not recognized as i0's child", i0sChildren.contains(i1));
+        List<BoughtItem> i1sParents = itemGraph.getParents(i1);
+        assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
     }
 
     private class DAODummyHelper implements DAOHelper {
