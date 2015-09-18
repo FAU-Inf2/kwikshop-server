@@ -187,18 +187,19 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         shoppingList.setLastModifiedDate(new Date());
     }
 
-    //sorts the missing items according to the direction of the existing edges
-    private void sortMissingItems(){
+    //sorts the List of boughtItems according to the direction of the existing edges
+    //originally meant to only sort the missing items, but that might also work for the whole knownItems
+    public List<BoughtItem> sortBoughtItems(List<BoughtItem> items){
 
-        for(int i = 0; i < knownItems.size(); i++){
-            for(int j = i + 1; j < knownItems.size(); j++){
-                if(itemGraph.edgeFromToExists(knownItems.get(i), knownItems.get(j))){
+        for(int i = 0; i < items.size(); i++){
+            for(int j = i + 1; j < items.size(); j++){
+                if(itemGraph.edgeFromToExists(items.get(i), items.get(j))){
                     //edge exists: those two items have the correct order
                     continue;
-                }else if(itemGraph.edgeFromToExists(knownItems.get(j), knownItems.get(i))){
+                }else if(itemGraph.edgeFromToExists(items.get(j), items.get(i))){
                     //edge is the other way around: put j before i
-                    knownItems.add(i, knownItems.get(j));
-                    knownItems.remove(j+1);
+                    items.add(i, items.get(j));
+                    items.remove(j+1);
 
                     //repeat this step with a new from node
                     i--;
@@ -209,7 +210,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
                 }
             }
         }
-
+        return items;
     }
 
 
