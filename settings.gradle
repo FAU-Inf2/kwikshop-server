@@ -13,8 +13,10 @@ File dir = new File('../kwikshop-common')
 if (!dir.exists()) {
     println 'Cloning kwikshop-common repository...'
     def grgit = Grgit.clone(dir: dir, uri: 'https://github.com/FAU-Inf2/kwikshop-common')
-    grgit.branch.add(name: 'release', startPoint: 'origin/release')
-    grgit.checkout(branch: 'release')
+    if(serverbranch == 'release' || serverbranch == 'refs/heads/release') {
+      grgit.branch.add(name: 'release', startPoint: 'origin/release')
+      grgit.checkout(branch: 'release')
+    }
 } else {
     println 'Pulling changes from kwikshop-common repository...'
 
