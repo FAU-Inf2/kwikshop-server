@@ -223,7 +223,7 @@ public class ItemGraphTest {
     public void executeAlgorithmDoesNotCrash() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(2, ONE);
-        itemGraph.executeAlgorithm(new MagicSort(), items);
+        itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), items);
     }
 
 

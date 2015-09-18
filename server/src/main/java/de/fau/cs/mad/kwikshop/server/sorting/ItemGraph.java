@@ -244,6 +244,9 @@ public class ItemGraph {
     }
 
     public void executeAlgorithm(Algorithm algorithm, List<BoughtItem> boughtItemList) {
+        if(algorithm instanceof MagicSort) {
+            throw new UnsupportedOperationException("Please use sort() to execute MagicSort");
+        }
         update();
         algorithm.setUp(this);
         algorithm.execute(boughtItemList);
