@@ -432,7 +432,84 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded() {
+    public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded__ItemsWereBoughtImmedeatelyOneAfterTheOtherBefore() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        Algorithm magicSort = new MagicSort();
+        Item item1 = new Item();
+        item1.setName("i1");
+        item1.setID(1);
+        item1.setServerId(1);
+
+        Item item3 = new Item();
+        item3.setName("i3");
+        item3.setID(3);
+        item3.setServerId(3);
+
+        List<Item> shoppingListItems = new ArrayList<>(2);
+        shoppingListItems.add(item3);
+        shoppingListItems.add(item1);
+
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
+
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+
+        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
+        Collection<Item> items = sortedList.getItems();
+        int iteration = 0;
+        for (Item item : items) {
+            if (iteration == 0) {
+                assertEquals("Item was not sorted correctly", item1.getName(), item.getName());
+            } else {
+                assertEquals("An extra item was added while sorting", 1, iteration);
+                assertEquals("Item was not sorted correctly", item3.getName(), item.getName());
+            }
+            iteration++;
+        }
+    }
+
+    @Test
+    public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded__ItemsWereOnlyBoughtWithAnOtherItemInBetween() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        Algorithm magicSort = new MagicSort();
+
+
+        Item item4 = new Item();
+        item4.setName("i4");
+        item4.setID(4);
+        item4.setServerId(4);
+
+        Item item5 = new Item();
+        item5.setName("i5");
+        item5.setID(5);
+        item5.setServerId(5);
+
+        List<Item> shoppingListItems = new ArrayList<>(2);
+        shoppingListItems.add(item5);
+        shoppingListItems.add(item4);
+
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
+
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+
+        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
+        Collection<Item> items = sortedList.getItems();
+        int iteration = 0;
+        for (Item item : items) {
+            if (iteration == 0) {
+                assertEquals("Item was not sorted correctly", item5.getName(), item.getName());
+            } else {
+                assertEquals("An extra item was added while sorting", 1, iteration);
+                assertEquals("Item was not sorted correctly", item4.getName(), item.getName());
+            }
+            iteration++;
+        }
+    }
+
+    private ItemGraph createCyclicFreeDataWithSixVertices() {
         BoughtItem i0, i1, i2, i3, i4, i5;
         i0 = new BoughtItem("i0", ONE, ONE);
         i1 = new BoughtItem("i1", ONE, ONE);
@@ -478,72 +555,8 @@ public class ItemGraphTest {
         itemGraph.addBoughtItems(fifth);
         itemGraph.addBoughtItems(sixth);
 
-        /*this is data that results into a topological ordered graph without cycles*/
-
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        Algorithm magicSort = new MagicSort();
-        Item item1 = new Item();
-        item1.setName("i1");
-        item1.setID(1);
-        item1.setServerId(1);
-
-        Item item3 = new Item();
-        item3.setName("i3");
-        item3.setID(3);
-        item3.setServerId(3);
-
-        List<Item> shoppingListItems = new ArrayList<>(2);
-        shoppingListItems.add(item3);
-        shoppingListItems.add(item1);
-
-        ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
-
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-
-        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        Collection<Item> items = sortedList.getItems();
-        int iteration = 0;
-        for (Item item : items) {
-            if (iteration == 0) {
-                assertEquals("Item was not sorted correctly", item1.getName(), item.getName());
-            } else {
-                assertEquals("An extra item was added while sorting", 1, iteration);
-                assertEquals("Item was not sorted correctly", item3.getName(), item.getName());
-            }
-            iteration++;
-        }
-
-        Item item4 = new Item();
-        item4.setName("i4");
-        item4.setID(4);
-        item4.setServerId(4);
-
-        Item item5 = new Item();
-        item5.setName("i5");
-        item5.setID(5);
-        item5.setServerId(5);
-
-        shoppingListItems = new ArrayList<>(2);
-        shoppingListItems.add(item5);
-        shoppingListItems.add(item4);
-
-        shoppingListServer = new ShoppingListServer(0, shoppingListItems);
-
-        sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-
-        assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        items = sortedList.getItems();
-        iteration = 0;
-        for (Item item : items) {
-            if (iteration == 0) {
-                assertEquals("Item was not sorted correctly", item5.getName(), item.getName());
-            } else {
-                assertEquals("An extra item was added while sorting", 1, iteration);
-                assertEquals("Item was not sorted correctly", item4.getName(), item.getName());
-            }
-            iteration++;
-        }
-   }
+        return itemGraph;
+    }
 
     private class DAODummyHelper implements DAOHelper {
 
