@@ -81,4 +81,58 @@ public class Edge {
     public Supermarket getSupermarket() {
         return supermarket;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null) {
+            return false;
+        }
+        if (this == o) {
+            return true;
+        }
+        if (o.getClass() != this.getClass()) {
+            return false;
+        }
+
+        Edge edge = (Edge) o;
+
+        if(!this.from.equals(edge.getFrom()))
+            return false;
+
+        if(!this.to.equals(edge.getTo()))
+            return false;
+
+        if(! (this.weight == edge.getWeight()) )
+            return false;
+
+        if(! (this.distance == edge.getDistance()) )
+            return false;
+
+        if(!this.supermarket.equals(edge.getSupermarket()))
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 1;
+
+        int fromHash = 0;
+        if(from != null)
+            fromHash = from.hashCode();
+        result = 37 * result + fromHash;
+
+        int toHash = 0;
+        if(to != null)
+            toHash = to.hashCode();
+        result = 37 * result + toHash;
+
+        result = 37 * result + weight;
+        result = 37 * result + distance;
+
+        result = 37 * result + supermarket.hashCode();
+
+        return result;
+    }
 }
