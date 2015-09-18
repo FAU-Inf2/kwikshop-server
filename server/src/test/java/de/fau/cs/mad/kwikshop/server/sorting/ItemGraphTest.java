@@ -130,7 +130,7 @@ public class ItemGraphTest {
 
         Set<BoughtItem> vertices = itemGraph.getVertices();
         assertNotNull("getVertices returns null although items were added", vertices);
-        assertEquals("getVertices does not have size " + n+2 + "although " + n + "item(s) were added (+start/end)", n+2, vertices.size());
+        assertEquals("getVertices does not have size " + n + 2 + "although " + n + "item(s) were added (+start/end)", n + 2, vertices.size());
         for (int i = 0; i < n; i++) {
             assertTrue("The " + i + "th item is not contained in getVertices", vertices.contains(items.get(i)));
         }
