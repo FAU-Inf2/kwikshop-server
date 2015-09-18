@@ -457,7 +457,8 @@ public class ItemGraphTest {
         ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
 
         assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        Collection<Item> items = sortedList.getItems();
+        List<Item> items = new ArrayList<Item>(sortedList.getItems());
+        Collections.sort(items);
         int iteration = 0;
         for (Item item : items) {
             if (iteration == 0) {
@@ -684,9 +685,11 @@ public class ItemGraphTest {
         int n = 6;
         ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
         ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
+        List<Item> sortedList = new ArrayList<Item>(sorted.getItems());
+        Collections.sort(sortedList);
 
         ArrayList<String> orderedItemNames = new ArrayList<>(6);
-        for (Item item : sorted.getItems()) {
+        for (Item item : sortedList) {
             orderedItemNames.add(item.getName());
         }
 
@@ -710,7 +713,7 @@ public class ItemGraphTest {
                 assertEquals("i3 is not the fifth item, although it should be, as i2 was the fourth item", "i3", orderedItemNames.get(4));
                 assertEquals("i4 is not the sixth item, although it should be, as i2 was the fourth item", "i4", orderedItemNames.get(5));
             } else {
-                assertEquals("i3 is not the fourth item, although it should be, as i2 was not the third or fourth item", "i5", orderedItemNames.get(3));
+                assertEquals("i3 is not the fourth item, although it should be, as i2 was not the third or fourth item", "i3", orderedItemNames.get(3));
                 if (orderedItemNames.get(4).equals("i2")) {
                     assertEquals("i4 is not the sixth item, although it should be, as i2 was the fifth item", "i4", orderedItemNames.get(5));
                 } else {
