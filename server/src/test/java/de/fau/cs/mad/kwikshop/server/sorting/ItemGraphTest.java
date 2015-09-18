@@ -64,7 +64,7 @@ public class ItemGraphTest {
     public void setAndGetSupermarketTest() {
         ItemGraph itemGraph = createNewItemGraph();
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
-        itemGraph.setSupermarket(supermarket.getPlaceId(), "");
+        itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId());
         assertEquals("The returned supermarket by getSupermarket should be the same as the supermarket that was set", supermarket.getPlaceId(), itemGraph.getSupermarket().getPlaceId());
     }
 
@@ -72,10 +72,10 @@ public class ItemGraphTest {
     public void setSupermarketReturnsCorrectValue() {
         ItemGraph itemGraph = createNewItemGraph();
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
-        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), ""));
-        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), ""));
-        assertTrue("setSupermarket returned false although it is a new supermarket", itemGraph.setSupermarket("blah", ""));
-        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", ""));
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId()));
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId()));
+        assertTrue("setSupermarket returned false although it is a new supermarket", itemGraph.setSupermarket("blah", "blah"));
+        assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", "blah"));
     }
 
     @Test
@@ -138,7 +138,7 @@ public class ItemGraphTest {
     private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
         List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
         for (int i = 0; i < numberOfItemsToCreate; i++) {
-            BoughtItem item = new BoughtItem("i" + i, supermarketPlaceId, "");
+            BoughtItem item = new BoughtItem("i" + i, supermarketPlaceId, supermarketPlaceId);
             item.setId(i);
             items.add(item);
         }
@@ -214,6 +214,22 @@ public class ItemGraphTest {
         assertFalse("i0 is contained in i1's siblings incorrectly", i1sSiblings.contains(i0));
         assertFalse("i1 is contained in i0's siblings incorrectly", i0sSiblings.contains(i1));
         assertFalse("i1 is contained in i1's siblings incorrectly", i1sSiblings.contains(i1));
+    }
+
+    @Test
+    public void edgeFromToExistsDoesDetectEdges() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        itemGraph.addBoughtItems(items);
+        assertTrue("edge not detected", itemGraph.edgeFromToExists(items.get(0), items.get(1)));
+    }
+
+    @Test
+    public void edgeFromToExistsDoesNotDetectNonExistingEdges() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        itemGraph.addBoughtItems(items);
+        assertFalse("non existing edge detected", itemGraph.edgeFromToExists(items.get(1), items.get(0)));
     }
 
     @Test
