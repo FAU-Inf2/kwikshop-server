@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
@@ -223,7 +225,7 @@ public class ItemGraphTest {
         itemGraph.executeAlgorithm(new MagicSort(), items);
     }
 
-    @Ignore
+
     @Test
     public void twoItemsAreSortedIdenticallyASecondTime() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
@@ -232,8 +234,26 @@ public class ItemGraphTest {
 
         Algorithm magicSort = new MagicSort();
 
-       // ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
+        ShoppingListServer shoppingListServer = createShoppingListServerWithNItems(2);
+        /*shoppingListServer now has items with exactly the same name as the items in itemGraph*/
 
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        Item[] sortedItems = (Item[]) sortedList.getItems().toArray();
+
+        for (int i = 0; i < 2; i++) {
+            assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems[i]);
+        }
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItems(int n) {
+        ShoppingListServer shoppingListServer = new ShoppingListServer();
+        for (int i = 0; i < n; i++) {
+            Item item = new Item();
+            item.setName("i" + i);
+            shoppingListServer.addItem(item);
+        }
+        return shoppingListServer;
     }
 
     private class DAODummyHelper implements DAOHelper {
