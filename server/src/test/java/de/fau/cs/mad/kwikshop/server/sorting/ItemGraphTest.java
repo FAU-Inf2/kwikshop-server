@@ -724,6 +724,40 @@ public class ItemGraphTest {
         }
     }
 
+    @Test(timeout = 5000)
+    public void addTheSameItemTwiceAndThenSortTwoItems() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        BoughtItem i0 = items.get(0);
+        items.add(i0); // i0 is now contained twice - this is something that can definitely happen
+        itemGraph.addBoughtItems(items);
+
+        Item i1 = new Item();
+        i1.setName("i1");
+        i1.setID(1);
+        i1.setServerId(1);
+
+        Item i2 = new Item();
+        i2.setName("i2");
+        i2.setID(2);
+        i2.setServerId(2);
+
+        List<Item> listToSort = new ArrayList<>(2);
+        listToSort.add(i1);
+        listToSort.add(i2);
+
+        Algorithm magicSort = new MagicSort();
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, listToSort);
+
+        shoppingListServer = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        assertEquals("The size of the sorted shopping list has changed while sorting", 2, shoppingListServer.getItems().size());
+        Item sortedItem1 = (Item) shoppingListServer.getItems().toArray()[0];
+        assertEquals("The name of the first item that is to be sorted has changed while sorting", "i1", sortedItem1.getName());
+        Item sortedItem2 = (Item) shoppingListServer.getItems().toArray()[1];
+        assertEquals("The name of the second item that is to be sorted has changed while sorting", "i2", sortedItem2.getName());
+    }
+
     private class DAODummyHelper implements DAOHelper {
 
         private final Supermarket defaultSupermarketOne;
