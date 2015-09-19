@@ -706,6 +706,10 @@ public class ItemGraphTest {
     @Test
     public void sortingDoesNotSortAnItemBeforeAnotherAlthoughItWasAlwaysBoughtTheOtherWayRound() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(itemGraph);
+    }
+
+    private void sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(ItemGraph itemGraph) {
         int n = 6;
         ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
         ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
@@ -780,6 +784,68 @@ public class ItemGraphTest {
         assertEquals("The name of the first item that is to be sorted has changed while sorting", "i1", sortedItem1.getName());
         Item sortedItem2 = (Item) shoppingListServer.getItems().toArray()[1];
         assertEquals("The name of the second item that is to be sorted has changed while sorting", "i2", sortedItem2.getName());
+    }
+
+    private Item createItemWithId(int id) {
+        Item item = new Item();
+        item.setName("i" + id);
+        item.setID(id);
+        item.setServerId(id);
+        return item;
+    }
+
+    private BoughtItem createBoughtItemWithIdAndSupermarket(int id, String supermarketPlaceId) {
+        BoughtItem item = new BoughtItem();
+        item.setName("i" + id);
+        item.setId(id);
+        item.setSupermarketPlaceId(supermarketPlaceId);
+        item.setSupermarketName(supermarketPlaceId);
+        return item;
+    }
+
+    @Test
+    public void createCyclicFreeItemGraph_AddSomeInconsistentDataAndSort() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        for (int i = 0; i < 10; i++) {
+            // make sure the consistent data was added often enough
+            addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        }
+
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
+
+        List<BoughtItem> first, second, third;
+
+        first = new ArrayList<>(3);
+        first.add(i4);
+        first.add(i3);
+        first.add(i0);
+
+        second = new ArrayList<>(3);
+        second.add(i5);
+        second.add(i1);
+        second.add(i2);
+
+        third = new ArrayList<>(6);
+        third.add(i5);
+        third.add(i4);
+        third.add(i3);
+        third.add(i2);
+        third.add(i1);
+        third.add(i0);
+
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+
+        // This data should not have changed much in the item graph, so sorting is still the same
+
+        sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(itemGraph);
     }
 
     private class DAODummyHelper implements DAOHelper {
