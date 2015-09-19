@@ -25,6 +25,8 @@ public class ItemGraphTest {
     private final String CHAIN_ONE = "CHAIN_ONE";
     private final String CHAIN_TWO = "CHAIN_TWO";
 
+    /* Helper methods */
+
     private ItemGraph createNewItemGraph() {
         return new ItemGraph(new DAODummyHelper());
     }
@@ -34,6 +36,134 @@ public class ItemGraphTest {
         itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
         return itemGraph;
     }
+
+    private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
+        List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
+        for (int i = 0; i < numberOfItemsToCreate; i++) {
+            BoughtItem item = createBoughtItemWithIdAndSupermarket(i, supermarketPlaceId);
+            item.setId(i);
+            items.add(item);
+        }
+        return items;
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItems(int n) {
+        ArrayList<Item> items = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            Item item = createItemWithId(i);
+            items.add(item);
+        }
+        return new ShoppingListServer(0, items);
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
+        List<Item> orderedItems = new ArrayList<>(n);
+        for (int i = 0; i < n; i++) {
+            Item item = createItemWithId(i);
+            orderedItems.add(item);
+        }
+
+        Random random = new Random(n*n); // random generator with some random seed
+
+        ArrayList<Item> randomItems = new ArrayList<>();
+        while (!orderedItems.isEmpty()) {
+            int index = random.nextInt(orderedItems.size());
+            Item item = orderedItems.remove(index);
+            randomItems.add(item);
+        }
+        return new ShoppingListServer(0, randomItems);
+    }
+
+    private void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
+        List<BoughtItem> first, second, third;
+        first = new ArrayList<>(2);
+        first.add(i1);
+        first.add(i2);
+
+        second = new ArrayList<>(2);
+        second.add(i2);
+        second.add(i3);
+
+        third = new ArrayList<>(2);
+        third.add(i3);
+        third.add(i1);
+
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+    }
+
+    private ItemGraph createCyclicFreeDataWithSixVertices() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        return itemGraph;
+    }
+
+    private void addCycleFreeDataWithSixVerticesToItemGraph(ItemGraph itemGraph) {
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
+
+        List<BoughtItem> first, second, third, fourth, fifth, sixth;
+        first = new ArrayList<>(2);
+        first.add(i0);
+        first.add(i2);
+
+        second = new ArrayList<>(3);
+        second.add(i0);
+        second.add(i1);
+        second.add(i3);
+
+        third = new ArrayList<>(3);
+        third.add(i0);
+        third.add(i1);
+        third.add(i2);
+
+        fourth = new ArrayList<>(2);
+        fourth.add(i3);
+        fourth.add(i4);
+
+        fifth = new ArrayList<>(2);
+        fifth.add(i5);
+        fifth.add(i3);
+
+        sixth = new ArrayList<>(4);
+        sixth.add(i1);
+        sixth.add(i5);
+        sixth.add(i3);
+        sixth.add(i4);
+
+
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+        itemGraph.addBoughtItems(fourth);
+        itemGraph.addBoughtItems(fifth);
+        itemGraph.addBoughtItems(sixth);
+
+    }
+
+
+    private Item createItemWithId(int id) {
+        Item item = new Item();
+        item.setName("i" + id);
+        item.setID(id);
+        item.setServerId(id);
+        return item;
+    }
+
+    private BoughtItem createBoughtItemWithIdAndSupermarket(int id, String supermarketPlaceId) {
+        BoughtItem item = new BoughtItem("i" + id, supermarketPlaceId, supermarketPlaceId);
+        item.setId(id);
+        return item;
+    }
+
+
+    /* Tests */
 
     @Test
     public void newItemGraphShouldNotHaveAnyEdges() {
@@ -123,6 +253,7 @@ public class ItemGraphTest {
         getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(5);
     }
 
+    // Helper method for a limited number of related tests
     private void getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(int n) {
         ItemGraph itemGraph = createNewItemGraph();
         itemGraph.setSupermarket(ONE, ONE);
@@ -135,16 +266,6 @@ public class ItemGraphTest {
         for (int i = 0; i < n; i++) {
             assertTrue("The " + i + "th item is not contained in getVertices", vertices.contains(items.get(i)));
         }
-    }
-
-    private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
-        List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
-        for (int i = 0; i < numberOfItemsToCreate; i++) {
-            BoughtItem item = createBoughtItemWithIdAndSupermarket(i, supermarketPlaceId);
-            item.setId(i);
-            items.add(item);
-        }
-        return items;
     }
 
     @Test
@@ -299,6 +420,7 @@ public class ItemGraphTest {
         nItemsAreSortedIdenticallyASecondTime(10, true);
     }
 
+    // Helper method for a limited number of related tests
     private void nItemsAreSortedIdenticallyASecondTime(int n, boolean mixItemsBeforeSorting) {
         List<BoughtItem> items = createBoughtItems(n, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -333,33 +455,6 @@ public class ItemGraphTest {
         }
     }
 
-    private ShoppingListServer createShoppingListServerWithNItems(int n) {
-        ArrayList<Item> items = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            Item item = createItemWithId(i);
-            items.add(item);
-        }
-        return new ShoppingListServer(0, items);
-    }
-
-    private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
-        List<Item> orderedItems = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
-            Item item = createItemWithId(i);
-            orderedItems.add(item);
-        }
-
-        Random random = new Random(n*n); // random generator with some random seed
-
-        ArrayList<Item> randomItems = new ArrayList<>();
-        while (!orderedItems.isEmpty()) {
-            int index = random.nextInt(orderedItems.size());
-            Item item = orderedItems.remove(index);
-            randomItems.add(item);
-        }
-        return new ShoppingListServer(0, randomItems);
-   }
-
     @Test
     public void cycleOfThreeItemsShouldNotOccur() {
         BoughtItem i1, i2, i3;
@@ -388,25 +483,6 @@ public class ItemGraphTest {
             assertTrue("Missing edge in item Graph", i2ToI3Exists);
             assertTrue("Missing edge in item Graph", i3ToI1Exists);
         }
-    }
-
-    private void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
-        List<BoughtItem> first, second, third;
-        first = new ArrayList<>(2);
-        first.add(i1);
-        first.add(i2);
-
-        second = new ArrayList<>(2);
-        second.add(i2);
-        second.add(i3);
-
-        third = new ArrayList<>(2);
-        third.add(i3);
-        third.add(i1);
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
     }
 
     @Test(timeout = 5000)
@@ -501,60 +577,6 @@ public class ItemGraphTest {
             }
             iteration++;
         }
-    }
-
-    private ItemGraph createCyclicFreeDataWithSixVertices() {
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
-        return itemGraph;
-    }
-
-    private void addCycleFreeDataWithSixVerticesToItemGraph(ItemGraph itemGraph) {
-        BoughtItem i0, i1, i2, i3, i4, i5;
-        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
-        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
-        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
-        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
-        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
-        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
-
-        List<BoughtItem> first, second, third, fourth, fifth, sixth;
-        first = new ArrayList<>(2);
-        first.add(i0);
-        first.add(i2);
-
-        second = new ArrayList<>(3);
-        second.add(i0);
-        second.add(i1);
-        second.add(i3);
-
-        third = new ArrayList<>(3);
-        third.add(i0);
-        third.add(i1);
-        third.add(i2);
-
-        fourth = new ArrayList<>(2);
-        fourth.add(i3);
-        fourth.add(i4);
-
-        fifth = new ArrayList<>(2);
-        fifth.add(i5);
-        fifth.add(i3);
-
-        sixth = new ArrayList<>(4);
-        sixth.add(i1);
-        sixth.add(i5);
-        sixth.add(i3);
-        sixth.add(i4);
-
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
-        itemGraph.addBoughtItems(fourth);
-        itemGraph.addBoughtItems(fifth);
-        itemGraph.addBoughtItems(sixth);
-
     }
 
     @Test
@@ -674,6 +696,52 @@ public class ItemGraphTest {
         sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(itemGraph);
     }
 
+    @Test
+    public void createCyclicFreeItemGraph_AddSomeInconsistentDataAndSort() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        for (int i = 0; i < 10; i++) {
+            // make sure the consistent data was added often enough
+            addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        }
+
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
+
+        List<BoughtItem> first, second, third;
+
+        first = new ArrayList<>(3);
+        first.add(i4);
+        first.add(i3);
+        first.add(i0);
+
+        second = new ArrayList<>(3);
+        second.add(i5);
+        second.add(i1);
+        second.add(i2);
+
+        third = new ArrayList<>(6);
+        third.add(i5);
+        third.add(i4);
+        third.add(i3);
+        third.add(i2);
+        third.add(i1);
+        third.add(i0);
+
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+        itemGraph.addBoughtItems(third);
+
+        // This data should not have changed much in the item graph, so sorting is still the same
+
+        sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(itemGraph);
+    }
+
+    // Helper method for a limited number of related tests
     private void sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(ItemGraph itemGraph) {
         int n = 6;
         ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
@@ -743,65 +811,4 @@ public class ItemGraphTest {
         Item sortedItem2 = (Item) shoppingListServer.getItems().toArray()[1];
         assertEquals("The name of the second item that is to be sorted has changed while sorting", "i2", sortedItem2.getName());
     }
-
-    private Item createItemWithId(int id) {
-        Item item = new Item();
-        item.setName("i" + id);
-        item.setID(id);
-        item.setServerId(id);
-        return item;
-    }
-
-    private BoughtItem createBoughtItemWithIdAndSupermarket(int id, String supermarketPlaceId) {
-        BoughtItem item = new BoughtItem("i" + id, supermarketPlaceId, supermarketPlaceId);
-        item.setId(id);
-        return item;
-    }
-
-    @Test
-    public void createCyclicFreeItemGraph_AddSomeInconsistentDataAndSort() {
-        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
-        for (int i = 0; i < 10; i++) {
-            // make sure the consistent data was added often enough
-            addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
-        }
-
-        BoughtItem i0, i1, i2, i3, i4, i5;
-        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
-        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
-        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
-        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
-        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
-        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
-
-        List<BoughtItem> first, second, third;
-
-        first = new ArrayList<>(3);
-        first.add(i4);
-        first.add(i3);
-        first.add(i0);
-
-        second = new ArrayList<>(3);
-        second.add(i5);
-        second.add(i1);
-        second.add(i2);
-
-        third = new ArrayList<>(6);
-        third.add(i5);
-        third.add(i4);
-        third.add(i3);
-        third.add(i2);
-        third.add(i1);
-        third.add(i0);
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
-
-        // This data should not have changed much in the item graph, so sorting is still the same
-
-        sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(itemGraph);
-    }
-
-
 }
