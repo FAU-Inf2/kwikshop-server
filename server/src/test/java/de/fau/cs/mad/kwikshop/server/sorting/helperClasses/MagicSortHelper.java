@@ -15,6 +15,7 @@ public class MagicSortHelper {
     private final String ONE = "ONE";
     private final MagicSort algorithm = new MagicSort();
     private final SortingRequest defaultSortingRequest = new SortingRequest(ONE, ONE);
+    private final ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
 
     public List<Item> sort(ItemGraph itemGraph, List<Item> items) {
         return sort(itemGraph, items, defaultSortingRequest);
@@ -41,11 +42,16 @@ public class MagicSortHelper {
     public List<BoughtItem> sortBoughtItems(ItemGraph itemGraph, List<BoughtItem> boughtItems, SortingRequest sortingRequest) {
         List<Item> items = new ArrayList<>(boughtItems.size());
         for (BoughtItem boughtItem : boughtItems) {
-            // TODO: create new item and add to list
+            Item item = itemCreationHelper.createItemWithId(boughtItem.getId());
+            items.add(item);
         }
         List<Item> sortedItems = sort(itemGraph, items, sortingRequest);
         List<BoughtItem> sortedBoughtItems = new ArrayList<>(sortedItems.size());
-        // TODO: add corresponding bought items to list
+        String supermarketPlaceId = sortingRequest.getPlaceId();
+        for (Item item : sortedItems) {
+            BoughtItem boughtItem = itemCreationHelper.createBoughtItemWithIdAndSupermarket(item.getId(), supermarketPlaceId);
+            sortedBoughtItems.add(boughtItem);
+        }
         return sortedBoughtItems;
     }
 }
