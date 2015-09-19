@@ -25,7 +25,7 @@ public class ItemGraphTest {
     private final String CHAIN_ONE = "CHAIN_ONE";
     private final String CHAIN_TWO = "CHAIN_TWO";
 
-    private ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
+    private final ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
 
     /* Helper methods */
 
