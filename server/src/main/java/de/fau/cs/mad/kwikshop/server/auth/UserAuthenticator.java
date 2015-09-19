@@ -23,10 +23,10 @@ public class UserAuthenticator implements Authenticator<BasicCredentials, User> 
 
         /*if(credentials.getUsername().equals("DEBUG") && credentials.getPassword().equals("DEBUG")) {
 
-            List<User> debugUsers = facade.searchBySessionToken("debugToken");
+            List<User> debugUsers = facade.searchBySessionToken("DEBUG");
             if(debugUsers.size()  == 0) {
-                User debugUser = new User("debugUser");
-                debugUser.setSessionToken("debugToken");
+                User debugUser = new User("DEBUG");
+                debugUser.setSessionToken("DEBUG");
                 facade.createNewUser(debugUser);
                 return Optional.of(debugUser);
             } else {
