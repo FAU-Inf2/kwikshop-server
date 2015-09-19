@@ -13,6 +13,7 @@ import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemCreationHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemGraphHelper;
+import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.MagicSortHelper;
 
 import static org.junit.Assert.*;
 
@@ -27,6 +28,7 @@ public class ItemGraphTest {
 
     private final ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
     private final ItemGraphHelper itemGraphHelper = new ItemGraphHelper();
+    private final MagicSortHelper magicSortHelper = new MagicSortHelper();
 
     /* Helper methods */
 
@@ -334,8 +336,6 @@ public class ItemGraphTest {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         itemGraph.addBoughtItems(items);
 
-        Algorithm magicSort = new MagicSort();
-
         ShoppingListServer shoppingListServer;
 
         if (mixItemsBeforeSorting) {
@@ -348,15 +348,7 @@ public class ItemGraphTest {
                 and in the same order*/
         }
 
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-        List<Item> sortedItems = new ArrayList<>();
-        for(Item item: sortedList.getItems()) {
-            sortedItems.add(item);
-        }
-
-        /* Sort according to the order of each Item */
-        Collections.sort(sortedItems);
+        List<Item> sortedItems = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         for (int i = 0; i < n; i++) {
             assertEquals("A identical list was sorted different as before, although no different data is available. The lists first differ at element " + i, items.get(i).getName(), sortedItems.get(i).getName());
@@ -404,13 +396,11 @@ public class ItemGraphTest {
         addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i0);
 
         ShoppingListServer shoppingList = createShoppingListServerWithNItems(2);
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        Algorithm magicSort = new MagicSort();
 
-        // create a new shopping list, because it might be overwritten in sort()
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, new ShoppingListServer(42, shoppingList.getItems()), sortingRequest);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingList);
+
         for (Item item : shoppingList.getItems()) {
-            assertTrue("Item that was to be sorted is not contained in the sorted list", sortedList.getItems().contains(item));
+            assertTrue("Item that was to be sorted is not contained in the sorted list", sortedList.contains(item));
         }
     }
 
@@ -425,11 +415,9 @@ public class ItemGraphTest {
     }
 
     @Test
-    public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded__ItemsWereBoughtImmedeatelyOneAfterTheOtherBefore() {
+    public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded__ItemsWereBoughtImmediatelyOneAfterTheOtherBefore() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
 
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        Algorithm magicSort = new MagicSort();
         Item item1 = createItemWithId(1);
         Item item3 = createItemWithId(3);
         List<Item> shoppingListItems = new ArrayList<>(2);
@@ -438,13 +426,12 @@ public class ItemGraphTest {
 
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
 
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        List<Item> items = new ArrayList<>(sortedList.getItems());
-        Collections.sort(items);
+
         int iteration = 0;
-        for (Item item : items) {
+        for (Item item : sortedList) {
             if (iteration == 0) {
                 assertEquals("Item was not sorted correctly", item1.getName(), item.getName());
             } else {
@@ -459,9 +446,6 @@ public class ItemGraphTest {
     public void simpleListIsSortedCorrectlyIfIsNoConflictingDataWasAdded__ItemsWereOnlyBoughtWithAnOtherItemInBetween() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
 
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        Algorithm magicSort = new MagicSort();
-
         Item item4 = createItemWithId(4);
         Item item5 = createItemWithId(5);
 
@@ -471,12 +455,11 @@ public class ItemGraphTest {
 
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
 
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        Collection<Item> items = sortedList.getItems();
         int iteration = 0;
-        for (Item item : items) {
+        for (Item item : sortedList) {
             if (iteration == 0) {
                 assertEquals("Item was not sorted correctly", item5.getName(), item.getName());
             } else {
@@ -521,13 +504,11 @@ public class ItemGraphTest {
         }
 
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        Algorithm magicSort = new MagicSort();
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         String[] sortedNames = new String[5];
         int i = 0;
-        for (Item item : sortedList.getItems()) {
+        for (Item item : sortedList) {
             sortedNames[i++] = item.getName();
         }
 
