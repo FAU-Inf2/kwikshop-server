@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.Item;
@@ -13,6 +12,7 @@ import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.DAODummyHelper;
+import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemCreationHelper;
 
 import static org.junit.Assert.*;
 
@@ -25,6 +25,8 @@ public class ItemGraphTest {
     private final String CHAIN_ONE = "CHAIN_ONE";
     private final String CHAIN_TWO = "CHAIN_TWO";
 
+    private ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
+
     /* Helper methods */
 
     private ItemGraph createNewItemGraph() {
@@ -35,43 +37,6 @@ public class ItemGraphTest {
         ItemGraph itemGraph = new ItemGraph(new DAODummyHelper());
         itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
         return itemGraph;
-    }
-
-    private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
-        List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
-        for (int i = 0; i < numberOfItemsToCreate; i++) {
-            BoughtItem item = createBoughtItemWithIdAndSupermarket(i, supermarketPlaceId);
-            item.setId(i);
-            items.add(item);
-        }
-        return items;
-    }
-
-    private ShoppingListServer createShoppingListServerWithNItems(int n) {
-        ArrayList<Item> items = new ArrayList<>();
-        for (int i = 0; i < n; i++) {
-            Item item = createItemWithId(i);
-            items.add(item);
-        }
-        return new ShoppingListServer(0, items);
-    }
-
-    private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
-        List<Item> orderedItems = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
-            Item item = createItemWithId(i);
-            orderedItems.add(item);
-        }
-
-        Random random = new Random(n*n); // random generator with some random seed
-
-        ArrayList<Item> randomItems = new ArrayList<>();
-        while (!orderedItems.isEmpty()) {
-            int index = random.nextInt(orderedItems.size());
-            Item item = orderedItems.remove(index);
-            randomItems.add(item);
-        }
-        return new ShoppingListServer(0, randomItems);
     }
 
     private void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
@@ -147,19 +112,24 @@ public class ItemGraphTest {
 
     }
 
+    private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
+        return itemCreationHelper.createBoughtItems(numberOfItemsToCreate, supermarketPlaceId);
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItems(int n) {
+        return itemCreationHelper.createShoppingListServerWithNItems(n);
+    }
+
+    private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
+        return itemCreationHelper.createShoppingListServerWithNItemsMixedUp(n);
+    }
 
     private Item createItemWithId(int id) {
-        Item item = new Item();
-        item.setName("i" + id);
-        item.setID(id);
-        item.setServerId(id);
-        return item;
+        return itemCreationHelper.createItemWithId(id);
     }
 
     private BoughtItem createBoughtItemWithIdAndSupermarket(int id, String supermarketPlaceId) {
-        BoughtItem item = new BoughtItem("i" + id, supermarketPlaceId, supermarketPlaceId);
-        item.setId(id);
-        return item;
+        return itemCreationHelper.createBoughtItemWithIdAndSupermarket(id, supermarketPlaceId);
     }
 
 

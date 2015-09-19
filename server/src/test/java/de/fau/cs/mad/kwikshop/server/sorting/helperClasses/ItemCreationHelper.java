@@ -10,6 +10,16 @@ import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 
 public class ItemCreationHelper {
 
+    public List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
+        List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
+        for (int i = 0; i < numberOfItemsToCreate; i++) {
+            BoughtItem item = createBoughtItemWithIdAndSupermarket(i, supermarketPlaceId);
+            item.setId(i);
+            items.add(item);
+        }
+        return items;
+    }
+
     public ShoppingListServer createShoppingListServerWithNItems(int n) {
         ArrayList<Item> items = new ArrayList<>();
         for (int i = 0; i < n; i++) {
