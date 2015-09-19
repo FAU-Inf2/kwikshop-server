@@ -333,12 +333,9 @@ public class ItemGraphTest {
     }
 
     private ShoppingListServer createShoppingListServerWithNItems(int n) {
-        ArrayList<Item> items = new ArrayList<Item>();
+        ArrayList<Item> items = new ArrayList<>();
         for (int i = 0; i < n; i++) {
-            Item item = new Item();
-            item.setName("i" + i);
-            item.setID(i);
-            item.setServerId(i);
+            Item item = createItemWithId(i);
             items.add(item);
         }
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
@@ -348,16 +345,13 @@ public class ItemGraphTest {
     private ShoppingListServer createShoppingListServerWithNItemsMixedUp(int n) {
         List<Item> orderedItems = new ArrayList<>(n);
         for (int i = 0; i < n; i++) {
-            Item item = new Item();
-            item.setName("i" + i);
-            item.setID(i);
-            item.setServerId(i);
+            Item item = createItemWithId(i);
             orderedItems.add(item);
         }
 
         Random random = new Random(n*n); // random generator with some random seed
 
-        ArrayList<Item> randomItems = new ArrayList<Item>();
+        ArrayList<Item> randomItems = new ArrayList<>();
         while (!orderedItems.isEmpty()) {
             int index = random.nextInt(orderedItems.size());
             Item item = orderedItems.remove(index);
@@ -440,10 +434,7 @@ public class ItemGraphTest {
 
     @Test
     public void shoppingListServerAddItemAndGetItemsWorkTogether() {
-        Item item = new Item();
-        item.setName("i1");
-        item.setID(1);
-        item.setServerId(1);
+        Item item = createItemWithId(1);
 
         ShoppingListServer shoppingListServer = new ShoppingListServer(0);
         shoppingListServer.addItem(item);
@@ -457,16 +448,8 @@ public class ItemGraphTest {
 
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         Algorithm magicSort = new MagicSort();
-        Item item1 = new Item();
-        item1.setName("i1");
-        item1.setID(1);
-        item1.setServerId(1);
-
-        Item item3 = new Item();
-        item3.setName("i3");
-        item3.setID(3);
-        item3.setServerId(3);
-
+        Item item1 = createItemWithId(1);
+        Item item3 = createItemWithId(3);
         List<Item> shoppingListItems = new ArrayList<>(2);
         shoppingListItems.add(item3);
         shoppingListItems.add(item1);
@@ -497,16 +480,8 @@ public class ItemGraphTest {
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         Algorithm magicSort = new MagicSort();
 
-
-        Item item4 = new Item();
-        item4.setName("i4");
-        item4.setID(4);
-        item4.setServerId(4);
-
-        Item item5 = new Item();
-        item5.setName("i5");
-        item5.setID(5);
-        item5.setServerId(5);
+        Item item4 = createItemWithId(4);
+        Item item5 = createItemWithId(5);
 
         List<Item> shoppingListItems = new ArrayList<>(2);
         shoppingListItems.add(item5);
@@ -638,16 +613,8 @@ public class ItemGraphTest {
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         Algorithm magicSort = new MagicSort();
 
-
-        Item item2 = new Item();
-        item2.setName("i2");
-        item2.setID(2);
-        item2.setServerId(2);
-
-        Item item3 = new Item();
-        item3.setName("i3");
-        item3.setID(3);
-        item3.setServerId(3);
+        Item item2 = createItemWithId(2);
+        Item item3 = createItemWithId(3);
 
         List<Item> shoppingListItems = new ArrayList<>(2);
         shoppingListItems.add(item2);
@@ -760,15 +727,8 @@ public class ItemGraphTest {
         items.add(i0); // i0 is now contained twice - this is something that can definitely happen
         itemGraph.addBoughtItems(items);
 
-        Item i1 = new Item();
-        i1.setName("i1");
-        i1.setID(1);
-        i1.setServerId(1);
-
-        Item i2 = new Item();
-        i2.setName("i2");
-        i2.setID(2);
-        i2.setServerId(2);
+        Item i1 = createItemWithId(1);
+        Item i2 = createItemWithId(2);
 
         List<Item> listToSort = new ArrayList<>(2);
         listToSort.add(i1);
