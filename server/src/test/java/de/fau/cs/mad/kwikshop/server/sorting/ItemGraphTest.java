@@ -82,8 +82,8 @@ public class ItemGraphTest {
     @Test
     public void createOrUpdateEdgeForEmptyGraphShouldReturnAEdge() {
         ItemGraph itemGraph = createNewItemGraph();
-        BoughtItem i1 = new BoughtItem("i1", ONE, ONE);
-        BoughtItem i2 = new BoughtItem("i2", ONE, ONE);
+        BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        BoughtItem i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
@@ -93,8 +93,8 @@ public class ItemGraphTest {
     @Test
     public void createdEdgeShouldBeContainedInResultOfGetEdges() {
         ItemGraph itemGraph = createNewItemGraph();
-        BoughtItem i1 = new BoughtItem("i1", ONE, ONE);
-        BoughtItem i2 = new BoughtItem("i2", ONE, ONE);
+        BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        BoughtItem i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
@@ -139,7 +139,7 @@ public class ItemGraphTest {
     private List<BoughtItem> createBoughtItems(int numberOfItemsToCreate, String supermarketPlaceId) {
         List<BoughtItem> items = new ArrayList<>(numberOfItemsToCreate);
         for (int i = 0; i < numberOfItemsToCreate; i++) {
-            BoughtItem item = new BoughtItem("i" + i, supermarketPlaceId, supermarketPlaceId);
+            BoughtItem item = createBoughtItemWithIdAndSupermarket(i, supermarketPlaceId);
             item.setId(i);
             items.add(item);
         }
@@ -371,9 +371,9 @@ public class ItemGraphTest {
     @Test
     public void cycleOfThreeItemsShouldNotOccur() {
         BoughtItem i1, i2, i3;
-        i1 = new BoughtItem("i1", ONE, ONE);
-        i2 = new BoughtItem("i2", ONE, ONE);
-        i3 = new BoughtItem("i3", ONE, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
 
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
@@ -420,9 +420,9 @@ public class ItemGraphTest {
     @Test(timeout = 5000)
     public void sortWillReturnSomethingEvenIfTheDataIsInsufficient() {
         BoughtItem i1, i2, i0;
-        i1 = new BoughtItem("i1", ONE, ONE);
-        i2 = new BoughtItem("i2", ONE, ONE);
-        i0 = new BoughtItem("i0", ONE, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
 
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i0);
@@ -538,12 +538,12 @@ public class ItemGraphTest {
 
     private void addCycleFreeDataWithSixVerticesToItemGraph(ItemGraph itemGraph) {
         BoughtItem i0, i1, i2, i3, i4, i5;
-        i0 = new BoughtItem("i0", ONE, ONE);
-        i1 = new BoughtItem("i1", ONE, ONE);
-        i2 = new BoughtItem("i2", ONE, ONE);
-        i3 = new BoughtItem("i3", ONE, ONE);
-        i4 = new BoughtItem("i4", ONE, ONE);
-        i5 = new BoughtItem("i5", ONE, ONE);
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
 
         List<BoughtItem> first, second, third, fourth, fifth, sixth;
         first = new ArrayList<>(2);
@@ -795,11 +795,8 @@ public class ItemGraphTest {
     }
 
     private BoughtItem createBoughtItemWithIdAndSupermarket(int id, String supermarketPlaceId) {
-        BoughtItem item = new BoughtItem();
-        item.setName("i" + id);
+        BoughtItem item = new BoughtItem("i" + id, supermarketPlaceId, supermarketPlaceId);
         item.setId(id);
-        item.setSupermarketPlaceId(supermarketPlaceId);
-        item.setSupermarketName(supermarketPlaceId);
         return item;
     }
 
