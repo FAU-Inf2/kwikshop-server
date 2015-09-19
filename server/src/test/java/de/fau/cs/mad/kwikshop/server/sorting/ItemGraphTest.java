@@ -2,15 +2,13 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
-import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemCreationHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemGraphHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.MagicSortHelper;
@@ -519,9 +517,6 @@ public class ItemGraphTest {
     public void ifInsufficientDataIsAvailableTheOriginalShoppingListShouldNotBeAltered() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
 
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
-        Algorithm magicSort = new MagicSort();
-
         Item item2 = createItemWithId(2);
         Item item3 = createItemWithId(3);
 
@@ -530,12 +525,11 @@ public class ItemGraphTest {
         shoppingListItems.add(item3);
 
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, shoppingListItems);
-        ShoppingListServer sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        Collection<Item> items = sortedList.getItems();
         int iteration = 0;
-        for (Item item : items) {
+        for (Item item : sortedList) {
             if (iteration == 0) {
                 assertEquals("Item was not sorted correctly", item2.getName(), item.getName());
             } else {
@@ -552,12 +546,11 @@ public class ItemGraphTest {
         shoppingListItems.add(item2);
 
         shoppingListServer = new ShoppingListServer(0, shoppingListItems);
-        sortedList = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
+        sortedList = magicSortHelper.sort(itemGraph, shoppingListServer);
 
         assertEquals("The sorted list has a different size than before", 2, sortedList.size());
-        items = sortedList.getItems();
         iteration = 0;
-        for (Item item : items) {
+        for (Item item : sortedList) {
             if (iteration == 0) {
                 assertEquals("Item was not sorted correctly", item3.getName(), item.getName());
             } else {
@@ -569,14 +562,32 @@ public class ItemGraphTest {
     }
 
     @Test
-    @Ignore
-    public void sortingDoesNotAlterTheOriginalListButWorksOnACopy() {
+    public void sortingWithMagicSortHelperDoesNotAlterTheOriginalListButWorksOnACopy() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
         int n = 6;
-        ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
-        ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
+        ShoppingListServer shoppingList = createShoppingListServerWithNItemsMixedUp(n);
+        ShoppingListServer shoppingListCopy = createShoppingListServerWithNItemsMixedUp(n);
+        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListCopy);
 
-        assertNotSame(shoppingList, sorted);
+        String[] originalNames = new String[n];
+        String[] copiedNames = new String[n];
+        String[] sortedNames = new String[n];
+
+        int index = 0;
+        for (Item item : shoppingList.getItems()) {
+            originalNames[index++] = item.getName();
+        }
+        index = 0;
+        for (Item item : shoppingListCopy.getItems()) {
+            copiedNames[index++] = item.getName();
+        }
+        index = 0;
+        for (Item item : sorted) {
+            sortedNames[index++] = item.getName();
+        }
+
+        assertArrayEquals("The shopping list was altered while sorting", originalNames, copiedNames);
+        assertFalse("The list was not sorted at all. This might be because the sorting algorithm or the test case are broken.", Arrays.equals(originalNames, sortedNames));
     }
 
     @Test
@@ -634,9 +645,7 @@ public class ItemGraphTest {
     private void sortSixItemsAndMakeSureTheSortingFitsToTheDefaultCyclicFreeItemGraphWithSixEdges(ItemGraph itemGraph) {
         int n = 6;
         ShoppingListServer shoppingList = createShoppingListServerWithNItems(n);
-        ShoppingListServer sorted = itemGraph.sort(new MagicSort(), shoppingList, new SortingRequest(ONE, ONE));
-        List<Item> sortedList = new ArrayList<>(sorted.getItems());
-        Collections.sort(sortedList);
+        List<Item> sortedList = magicSortHelper.sort(itemGraph, shoppingList);
 
         ArrayList<String> orderedItemNames = new ArrayList<>(6);
         for (Item item : sortedList) {
@@ -689,15 +698,14 @@ public class ItemGraphTest {
         listToSort.add(i1);
         listToSort.add(i2);
 
-        Algorithm magicSort = new MagicSort();
-        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         ShoppingListServer shoppingListServer = new ShoppingListServer(0, listToSort);
 
-        shoppingListServer = itemGraph.sort(magicSort, shoppingListServer, sortingRequest);
-        assertEquals("The size of the sorted shopping list has changed while sorting", 2, shoppingListServer.getItems().size());
-        Item sortedItem1 = (Item) shoppingListServer.getItems().toArray()[0];
+        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer);
+
+        assertEquals("The size of the sorted shopping list has changed while sorting", 2, sorted.size());
+        Item sortedItem1 = sorted.get(0);
         assertEquals("The name of the first item that is to be sorted has changed while sorting", "i1", sortedItem1.getName());
-        Item sortedItem2 = (Item) shoppingListServer.getItems().toArray()[1];
+        Item sortedItem2 = sorted.get(1);
         assertEquals("The name of the second item that is to be sorted has changed while sorting", "i2", sortedItem2.getName());
     }
 }
