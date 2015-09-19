@@ -35,7 +35,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         unknownItems = new ArrayList<BoughtItem>();
         sortedList = new ArrayList<BoughtItem>();
 
-        sortedList.add(daoHelper.getStartBoughtItem());
+        //sortedList.add(daoHelper.getStartBoughtItem());
 
         /* Split the ShoppingList's Items into known and unknown Items */
         for(Item item: shoppingList.getItems()) {
@@ -61,7 +61,8 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
             }
         }
 
-        /* Step 3-5 */
+
+        /* Step 3-5 /
         traverse(daoHelper.getStartBoughtItem());
 
         System.out.println("-----TRAVERSE-----");
@@ -70,14 +71,21 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         }
         System.out.println("----------");
 
-        /* Step 6 */
+        /* Step 6 /
         while(knownItems.size() > 0)
             addMissingItems(knownItems.get(0));
 
         /* Add unknown Items at the end */
+
+        //this replaces the original sorting algorithm (should be more precise)
+        sortBoughtItems(knownItems);
+        for(BoughtItem item : knownItems){
+            sortedList.add(item);
+        }
+
         sortedList.addAll(unknownItems);
 
-        sortedList.remove(daoHelper.getStartBoughtItem());
+        //sortedList.remove(daoHelper.getStartBoughtItem());
 
         System.out.println("=====FINAL=====");
         for(BoughtItem item: sortedList) {
