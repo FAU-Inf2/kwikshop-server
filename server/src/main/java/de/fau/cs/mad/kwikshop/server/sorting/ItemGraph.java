@@ -128,14 +128,23 @@ public class ItemGraph {
 
             if(edge != null) {
                 /* Edit existing edge - decrease weight */
-                edge.setWeight(edge.getWeight()-1);
+                //edge.setWeight(edge.getWeight()-1);
 
-                /* Create edge in the opposite direction */
-                if(edge.getWeight() < 0) {
-                    daoHelper.deleteEdge(edge);
-                    daoHelper.createEdge(new Edge(i1, i2, supermarket));
-                    edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                //decrease weight of all edges to direct parent nodes (minimum distance) of the first item (which comes after the second one in the graph)
+                for(BoughtItem parent : getParents(i1)){
+                    Edge edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket);
+                    edgeToParentNode.setWeight(edgeToParentNode.getWeight() -1);
+
+                    /* Create edge in the opposite direction */
+                    if(edgeToParentNode.getWeight() < 0) {
+                        daoHelper.deleteEdge(edge);
+                        daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                        edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                        break;
+                    }
                 }
+
+
             } else {
                 /* Create new edge */
                 daoHelper.createEdge(new Edge(i1, i2, supermarket));
