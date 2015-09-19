@@ -408,7 +408,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
 
         /* Add indirect edges */
-        itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), itemOrder.getBoughtItemList());
+        //itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), itemOrder.getBoughtItemList());
     }
 
     @POST

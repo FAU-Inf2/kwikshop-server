@@ -156,8 +156,36 @@ public class ItemGraph {
             edge.setWeight(edge.getWeight()+1);
         }
 
+        insertIndirectEdges(i2, getParents(i2), 1, supermarket);
+
         return edge;
 
+    }
+
+    /* Connects a BoughtItem currentNode with all ancestors of his parents and sets distance
+     if it's lower than the existing distance for a given Supermarket*/
+    public void insertIndirectEdges(BoughtItem currentNode, List<BoughtItem> parents, int distance, Supermarket supermarket) {
+        Edge edge;
+        if (parents != null) {
+            for (BoughtItem parent : parents) {
+                if (getParents(parent) != null) {
+                    for (BoughtItem ancestor : getParents(parent)) {
+                        //edge exists already
+                        if ((edge = daoHelper.getEdgeByFromTo(ancestor, currentNode, supermarket)) != null) {
+                            //update distance
+                            edge.setWeight(edge.getWeight() + 1);
+                            if (edge.getDistance() > distance) edge.setDistance(distance);
+                        } else {
+                            //new Edge
+                            edge = new Edge(ancestor, currentNode, supermarket);
+                            edge.setDistance(distance);
+                            daoHelper.createEdge(edge);
+                        }
+                        insertIndirectEdges(currentNode, getParents(ancestor), distance + 1, supermarket);
+                    }
+                }
+            }
+        }
     }
 
     /* Adds the start and end Items for each Supermarket */
@@ -208,6 +236,7 @@ public class ItemGraph {
             if(daoHelper.getBoughtItemByName(boughtItem.getName()) == null)
                 daoHelper.createBoughtItem(boughtItem);
         }
+
 
         /* Save all new edges */
         for(int i = 0; i < boughtItems.size()-1; i++) {
@@ -269,8 +298,8 @@ public class ItemGraph {
     public List<BoughtItem> getParents(BoughtItem child) {
         List<BoughtItem> parents = new ArrayList<BoughtItem>();
 
-        for(Edge edge: edges) {
-            if(edge.getTo() == child)
+        for(Edge edge: getEdges()) {
+            if(edge.getTo() == child && edge.getDistance() == 0)
                 parents.add(edge.getFrom());
         }
 
@@ -280,8 +309,8 @@ public class ItemGraph {
     public List<BoughtItem> getChildren(BoughtItem parent) {
         List<BoughtItem> children = new ArrayList<BoughtItem>();
 
-        for(Edge edge: edges) {
-            if(edge.getFrom() == parent)
+        for(Edge edge: getEdges()) {
+            if(edge.getFrom() == parent && edge.getDistance() == 0)
                 children.add(edge.getTo());
         }
 
