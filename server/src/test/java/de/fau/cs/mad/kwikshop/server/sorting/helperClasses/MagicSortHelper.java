@@ -22,8 +22,16 @@ public class MagicSortHelper {
     }
 
     public List<Item> sort(ItemGraph itemGraph, List<Item> items, SortingRequest sortingRequest) {
-        ShoppingListServer itemsToSort = new ShoppingListServer(0, items);
-        ShoppingListServer sortedItemShoppingList = itemGraph.sort(algorithm, itemsToSort, sortingRequest);
+        ShoppingListServer shoppingList = new ShoppingListServer(0, items);
+        return sort(itemGraph, shoppingList, sortingRequest);
+    }
+
+    public List<Item> sort(ItemGraph itemGraph, ShoppingListServer shoppingList) {
+        return sort(itemGraph, shoppingList, defaultSortingRequest);
+    }
+
+    public List<Item> sort(ItemGraph itemGraph, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+        ShoppingListServer sortedItemShoppingList = itemGraph.sort(algorithm, shoppingList, sortingRequest);
 
         List<Item> sortedItems = new ArrayList<>();
         for(Item item: sortedItemShoppingList.getItems()) {
