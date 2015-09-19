@@ -531,6 +531,12 @@ public class ItemGraphTest {
     }
 
     private ItemGraph createCyclicFreeDataWithSixVertices() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        return itemGraph;
+    }
+
+    private void addCycleFreeDataWithSixVerticesToItemGraph(ItemGraph itemGraph) {
         BoughtItem i0, i1, i2, i3, i4, i5;
         i0 = new BoughtItem("i0", ONE, ONE);
         i1 = new BoughtItem("i1", ONE, ONE);
@@ -568,7 +574,7 @@ public class ItemGraphTest {
         sixth.add(i3);
         sixth.add(i4);
 
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+
         itemGraph.addBoughtItems(first);
         itemGraph.addBoughtItems(second);
         itemGraph.addBoughtItems(third);
@@ -576,7 +582,6 @@ public class ItemGraphTest {
         itemGraph.addBoughtItems(fifth);
         itemGraph.addBoughtItems(sixth);
 
-        return itemGraph;
     }
 
     @Test
