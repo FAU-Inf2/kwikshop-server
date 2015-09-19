@@ -74,6 +74,8 @@ public class Edge {
         return distance;
     }
 
+    public void setDistance(int distance) { this.distance = distance; }
+
     public void addDistance(int distance) {
         this.distance = this.distance + distance;
     }
