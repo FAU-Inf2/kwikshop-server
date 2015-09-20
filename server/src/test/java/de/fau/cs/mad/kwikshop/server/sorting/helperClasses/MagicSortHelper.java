@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -16,6 +17,10 @@ public class MagicSortHelper {
     private final MagicSort algorithm = new MagicSort();
     private final SortingRequest defaultSortingRequest = new SortingRequest(ONE, ONE);
     private final ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
+
+    public List<Item> sort(ItemGraph itemGraph, Item... items) {
+        return sort(itemGraph, Arrays.asList(items), defaultSortingRequest);
+    }
 
     public List<Item> sort(ItemGraph itemGraph, List<Item> items) {
         return sort(itemGraph, items, defaultSortingRequest);

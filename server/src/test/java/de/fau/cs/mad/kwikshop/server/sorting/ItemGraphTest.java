@@ -274,6 +274,44 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
     @Test
+    public void cycleOfFourItemsShouldNotOccur() {
+        BoughtItem i1, i2, i3, i4;
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        addItemsToItemGraphThatWouldProduceACycle(itemGraph, i1, i2, i3, i4);
+
+        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
+        item graph -> if there are edges i1->i2, i2->i3 and i3->i4, i4->i1 must not exist; only
+        three of these four edges may exist at one time*/
+        boolean i1ToI2Exists, i2ToI3Exists, i3ToI4Exists, i4ToI1Exists;
+        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
+        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
+        i3ToI4Exists = itemGraph.edgeFromToExists(i3, i4);
+        i4ToI1Exists = itemGraph.edgeFromToExists(i4, i1);
+
+        if (i1ToI2Exists) {
+            if (i2ToI3Exists) {
+                if (i3ToI4Exists) {
+                    assertFalse("Cycle in item graph detected", i4ToI1Exists);
+                } else {
+                    assertTrue("Missing edge in item Graph", i4ToI1Exists);
+                }
+            } else {
+                assertTrue("Missing edge in item Graph", i3ToI4Exists);
+                assertTrue("Missing edge in item Graph", i4ToI1Exists);
+            }
+        } else {
+            assertTrue("Missing edge in item Graph", i2ToI3Exists);
+            assertTrue("Missing edge in item Graph", i3ToI4Exists);
+            assertTrue("Missing edge in item Graph", i4ToI1Exists);
+        }
+    }
+
+    @Test
     public void edgeShouldFlipIfItemsAreAddedTheOtherWayRoundMoreOften() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
         BoughtItem i0 = items.get(0);
