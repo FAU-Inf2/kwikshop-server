@@ -398,7 +398,7 @@ public class MagicSortTest extends SortingTestSuperclass {
     private void sortAListThatContainsTheSameItemTwice(boolean mixedUp) {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
         Item i0 = createItemWithId(0);
-        Item i1= createItemWithId(1);
+        Item i1 = createItemWithId(1);
         Item i3 = createItemWithId(3);
         Item i1V2 = createItemWithId(1);
         i1V2.setServerId(4);

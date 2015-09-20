@@ -52,7 +52,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
                 continue;
             }
 
-            boughtItem.setItemId(item.getServerId()); /* Set ItemId - used to map BoughtItems to ShoppingList Items */
+            //boughtItem.setItemId(item.getServerId()); /* Set ItemId - used to map BoughtItems to ShoppingList Items */
 
             if(itemGraph.getVertices().contains(boughtItem)) {
                 knownItems.add(boughtItem);
@@ -183,16 +183,19 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
             if(boughtItem.equals(daoHelper.getEndBoughtItem()))
                 continue;
 
-            Item item = shoppingList.getItem(boughtItem.getItemId());
-            if(item == null)
-                continue;
-            if(item.getDeleted())
-                continue;
+            //Item item = shoppingList.getItem(boughtItem.getItemId());
+            List<Item> itemList = shoppingList.getAllItems(boughtItem.getName());
+            for(Item item : itemList) {
+                if (item == null)
+                    continue;
+                if (item.getDeleted())
+                    continue;
 
-            System.out.println("Setting order for: "+item.getName());
-            item.setOrder(i);
-            item.setVersion(item.getVersion()+1);
-            i++;
+                System.out.println("Setting order for: " + item.getName());
+                item.setOrder(i);
+                item.setVersion(item.getVersion() + 1);
+                i++;
+            }
         }
         shoppingList.setVersion(shoppingList.getVersion()+1);
         shoppingList.setLastModifiedDate(new Date());
