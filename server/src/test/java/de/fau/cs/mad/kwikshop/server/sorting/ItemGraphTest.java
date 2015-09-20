@@ -358,4 +358,22 @@ public class ItemGraphTest extends SortingTestSuperclass {
             }
         }
     }
+
+    @Test
+    public void weightOfANewlyAddedEdgeInASimpleGraphShouldBeOne() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("Edge has not been added", itemGraph.edgeFromToExists(i0, i1));
+        Set<Edge> edges = itemGraph.getEdgesFrom(i0);
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i1)) {
+                assertEquals("Weight of the edge is set incorrectly", 1, edge.getWeight());
+                return;
+            }
+        }
+    }
 }
