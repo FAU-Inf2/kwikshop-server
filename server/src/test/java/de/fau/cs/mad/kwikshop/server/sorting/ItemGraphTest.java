@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -337,4 +338,24 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
     }
 
+    @Test
+    public void edgeShouldFlipInsteadOfGettingWeightZero() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        itemGraph.addBoughtItems(items);
+        Collections.reverse(items);
+        itemGraph.addBoughtItems(items);
+
+        assertFalse("Old edge was not removed", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("New edge was not inserted", itemGraph.edgeFromToExists(i1, i0));
+        Set<Edge> edges = itemGraph.getEdgesFrom(i1);
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i0)) {
+                assertEquals("Weight of the edge is set incorrectly", 1, edge.getWeight());
+                return;
+            }
+        }
+    }
 }
