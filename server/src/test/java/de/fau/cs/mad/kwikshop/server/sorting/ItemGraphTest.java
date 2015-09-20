@@ -7,7 +7,9 @@ import java.util.List;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.DAODummyHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SortingTestSuperclass;
+import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SupermarketHelper;
 
 import static org.junit.Assert.*;
 
@@ -162,7 +164,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("item i2 is recognized as parent of i0 incorrectly", i0sParents.contains(i2));
         List<BoughtItem> i2sParents = itemGraph.getParents(i2);
         assertTrue("item i1 is not recognized as i2's parent", i2sParents.contains(i1));
-        assertFalse("item i0 is recoginzed as parent of i2 incorrectly", i2sParents.contains(i0));
+        assertFalse("item i0 is recognized as parent of i2 incorrectly", i2sParents.contains(i0));
     }
 
     @Test
@@ -458,5 +460,54 @@ public class ItemGraphTest extends SortingTestSuperclass {
             }
         }
         assertTrue("Edge i1->i2 not contained", edgeFound);
+    }
+
+
+    @Test
+    public void theGlobalSupermarketDataShouldBeUpdatedIfASupermarketChainIsSet() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        Supermarket supermarket = itemGraph.getSupermarket();
+        assertEquals("The placeId of the item graph's supermarket is not set correctly", "ONE", supermarket.getPlaceId());
+        SupermarketChain supermarketChain = supermarket.getSupermarketChain();
+        assertEquals("The supermarket chain is not set correctly", CHAIN_ONE, supermarketChain.getName());
+
+        SupermarketHelper supermarketHelper = new SupermarketHelper((DAODummyHelper) itemGraph.getDaoHelper());
+        Supermarket globalSupermarket = supermarketHelper.getGlobalSupermarket(supermarketChain);
+
+        ItemGraph globalSupermarketItemGraph = createNewItemGraphWithSupermarket(globalSupermarket.getPlaceId());
+        globalSupermarketItemGraph.update();
+
+        makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(globalSupermarketItemGraph);
+    }
+
+    //helper Method
+    private void makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(ItemGraph itemGraph) {
+        Set<BoughtItem> items = itemGraph.getVertices();
+        BoughtItem i0 = null, i1 = null, i2 = null, i3 = null, i4 = null, i5 = null;
+        for (BoughtItem item : items) {
+            switch (item.getId()) {
+                case 0: i0 = item; break;
+                case 1: i1 = item; break;
+                case 2: i2 = item; break;
+                case 3: i3 = item; break;
+                case 4: i4 = item; break;
+                case 5: i5 = item; break;
+            }
+        }
+
+        assertNotNull("Vertex not found in item graph", i0);
+        assertNotNull("Vertex not found in item graph", i1);
+        assertNotNull("Vertex not found in item graph", i2);
+        assertNotNull("Vertex not found in item graph", i3);
+        assertNotNull("Vertex not found in item graph", i4);
+        assertNotNull("Vertex not found in item graph", i5);
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i2));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i5));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i5, i3));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i3, i4));
     }
 }
