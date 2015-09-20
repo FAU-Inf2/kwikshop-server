@@ -383,4 +383,44 @@ public class MagicSortTest extends SortingTestSuperclass {
         Item sortedItem2 = sorted.get(1);
         assertEquals("The name of the second item that is to be sorted has changed while sorting", "i2", sortedItem2.getName());
     }
+
+    @Test
+    public void sortAListThatContainsTheSameItemTwice() {
+        sortAListThatContainsTheSameItemTwice(false);
+    }
+
+    @Test
+    public void sortAMixedUpListThatContainsTheSameItemTwice() {
+        sortAListThatContainsTheSameItemTwice(true);
+    }
+
+    // Helper method for a limited number of related tests
+    private void sortAListThatContainsTheSameItemTwice(boolean mixedUp) {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        Item i0 = createItemWithId(0);
+        Item i1= createItemWithId(1);
+        Item i3 = createItemWithId(3);
+        Item i1V2 = createItemWithId(1);
+        i1V2.setServerId(4);
+        i1V2.setID(4);
+
+        List<Item> sorted;
+        if (mixedUp) {
+            sorted = magicSortHelper.sort(itemGraph, i1V2, i0, i3, i1);
+        } else {
+            sorted = magicSortHelper.sort(itemGraph, i0, i1, i3, i1V2);
+        }
+
+        assertEquals("Not all items that were to be sorted were returned", 4, sorted.size());
+        assertTrue("i0 not contained in the sorted list", sorted.contains(i0));
+        assertTrue("i1 not contained in the sorted list", sorted.contains(i1));
+        assertTrue("i3 not contained in the sorted list", sorted.contains(i3));
+        assertTrue("i1 not contained in the sorted list a second time", sorted.contains(i1V2));
+
+        assertEquals("i0 not sorted at the right position", "i0", sorted.get(0).getName());
+        assertEquals("i1 not sorted at the right position", "i1", sorted.get(1).getName());
+        assertEquals("i1 not sorted at the right position a second time", "i1", sorted.get(2).getName());
+        assertEquals("i3 not sorted at the right position", "i3", sorted.get(3).getName());
+    }
+
 }
