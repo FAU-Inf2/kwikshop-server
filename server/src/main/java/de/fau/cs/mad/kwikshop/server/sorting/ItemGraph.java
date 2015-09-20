@@ -231,8 +231,6 @@ public class ItemGraph {
 
     public void addBoughtItems(List<BoughtItem> newBoughtItems) {
 
-        update();
-
         List<BoughtItem> boughtItems = new ArrayList<BoughtItem>(newBoughtItems);
 
         /* Add start and end Items for every Supermarket */
