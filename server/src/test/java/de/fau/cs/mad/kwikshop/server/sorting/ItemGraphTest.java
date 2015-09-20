@@ -398,4 +398,40 @@ public class ItemGraphTest extends SortingTestSuperclass {
             }
         }
     }
+
+    @Test
+    public void weightOfAnEdgeShouldBeIncrementedIfItemsAreBoughtInThatOrder() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        BoughtItem i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        Set<Edge> edges = itemGraph.getEdgesFrom(i1);
+        Edge edge = null;
+        for (Edge e : edges) {
+            if (e.getTo().equals(i3)) {
+                edge = e;
+                break;
+            }
+        }
+        assertNotNull("Edge i1->i3 not found, although it should be part of the item graph", edge);
+        int weightBeforeUpdate = edge.getWeight();
+
+        List<BoughtItem> items = new ArrayList<>(2);
+        items.add(i1);
+        items.add(i3);
+        itemGraph.addBoughtItems(items);
+
+        edges = itemGraph.getEdgesFrom(i1);
+        edge = null;
+        for (Edge e : edges) {
+            if (e.getTo().equals(i3)) {
+                edge = e;
+                break;
+            }
+        }
+        assertNotNull("Edge i1->i3 not found, although it should be part of the item graph and already was before the update", edge);
+        int weightAfterUpdate = edge.getWeight();
+
+        assertEquals("The weight of the edge was not updated correctly", weightBeforeUpdate + 1, weightAfterUpdate);
+
+    }
 }
