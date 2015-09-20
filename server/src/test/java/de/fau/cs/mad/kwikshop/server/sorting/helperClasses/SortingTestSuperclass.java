@@ -34,6 +34,10 @@ public class SortingTestSuperclass {
         itemGraphHelper.addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
     }
 
+    protected void addItemsToItemGraphThatWouldProduceACycle(ItemGraph itemGraph, BoughtItem... boughtItems) {
+        itemGraphHelper.addItemsToItemGraphThatWouldProduceACycle(itemGraph, boughtItems);
+    }
+
     protected ItemGraph createCyclicFreeDataWithSixVertices() {
         return itemGraphHelper.createCyclicFreeDataWithSixVertices();
     }

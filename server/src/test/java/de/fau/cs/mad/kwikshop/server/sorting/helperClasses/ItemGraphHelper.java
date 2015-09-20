@@ -22,22 +22,18 @@ public class ItemGraphHelper {
     }
 
     public void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
-        List<BoughtItem> first, second, third;
-        first = new ArrayList<>(2);
-        first.add(i1);
-        first.add(i2);
+        addItemsToItemGraphThatWouldProduceACycle(itemGraph, i1, i2, i3);
+    }
 
-        second = new ArrayList<>(2);
-        second.add(i2);
-        second.add(i3);
-
-        third = new ArrayList<>(2);
-        third.add(i3);
-        third.add(i1);
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
+    public void addItemsToItemGraphThatWouldProduceACycle(ItemGraph itemGraph, BoughtItem... boughtItems) {
+        for (int i = 0; i < boughtItems.length; i++) {
+            BoughtItem firstItem = boughtItems[i];
+            BoughtItem secondItem = boughtItems[(i+1) % boughtItems.length];
+            List<BoughtItem> itemsToAdd = new ArrayList<>(2);
+            itemsToAdd.add(firstItem);
+            itemsToAdd.add(secondItem);
+            itemGraph.addBoughtItems(itemsToAdd);
+        }
     }
 
     public ItemGraph createCyclicFreeDataWithSixVertices() {
