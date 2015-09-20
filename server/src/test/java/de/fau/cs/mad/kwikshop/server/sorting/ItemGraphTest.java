@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -337,4 +338,125 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
     }
 
+    @Test
+    public void edgeShouldFlipInsteadOfGettingWeightZero() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        itemGraph.addBoughtItems(items);
+        Collections.reverse(items);
+        itemGraph.addBoughtItems(items);
+
+        assertFalse("Old edge was not removed", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("New edge was not inserted", itemGraph.edgeFromToExists(i1, i0));
+        Set<Edge> edges = itemGraph.getEdgesFrom(i1);
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i0)) {
+                assertEquals("Weight of the edge is set incorrectly", 1, edge.getWeight());
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void weightOfANewlyAddedEdgeInASimpleGraphShouldBeOne() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(2, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("Edge has not been added", itemGraph.edgeFromToExists(i0, i1));
+        Set<Edge> edges = itemGraph.getEdgesFrom(i0);
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i1)) {
+                assertEquals("Weight of the edge is set incorrectly", 1, edge.getWeight());
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void weightOfANewlyAddedEdgeInAComplicatedGraphShouldBeOne() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        BoughtItem i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        BoughtItem i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        BoughtItem i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        List<BoughtItem> items = new ArrayList<>(3);
+        items.add(i0);
+        items.add(i2);
+        items.add(i3);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("Edge has not been added", itemGraph.edgeFromToExists(i2, i3));
+        Set<Edge> edges = itemGraph.getEdgesFrom(i2);
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i3)) {
+                assertEquals("Weight of the edge is set incorrectly", 1, edge.getWeight());
+                return;
+            }
+        }
+    }
+
+    @Test
+    public void weightOfAnEdgeShouldBeIncrementedIfItemsAreBoughtInThatOrder() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        BoughtItem i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        Set<Edge> edges = itemGraph.getEdgesFrom(i1);
+        Edge edge = null;
+        for (Edge e : edges) {
+            if (e.getTo().equals(i3)) {
+                edge = e;
+                break;
+            }
+        }
+        assertNotNull("Edge i1->i3 not found, although it should be part of the item graph", edge);
+        int weightBeforeUpdate = edge.getWeight();
+
+        List<BoughtItem> items = new ArrayList<>(2);
+        items.add(i1);
+        items.add(i3);
+        itemGraph.addBoughtItems(items);
+
+        edges = itemGraph.getEdgesFrom(i1);
+        edge = null;
+        for (Edge e : edges) {
+            if (e.getTo().equals(i3)) {
+                edge = e;
+                break;
+            }
+        }
+        assertNotNull("Edge i1->i3 not found, although it should be part of the item graph and already was before the update", edge);
+        int weightAfterUpdate = edge.getWeight();
+
+        assertEquals("The weight of the edge was not updated correctly", weightBeforeUpdate + 1, weightAfterUpdate);
+    }
+
+    @Test
+    public void getEdgesFromDoesReturnEdges() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        itemGraph.addBoughtItems(items);
+        Set<Edge> edgesFromI0 = itemGraph.getEdgesFrom(items.get(0));
+        boolean edgeFound = false;
+        for (Edge edge : edgesFromI0) {
+            if (edge.getTo().equals(items.get(1))) {
+                edgeFound = true;
+                break;
+            }
+        }
+        assertTrue("Edge i0->i1 not contained", edgeFound);
+
+        Set<Edge> edgesFromI1 = itemGraph.getEdgesFrom(items.get(1));
+        edgeFound = false;
+        for (Edge edge : edgesFromI1) {
+            if (edge.getTo().equals(items.get(2))) {
+                edgeFound = true;
+                break;
+            }
+        }
+        assertTrue("Edge i1->i2 not contained", edgeFound);
+    }
 }
