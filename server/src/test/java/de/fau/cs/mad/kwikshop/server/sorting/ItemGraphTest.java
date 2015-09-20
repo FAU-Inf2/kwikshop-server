@@ -432,6 +432,31 @@ public class ItemGraphTest extends SortingTestSuperclass {
         int weightAfterUpdate = edge.getWeight();
 
         assertEquals("The weight of the edge was not updated correctly", weightBeforeUpdate + 1, weightAfterUpdate);
+    }
 
+    @Test
+    public void getEdgesFromDoesReturnEdges() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        itemGraph.addBoughtItems(items);
+        Set<Edge> edgesFromI0 = itemGraph.getEdgesFrom(items.get(0));
+        boolean edgeFound = false;
+        for (Edge edge : edgesFromI0) {
+            if (edge.getTo().equals(items.get(1))) {
+                edgeFound = true;
+                break;
+            }
+        }
+        assertTrue("Edge i0->i1 not contained", edgeFound);
+
+        Set<Edge> edgesFromI1 = itemGraph.getEdgesFrom(items.get(1));
+        edgeFound = false;
+        for (Edge edge : edgesFromI1) {
+            if (edge.getTo().equals(items.get(2))) {
+                edgeFound = true;
+                break;
+            }
+        }
+        assertTrue("Edge i1->i2 not contained", edgeFound);
     }
 }
