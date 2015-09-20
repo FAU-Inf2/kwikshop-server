@@ -142,7 +142,7 @@ public class ItemGraph {
                     edgeToParentNode.setWeight(edgeToParentNode.getWeight() -1);
 
                     /* Create edge in the opposite direction */
-                    if(edgeToParentNode.getWeight() < 0) {
+                    if(edgeToParentNode.getWeight() <= 0) {
                         daoHelper.deleteEdge(edge);
                         daoHelper.createEdge(new Edge(i1, i2, supermarket));
                         edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
