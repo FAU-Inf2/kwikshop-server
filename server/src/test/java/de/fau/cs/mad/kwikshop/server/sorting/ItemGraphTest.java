@@ -237,8 +237,12 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
         assertTrue("There is no edge from i0 to i1", itemGraph.edgeFromToExists(i0, i1));
         assertTrue("There is no edge from i1 to i2", itemGraph.edgeFromToExists(i1, i2));
+        assertTrue("There is no edge from start to i2", itemGraph.edgeFromToExists(itemGraph.getDaoHelper().getStartBoughtItem(), i2));
         assertTrue("There is no edge from start to i1", itemGraph.edgeFromToExists(itemGraph.getDaoHelper().getStartBoughtItem(), i1));
         assertTrue("There is no edge from i0 to i2", itemGraph.edgeFromToExists(i0, i2));
+        assertTrue("There is no edge from i0 to end", itemGraph.edgeFromToExists(i0, itemGraph.getDaoHelper().getEndBoughtItem()));
+        assertTrue("There is no edge from i1 to end", itemGraph.edgeFromToExists(i1, itemGraph.getDaoHelper().getEndBoughtItem()));
+        assertTrue("There is no edge from i2 to end", itemGraph.edgeFromToExists(i2, itemGraph.getDaoHelper().getEndBoughtItem()));
         assertTrue("The indirect edge from i0 to i2 has the wrong distance", itemGraph.getDaoHelper().getEdgeByFromTo(i0, i2, itemGraph.getSupermarket()).getDistance() == 1);
     }
 
