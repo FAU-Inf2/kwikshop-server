@@ -339,7 +339,7 @@ public class ItemGraph {
         Set<Edge> edges = new HashSet<Edge>();
 
         for(Edge edge: getEdges()) {
-            if(edge.getFrom() == boughtItem)
+            if(edge.getFrom().equals(boughtItem))
                 edges.add(edge);
         }
 
@@ -349,7 +349,7 @@ public class ItemGraph {
     //checks if there is an edge from node from to node to
     public boolean edgeFromToExists(BoughtItem from, BoughtItem to){
         for(Edge edge : getEdgesFrom(from)) {
-            if(edge.getTo() == to)
+            if(edge.getTo().equals(to))
                 return true;
         }
         
