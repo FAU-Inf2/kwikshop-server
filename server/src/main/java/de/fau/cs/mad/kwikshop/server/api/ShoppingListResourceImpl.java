@@ -23,7 +23,6 @@ import de.fau.cs.mad.kwikshop.server.exceptions.ItemNotFoundException;
 import de.fau.cs.mad.kwikshop.server.exceptions.ListNotFoundException;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelperImpl;
-import de.fau.cs.mad.kwikshop.server.sorting.IndirectEdgeInsertion;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import de.fau.cs.mad.kwikshop.server.sorting.MagicSort;
 import io.dropwizard.auth.Auth;
@@ -406,9 +405,6 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
         ItemGraph itemGraph = new ItemGraph(daoHelper);
         itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
-
-        /* Add indirect edges */
-        //itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), itemOrder.getBoughtItemList());
     }
 
     @POST

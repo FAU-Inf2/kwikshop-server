@@ -225,12 +225,6 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("non existing edge detected", itemGraph.edgeFromToExists(items.get(1), items.get(0)));
     }
 
-    @Test
-    public void executeAlgorithmDoesNotCrash() {
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        List<BoughtItem> items = createBoughtItems(2, ONE);
-        itemGraph.executeAlgorithm(new IndirectEdgeInsertion(), items);
-    }
 
     @Test
     public void cycleOfThreeItemsShouldNotOccur() {
