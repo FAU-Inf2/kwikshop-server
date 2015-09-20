@@ -65,7 +65,7 @@ public class DAODummyHelper implements DAOHelper {
         defaultSupermarketThree = new Supermarket();
         defaultSupermarketThree.setId(3);
         defaultSupermarketThree.setPlaceId(THREE);
-        defaultSupermarketThree.setSupermarketChain(defaultSupermarketChainTwo);
+        defaultSupermarketThree.setSupermarketChain(defaultSupermarketChainOne);
 
         defaultSupermarketFour = new Supermarket();
         defaultSupermarketFour.setId(4);
