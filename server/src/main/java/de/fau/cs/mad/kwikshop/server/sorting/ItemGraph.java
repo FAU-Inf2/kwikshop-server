@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +41,13 @@ public class ItemGraph {
     }
 
     public Set<Edge> getEdges() {
-        if(edges == null)
-            edges = new HashSet<Edge>();
+        if(edges == null) {
+            List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
+            if (edgeList != null)
+                edges = new HashSet<Edge>(edgeList);
+            else
+                edges = new HashSet<Edge>();
+        }
         return edges;
     }
 
@@ -156,7 +162,10 @@ public class ItemGraph {
             edge.setWeight(edge.getWeight()+1);
         }
 
-        insertIndirectEdges(i2, getParents(i2), 1, supermarket);
+        System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+        ArrayList<BoughtItem> parent = new ArrayList<BoughtItem>();
+        parent.add(i1);
+        insertIndirectEdges(i2, parent, 1, supermarket);
 
         return edge;
 
@@ -168,21 +177,27 @@ public class ItemGraph {
         Edge edge;
         if (parents != null) {
             for (BoughtItem parent : parents) {
+                System.out.println("Parent found " + parent.getName());
                 if (getParents(parent) != null) {
                     for (BoughtItem ancestor : getParents(parent)) {
                         //edge exists already
+                        System.out.println("Ancestor found: " + ancestor.getName());
                         if ((edge = daoHelper.getEdgeByFromTo(ancestor, currentNode, supermarket)) != null) {
                             //update distance
+                            System.out.println("Updated edge: " + ancestor.getName() +  "->" + currentNode.getName());
                             edge.setWeight(edge.getWeight() + 1);
                             if (edge.getDistance() > distance) edge.setDistance(distance);
                         } else {
                             //new Edge
+                            System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
                             edge = new Edge(ancestor, currentNode, supermarket);
                             edge.setDistance(distance);
                             daoHelper.createEdge(edge);
                         }
                         insertIndirectEdges(currentNode, getParents(ancestor), distance + 1, supermarket);
                     }
+                }else{
+                    System.out.println("No ancestor found");
                 }
             }
         }
@@ -225,6 +240,8 @@ public class ItemGraph {
     }
 
     public void addBoughtItems(List<BoughtItem> newBoughtItems) {
+
+        update();
 
         List<BoughtItem> boughtItems = new ArrayList<BoughtItem>(newBoughtItems);
 
@@ -298,7 +315,7 @@ public class ItemGraph {
     public List<BoughtItem> getParents(BoughtItem child) {
         List<BoughtItem> parents = new ArrayList<BoughtItem>();
 
-        for(Edge edge: getEdges()) {
+        for(Edge edge: daoHelper.getEdgesByTo(child, supermarket)) {
             if(edge.getTo() == child && edge.getDistance() == 0)
                 parents.add(edge.getFrom());
         }

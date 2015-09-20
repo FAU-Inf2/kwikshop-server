@@ -227,6 +227,23 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
 
     @Test
+    public void indirectEdgesAreSetCorrectlyForThreeItems(){
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        BoughtItem i2 = items.get(2);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("There is no edge from i0 to i1", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("There is no edge from i1 to i2", itemGraph.edgeFromToExists(i1, i2));
+        assertTrue("There is no edge from start to i1", itemGraph.edgeFromToExists(itemGraph.getDaoHelper().getStartBoughtItem(), i1));
+        assertTrue("There is no edge from i0 to i2", itemGraph.edgeFromToExists(i0, i2));
+        assertTrue("The indirect edge from i0 to i2 has the wrong distance", itemGraph.getDaoHelper().getEdgeByFromTo(i0, i2, itemGraph.getSupermarket()).getDistance() == 1);
+    }
+
+
+    @Test
     public void cycleOfThreeItemsShouldNotOccur() {
         BoughtItem i1, i2, i3;
         i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
@@ -277,4 +294,5 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("The inverted edge has not been added after the data changed", itemGraph.edgeFromToExists(i1, i0));
         assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
     }
+
 }
