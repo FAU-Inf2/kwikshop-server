@@ -9,6 +9,7 @@ import java.util.List;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SortingTestSuperclass;
 
 import static org.junit.Assert.*;
@@ -421,6 +422,20 @@ public class MagicSortTest extends SortingTestSuperclass {
         assertEquals("i1 not sorted at the right position", "i1", sorted.get(1).getName());
         assertEquals("i1 not sorted at the right position a second time", "i1", sorted.get(2).getName());
         assertEquals("i3 not sorted at the right position", "i3", sorted.get(3).getName());
+    }
+
+    @Test
+    public void ifNoDataIsAvailableForTheCurrentSupermarketTheGlobalSupermarketChainDataShouldBeUsed() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+
+        ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(3);
+
+        SortingRequest sortingRequest = new SortingRequest(THREE, THREE); // This supermarket belongs to the same chain as ONE
+        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer, sortingRequest);
+
+        assertEquals("The first item was not sorted correctly according to the global data of this supermarket", "i0", sorted.get(0).getName());
+        assertEquals("The second item was not sorted correctly according to the global data of this supermarket", "i1", sorted.get(1).getName());
+        assertEquals("The third item was not sorted correctly according to the global data of this supermarket", "i2", sorted.get(2).getName());
     }
 
 }
