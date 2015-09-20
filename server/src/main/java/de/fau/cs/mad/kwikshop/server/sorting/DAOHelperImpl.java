@@ -21,6 +21,7 @@ public class DAOHelperImpl implements DAOHelper {
         this.edgeDAO = edgeDAO;
         this.supermarketDAO = supermarketDAO;
         this.supermarketChainDAO = supermarketChainDAO;
+        this.supermarketChainDAO.setUp();
     }
 
     @Override
