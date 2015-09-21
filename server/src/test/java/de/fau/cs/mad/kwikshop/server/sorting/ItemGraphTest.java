@@ -758,4 +758,34 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i2, i0));
     }
+
+    @Test
+    public void cycleDetectionShouldRemoveAnOtherEdgeWithWeightOneInsteadOfNotAddingANewEdge() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        BoughtItem i0, i1, i2;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        itemGraph.addBoughtItems(items);
+
+        List<BoughtItem> secondPurchase = new ArrayList<>(2);
+        secondPurchase.add(i0);
+        secondPurchase.add(i1);
+        itemGraph.addBoughtItems(secondPurchase);
+
+        // now the item graph should look like this:
+        // i0-->i1->i2
+
+        List<BoughtItem> thirdPurchase = new ArrayList<>(2);
+        thirdPurchase.add(i2);
+        thirdPurchase.add(i0);
+
+        // This would close the cycle. As new data is preferred, the weight-1-edge i1->i2 should be removed
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
+        assertFalse("Cycle detected", itemGraph.edgeFromToExists(i1, i2));
+
+    }
 }
