@@ -510,4 +510,12 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i5, i3));
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i3, i4));
     }
+
+    @Test
+    public void makeSureTheCyclicFreeItemGraphWithSixVerticesHasEdgesSetCorrectly() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
+    }
+
+
 }
