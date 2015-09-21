@@ -573,4 +573,134 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Inverse edge was not added when edge should have flipped", itemGraph.edgeFromToExists(i2, i1));
         assertFalse("Edge that should have flipped was not removed", itemGraph.edgeFromToExists(i1, i2));
     }
+
+    @Test
+    public void addDataThatWouldProduceTwoCyclesAtOnce() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(5, ONE);
+        BoughtItem i0, i1, i2, i3, i4;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i0,i1));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i1,i2));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2,i3));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3,i4));
+
+        List<BoughtItem> secondPurchase = new ArrayList<>(3);
+        secondPurchase.add(i4);
+        secondPurchase.add(i2); // would close cycle i2->i3->i4->i2
+        secondPurchase.add(i0); // would close cycle i0->i1->i2->i0
+
+        // check if first cycle was closed
+        if (itemGraph.edgeFromToExists(i0, i1)) {
+            if (itemGraph.edgeFromToExists(i1, i2)) {
+                assertFalse("cycle found: i0->i1->i2->i0", itemGraph.edgeFromToExists(i2, i0));
+            } else {
+                assertTrue("missing edge found", itemGraph.edgeFromToExists(i2, i0));
+            }
+        } else {
+            assertTrue("missing edge found", itemGraph.edgeFromToExists(i1, i2));
+            assertTrue("missing edge found", itemGraph.edgeFromToExists(i2, i0));
+        }
+
+        // check if second cycle was closed
+        if (itemGraph.edgeFromToExists(i2, i3)) {
+            if (itemGraph.edgeFromToExists(i3, i4)) {
+                assertFalse("cycle found: i2->i3->i4->i2", itemGraph.edgeFromToExists(i4, i2));
+            } else {
+                assertTrue("missing edge found", itemGraph.edgeFromToExists(i4, i2));
+            }
+        } else {
+            assertTrue("missing edge found", itemGraph.edgeFromToExists(i3, i4));
+            assertTrue("missing edge found", itemGraph.edgeFromToExists(i4, i2));
+        }
+    }
+
+    @Test
+    public void addDataThatWouldProduceThreeCyclesAtOnce() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(5, ONE);
+        BoughtItem i0, i1, i2, i3, i4;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        itemGraph.addBoughtItems(items);
+
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i0,i1));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i1,i2));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2,i3));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3,i4));
+
+        List<BoughtItem> secondPurchase = new ArrayList<>(4);
+        secondPurchase.add(i4);
+        secondPurchase.add(i0); // would close cycle i0->i1->i2->i3->i4->i0
+        secondPurchase.add(i3); // would close cycle i3->i4->i0->i3
+        secondPurchase.add(i1); // would close cycle i1->i2->i3->i1
+
+        boolean i0ToI1Exists, i1ToI2Exists, i2ToI3Exists, i3ToI4Exists, i4ToI0Exists, i0ToI3Exists, i3ToI1Exists;
+        i0ToI1Exists = itemGraph.edgeFromToExists(i0, i1);
+        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
+        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
+        i3ToI4Exists = itemGraph.edgeFromToExists(i3, i4);
+        i4ToI0Exists = itemGraph.edgeFromToExists(i4, i0);
+
+        i0ToI3Exists = itemGraph.edgeFromToExists(i0, i3);
+        i3ToI1Exists = itemGraph.edgeFromToExists(i3, i1);
+
+        // check if big cycle was closed
+        if (i0ToI1Exists) {
+            if (i1ToI2Exists) {
+                if (i2ToI3Exists) {
+                    if (i3ToI4Exists) {
+                        assertFalse("cycle found: i0->i1->i2->i3->i4->i0", i4ToI0Exists);
+                    } else {
+                        assertTrue("Missing edge found", i4ToI0Exists);
+                    }
+                } else {
+                    assertTrue("Missing edge found", i3ToI4Exists);
+                    assertTrue("Missing edge found", i4ToI0Exists);
+                }
+            } else {
+                assertTrue("Missing edge found", i2ToI3Exists);
+                assertTrue("Missing edge found", i3ToI4Exists);
+                assertTrue("Missing edge found", i4ToI0Exists);
+            }
+        } else {
+            assertTrue("Missing edge found", i1ToI2Exists);
+            assertTrue("Missing edge found", i2ToI3Exists);
+            assertTrue("Missing edge found", i3ToI4Exists);
+            assertTrue("Missing edge found", i4ToI0Exists);
+        }
+
+        // check if first small cycle was closed
+        if (i3ToI4Exists) {
+            if (i4ToI0Exists) {
+                assertFalse("cycle found: i3->i4->i0->i3", i0ToI3Exists);
+            } else {
+                assertTrue("missing edge found", i0ToI3Exists);
+            }
+        } else {
+            assertTrue("missing edge found", i4ToI0Exists);
+            assertTrue("missing edge found", i0ToI3Exists);
+        }
+
+        // check if second small cycle was closed
+        if (i1ToI2Exists) {
+            if (i2ToI3Exists) {
+                assertFalse("cycle found: i1->i2->i3->i1", i3ToI1Exists);
+            } else {
+                assertTrue("missing edge found", i3ToI1Exists);
+            }
+        } else {
+            assertTrue("missing edge found", i2ToI3Exists);
+            assertTrue("missing edge found", i3ToI1Exists);
+        }
+    }
 }
