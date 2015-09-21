@@ -517,5 +517,19 @@ public class ItemGraphTest extends SortingTestSuperclass {
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
     }
 
+    @Test
+    public void addItemsToTheExampleItemGraphThatWouldProduceACycleButShouldNotRemoveAnyEdges() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        BoughtItem i3, i4, i5;
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
+        List<BoughtItem> items = new ArrayList<>(3);
+        items.add(i3);
+        items.add(i4);
+        items.add(i5);
 
+        itemGraph.addBoughtItems(items);
+        makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
+    }
 }
