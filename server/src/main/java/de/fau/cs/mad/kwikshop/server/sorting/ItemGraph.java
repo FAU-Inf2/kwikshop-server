@@ -207,7 +207,9 @@ public class ItemGraph {
 
         /* Add the very first start item and the very last end item */
         BoughtItem first = new BoughtItem(DAOHelper.START_ITEM, lastPlaceId, lastSupermarketName);
+        first.setServerInternalItem(true);
         BoughtItem last  = new BoughtItem(DAOHelper.END_ITEM, boughtItemList.get(boughtItemList.size()-1).getSupermarketPlaceId(), boughtItemList.get(boughtItemList.size()-1).getSupermarketName());
+        last.setServerInternalItem(true);
         boughtItemList.add(0, first);
         boughtItemList.add(boughtItemList.size(), last);
 
@@ -219,7 +221,9 @@ public class ItemGraph {
 
             if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
                 BoughtItem startItem = new BoughtItem(DAOHelper.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
+                startItem.setServerInternalItem(true);
                 BoughtItem endItem   = new BoughtItem(DAOHelper.END_ITEM, lastPlaceId, lastSupermarketName);
+                endItem.setServerInternalItem(true);
                 boughtItemList.add(i, startItem);
                 boughtItemList.add(i, endItem);
 

@@ -80,7 +80,9 @@ public class DAODummyHelper implements DAOHelper {
         edges = new HashMap<>();
 
         startBoughtItem = new BoughtItem(START_ITEM);
+        startBoughtItem.setServerInternalItem(true);
         endBoughtItem = new BoughtItem(END_ITEM);
+        endBoughtItem.setServerInternalItem(true);
         boughtItems = new HashMap<>();
         boughtItems.put(START_ITEM, startBoughtItem);
         boughtItems.put(END_ITEM, endBoughtItem);
