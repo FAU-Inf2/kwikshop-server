@@ -1,6 +1,9 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
+
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -820,5 +823,45 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge detected", itemGraph.edgeFromToExists(i0, iEnd));
         assertTrue("Missing edge detected", itemGraph.edgeFromToExists(iEnd, iStart));
         assertTrue("Missing edge detected", itemGraph.edgeFromToExists(iStart, i3));
+    }
+
+    @Test
+    public void privateMethodAddStartEndDoesWorkIfItemsAreCalledSTART_ITEM_or_END_ITEM() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        String startItemName = DAOHelper.START_ITEM;
+        String endItemName = DAOHelper.END_ITEM;
+
+        BoughtItem i0, iEnd, iStart, i3;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        iEnd = new BoughtItem(endItemName, ONE, ONE);
+        iEnd.setId(1);
+        iStart = new BoughtItem(startItemName, ONE, ONE);
+        iStart.setId(2);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+
+        List<BoughtItem> boughtItems = new ArrayList<>(4);
+        boughtItems.add(i0);
+        boughtItems.add(iEnd);
+        boughtItems.add(iStart);
+        boughtItems.add(i3);
+        // __DON'T__ call itemGraph.addBoughtItems(boughtItems)!!!
+
+        // call the private method itemGraph.addStartEnd using Java Reflections
+        Method addStartEnd = ItemGraph.class.getDeclaredMethod("addStartEnd", List.class);
+        addStartEnd.setAccessible(true);
+        List<BoughtItem> returnedValue = (List<BoughtItem>) addStartEnd.invoke(itemGraph, boughtItems);
+
+        assertEquals("Returned list has wrong size", 6, returnedValue.size());
+
+        assertEquals("START_ITEM not added correctly", startItemName, returnedValue.get(0).getName());
+        assertTrue("START_ITEM not added correctly", returnedValue.get(0).isServerInternalItem());
+        assertEquals("i0 not added correctly", "i0", returnedValue.get(1).getName());
+        assertEquals("iEnd not added correctly", endItemName, returnedValue.get(2).getName());
+        assertFalse("iEnd not added correctly", returnedValue.get(2).isServerInternalItem());
+        assertEquals("iStart not added correctly", startItemName, returnedValue.get(3).getName());
+        assertFalse("iStart not added correctly", returnedValue.get(3).isServerInternalItem());
+        assertEquals("i3 not added correctly", "i3", returnedValue.get(4).getName());
+        assertEquals("END_ITEM not added correctly", endItemName, returnedValue.get(5).getName());
+        assertTrue("END_ITEM not added correctly", returnedValue.get(5).isServerInternalItem());
     }
 }

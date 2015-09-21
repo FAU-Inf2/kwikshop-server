@@ -216,7 +216,7 @@ public class ItemGraph {
         for(int i = 0; i < boughtItemList.size(); i++) {
             BoughtItem current = boughtItemList.get(i);
 
-            if(current == daoHelper.getStartBoughtItem() || current == daoHelper.getEndBoughtItem())
+            if(current.equals(daoHelper.getStartBoughtItem()) || current.equals(daoHelper.getEndBoughtItem()))
                 continue;
 
             if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
