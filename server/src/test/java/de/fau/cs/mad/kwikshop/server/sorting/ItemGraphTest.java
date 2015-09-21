@@ -533,4 +533,44 @@ public class ItemGraphTest extends SortingTestSuperclass {
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
         assertFalse("Cycle found", itemGraph.edgeFromToExists(i4, i5));
     }
+
+    @Test
+    public void onlyRelevantEdgesAreModifiedWhenAnEdgeFlips() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        BoughtItem i0, i1, i2;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+
+        List<BoughtItem> first, second, flippingThird;
+        first = new ArrayList<>(3);
+        first.add(i0);
+        first.add(i1);
+        first.add(i2);
+        second = new ArrayList<>(2);
+        second.add(i0);
+        second.add(i1);
+        itemGraph.addBoughtItems(first);
+        itemGraph.addBoughtItems(second);
+
+        assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2));
+        assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i1, i2));
+
+        flippingThird = new ArrayList<>(2);
+        flippingThird.add(i2);
+        flippingThird.add(i1);
+        itemGraph.addBoughtItems(flippingThird);
+
+        Set<BoughtItem> vertices = itemGraph.getVertices();
+        assertTrue("Missing Vertex found after adding the items that cause the flip", vertices.contains(i0));
+        assertTrue("Missing Vertex found after adding the items that cause the flip", vertices.contains(i1));
+        assertTrue("Missing Vertex found after adding the items that cause the flip", vertices.contains(i2));
+
+
+        assertTrue("Missing edge detected after adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge detected after adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2));
+        assertTrue("Inverse edge was not added when edge should have flipped", itemGraph.edgeFromToExists(i2, i1));
+        assertFalse("Edge that should have flipped was not removed", itemGraph.edgeFromToExists(i1, i2));
+    }
 }
