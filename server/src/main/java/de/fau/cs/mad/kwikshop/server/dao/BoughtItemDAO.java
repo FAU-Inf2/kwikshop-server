@@ -3,6 +3,7 @@ package de.fau.cs.mad.kwikshop.server.dao;
 import org.hibernate.Query;
 import org.hibernate.SessionFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
@@ -26,22 +27,42 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
 
 
     public BoughtItem getByName(String name) {
+        return getByName(name, false);
+    }
+
+    private BoughtItem getByName(String name, boolean serverInternalItem) {
         Query query = namedQuery(NamedQueryConstants.BOUGHTITEM_GET_BY_NAME)
                 .setParameter(NamedQueryConstants.BOUGHTITEM_NAME, name);
 
         List<BoughtItem> items = list(query);
+        List<BoughtItem> filteredItems = new ArrayList<>(1);
+        if (serverInternalItem) {
+            for (BoughtItem item : items) {
+                if (!item.isServerInternalItem()) {
+                    continue; // ignore non-server internal items
+                }
+                filteredItems.add(item);
+            }
+        } else {
+            for (BoughtItem item : items) {
+                if (item.isServerInternalItem()) {
+                    continue; // ignore server internal items
+                }
+                filteredItems.add(item);
+            }
+        }
 
-        if(items.size() == 0) {
+        if(filteredItems.size() == 0) {
             return null;
-        } else if(items.size() == 1) {
-            return items.get(0);
+        } else if(filteredItems.size() == 1) {
+            return filteredItems.get(0);
         } else {
             throw new UnsupportedOperationException("Query for BoughtItem by Name yielded more than one result");
         }
     }
 
     public BoughtItem getStart() {
-        BoughtItem start = getByName(START_ITEM);
+        BoughtItem start = getByName(START_ITEM, true);
         if(start == null) {
             BoughtItem newBoughtItem = new BoughtItem(START_ITEM);
             newBoughtItem.setServerInternalItem(true);
@@ -52,7 +73,7 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
     }
 
     public BoughtItem getEnd() {
-        BoughtItem end = getByName(END_ITEM);
+        BoughtItem end = getByName(END_ITEM, true);
         if(end == null) {
             BoughtItem newBoughtItem = new BoughtItem(END_ITEM);
             newBoughtItem.setServerInternalItem(true);

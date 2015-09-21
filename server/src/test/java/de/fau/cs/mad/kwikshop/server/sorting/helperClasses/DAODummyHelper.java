@@ -84,8 +84,9 @@ public class DAODummyHelper implements DAOHelper {
         endBoughtItem = new BoughtItem(END_ITEM);
         endBoughtItem.setServerInternalItem(true);
         boughtItems = new HashMap<>();
-        boughtItems.put(START_ITEM, startBoughtItem);
-        boughtItems.put(END_ITEM, endBoughtItem);
+        // don't put startBoughtItem and andBoughtItem into boughtItems, as they are server-internal items
+        //boughtItems.put(START_ITEM, startBoughtItem);
+        //boughtItems.put(END_ITEM, endBoughtItem);
     }
 
     @Override
