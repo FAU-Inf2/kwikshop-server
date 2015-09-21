@@ -430,8 +430,9 @@ public class MagicSortTest extends SortingTestSuperclass {
 
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(3);
 
+        ItemGraph otherItemGraph = createNewItemGraphWithSupermarket(THREE);
         SortingRequest sortingRequest = new SortingRequest(THREE, THREE); // This supermarket belongs to the same chain as ONE
-        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer, sortingRequest);
+        List<Item> sorted = magicSortHelper.sort(otherItemGraph, shoppingListServer, sortingRequest);
 
         assertEquals("The first item was not sorted correctly according to the global data of this supermarket", "i0", sorted.get(0).getName());
         assertEquals("The second item was not sorted correctly according to the global data of this supermarket", "i1", sorted.get(1).getName());
