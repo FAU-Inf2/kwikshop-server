@@ -703,4 +703,59 @@ public class ItemGraphTest extends SortingTestSuperclass {
             assertTrue("missing edge found", i3ToI1Exists);
         }
     }
+
+    @Test
+    public void cycleDetectionDoesNotAddAnEdgeIfAllOtherEdgesHaveAHigherWeight() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        BoughtItem i0, i1, i2;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        itemGraph.addBoughtItems(items);
+        itemGraph.addBoughtItems(items);
+
+        // now the item graph should look like this:
+        // i0-->i1-->i2
+        // where --> is an edge with weight 2
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
+
+        Set<Edge> edges = itemGraph.getEdgesFrom(i0);
+        boolean edgeFound = false;
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i1)) {
+                edgeFound = true;
+                assertEquals("Edge does not have the expected weight", 2, edge.getWeight());
+                break;
+            }
+        }
+        assertTrue("Edge not contained in result of getEdgesFrom(), although it exists according to itemGraph.edgeFromToExists", edgeFound);
+
+        edges = itemGraph.getEdgesFrom(i1);
+        edgeFound = false;
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(i2)) {
+                edgeFound = true;
+                assertEquals("Edge does not have the expected weight", 2, edge.getWeight());
+                break;
+            }
+        }
+        assertTrue("Edge not contained in result of getEdgesFrom(), although it exists according to itemGraph.edgeFromToExists", edgeFound);
+
+
+        List<BoughtItem> cycleClosingItems = new ArrayList<>(2);
+        cycleClosingItems.add(i2);
+        cycleClosingItems.add(i0);
+
+        itemGraph.addBoughtItems(cycleClosingItems);
+        // This would add an edge i2->i0
+        // so the resulting item graph would be i0-->i1-->i2->i0
+        // where --> is an edge with weight 2 and -> an edge with weight 1
+        // the cycle should be broken by removing i2->i0
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
+        assertFalse("Cycle detected", itemGraph.edgeFromToExists(i2, i0));
+    }
 }
