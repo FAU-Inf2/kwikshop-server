@@ -306,7 +306,7 @@ public class ItemGraph {
         List<BoughtItem> parents = new ArrayList<BoughtItem>();
 
         for(Edge edge: daoHelper.getEdgesByTo(child, supermarket)) {
-            if(edge.getTo() == child && edge.getDistance() == 0)
+            if(edge.getTo().equals(child) && edge.getDistance() == 0)
                 parents.add(edge.getFrom());
         }
 
@@ -317,7 +317,7 @@ public class ItemGraph {
         List<BoughtItem> children = new ArrayList<BoughtItem>();
 
         for(Edge edge: getEdges()) {
-            if(edge.getFrom() == parent && edge.getDistance() == 0)
+            if(edge.getFrom().equals(parent) && edge.getDistance() == 0)
                 children.add(edge.getTo());
         }
 
@@ -354,7 +354,7 @@ public class ItemGraph {
             if(edge.getTo().equals(to))
                 return true;
         }
-        
+
         return false;
     }
 
