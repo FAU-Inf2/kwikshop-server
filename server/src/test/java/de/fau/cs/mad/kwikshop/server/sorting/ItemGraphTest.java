@@ -712,6 +712,37 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i0 = items.get(0);
         i1 = items.get(1);
         i2 = items.get(2);
+        addItemsToItemGraphTwiceAndThenCloseTheCycle(itemGraph, items, i0, i1, i2);
+    }
+
+    @Test
+    public void cycleDetectionShouldAddAnEdgeIfItIsAddedMultipleTimes() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        BoughtItem i0, i1, i2;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        addItemsToItemGraphTwiceAndThenCloseTheCycle(itemGraph, items, i0, i1, i2);
+
+        List<BoughtItem> cycleClosingItems = new ArrayList<>(2);
+        cycleClosingItems.add(i2);
+        cycleClosingItems.add(i0);
+        itemGraph.addBoughtItems(cycleClosingItems);
+
+        // This is the latest moment where the edge i2->i0 should be added. If not, we might think about un-commenting the following line
+        // itemGraph.addBoughtItems(cycleClosingItems);
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
+        // And exactly one of the edges i0->i1 and i1->i2 should still be part of the itemGraph
+        if (itemGraph.edgeFromToExists(i0, i1)) {
+            assertFalse("cycle detected", itemGraph.edgeFromToExists(i1, i2));
+        } else {
+            assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
+        }
+    }
+
+    // helper method
+    private void addItemsToItemGraphTwiceAndThenCloseTheCycle(ItemGraph itemGraph, List<BoughtItem> items, BoughtItem i0, BoughtItem i1, BoughtItem i2) {
         itemGraph.addBoughtItems(items);
         itemGraph.addBoughtItems(items);
 
@@ -786,6 +817,5 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i1, i2));
-
     }
 }
