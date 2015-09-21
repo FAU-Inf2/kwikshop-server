@@ -489,7 +489,12 @@ public class ItemGraphTest extends SortingTestSuperclass {
         BoughtItem i0 = null, i1 = null, i2 = null, i3 = null, i4 = null, i5 = null;
         for (BoughtItem item : items) {
             switch (item.getId()) {
-                case 0: i0 = item; break;
+                case 0:
+                    //Start and End nodes also have id 0
+                    if(item.getName().equals("i0")){
+                        i0 = item;
+                    }
+                    break;
                 case 1: i1 = item; break;
                 case 2: i2 = item; break;
                 case 3: i3 = item; break;
@@ -497,6 +502,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
                 case 5: i5 = item; break;
             }
         }
+
+
 
         assertNotNull("Vertex not found in item graph", i0);
         assertNotNull("Vertex not found in item graph", i1);
