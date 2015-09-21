@@ -811,6 +811,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         List<BoughtItem> thirdPurchase = new ArrayList<>(2);
         thirdPurchase.add(i2);
         thirdPurchase.add(i0);
+        itemGraph.addBoughtItems(thirdPurchase);
 
         // This would close the cycle. As new data is preferred, the weight-1-edge i1->i2 should be removed
 
