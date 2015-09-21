@@ -485,7 +485,6 @@ public class ItemGraphTest extends SortingTestSuperclass {
         Set<BoughtItem> items = itemGraph.getVertices();
         BoughtItem i0 = null, i1 = null, i2 = null, i3 = null, i4 = null, i5 = null;
         for (BoughtItem item : items) {
-            System.out.println(item.getId());
             switch (item.getId()) {
                 case 0:
                     //Start and End nodes also have id 0
