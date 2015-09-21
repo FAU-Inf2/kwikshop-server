@@ -146,7 +146,9 @@ public class ItemGraph {
                     /* Create edge in the opposite direction */
                         if (edgeToParentNode.getWeight() <= 0) {
                             for (Edge toBeRemoved : daoHelper.getEdgesByTo(i1, supermarket)) {
-                                daoHelper.deleteEdge(toBeRemoved);
+                                if(toBeRemoved.getFrom().equals(i2) || toBeRemoved.getFrom()    .equals(parent)) {
+                                    daoHelper.deleteEdge(toBeRemoved);
+                                }
                             }
                             daoHelper.createEdge(new Edge(i1, i2, supermarket));
                             edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
