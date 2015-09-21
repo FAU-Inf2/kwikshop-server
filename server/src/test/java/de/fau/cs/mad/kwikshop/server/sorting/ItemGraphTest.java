@@ -524,12 +524,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
         i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
         i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
-        List<BoughtItem> items = new ArrayList<>(3);
-        items.add(i3);
-        items.add(i4);
-        items.add(i5);
 
-        itemGraph.addBoughtItems(items);
+        addBoughtItemsToItemGraph(itemGraph, i3, i4, i5);
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
         assertFalse("Cycle found", itemGraph.edgeFromToExists(i4, i5));
     }
@@ -542,25 +538,14 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
         i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
 
-        List<BoughtItem> first, second, flippingThird;
-        first = new ArrayList<>(3);
-        first.add(i0);
-        first.add(i1);
-        first.add(i2);
-        second = new ArrayList<>(2);
-        second.add(i0);
-        second.add(i1);
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1);
 
         assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i1));
         assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2));
         assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i1, i2));
 
-        flippingThird = new ArrayList<>(2);
-        flippingThird.add(i2);
-        flippingThird.add(i1);
-        itemGraph.addBoughtItems(flippingThird);
+        addBoughtItemsToItemGraph(itemGraph, i2, i1);
 
         Set<BoughtItem> vertices = itemGraph.getVertices();
         assertTrue("Missing Vertex found after adding the items that cause the flip", vertices.contains(i0));
@@ -591,10 +576,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2,i3));
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3,i4));
 
-        List<BoughtItem> secondPurchase = new ArrayList<>(3);
-        secondPurchase.add(i4);
-        secondPurchase.add(i2); // would close cycle i2->i3->i4->i2
-        secondPurchase.add(i0); // would close cycle i0->i1->i2->i0
+        addBoughtItemsToItemGraph(itemGraph, i4, i2, i0);
+        // i4->i2 would close cycle i2->i3->i4->i2
+        // i2->i0 would close cycle i0->i1->i2->i0
 
         // check if first cycle was closed
         if (itemGraph.edgeFromToExists(i0, i1)) {
@@ -638,11 +622,10 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2,i3));
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3,i4));
 
-        List<BoughtItem> secondPurchase = new ArrayList<>(4);
-        secondPurchase.add(i4);
-        secondPurchase.add(i0); // would close cycle i0->i1->i2->i3->i4->i0
-        secondPurchase.add(i3); // would close cycle i3->i4->i0->i3
-        secondPurchase.add(i1); // would close cycle i1->i2->i3->i1
+        addBoughtItemsToItemGraph(itemGraph, i4, i0, i3, i1);
+        // i4->i0 would close cycle i0->i1->i2->i3->i4->i0
+        // i0->i3 would close cycle i3->i4->i0->i3
+        // i3->i1 would close cycle i1->i2->i3->i1
 
         boolean i0ToI1Exists, i1ToI2Exists, i2ToI3Exists, i3ToI4Exists, i4ToI0Exists, i0ToI3Exists, i3ToI1Exists;
         i0ToI1Exists = itemGraph.edgeFromToExists(i0, i1);
@@ -725,13 +708,10 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i2 = items.get(2);
         addItemsToItemGraphTwiceAndThenCloseTheCycle(itemGraph, items, i0, i1, i2);
 
-        List<BoughtItem> cycleClosingItems = new ArrayList<>(2);
-        cycleClosingItems.add(i2);
-        cycleClosingItems.add(i0);
-        itemGraph.addBoughtItems(cycleClosingItems);
+        addBoughtItemsToItemGraph(itemGraph, i2, i0);
 
-        // This is the latest moment where the edge i2->i0 should be added. If not, we might think about un-commenting the following line
-        // itemGraph.addBoughtItems(cycleClosingItems);
+        // This is the moment where the edge i2->i0 should be added. If not, we might think about un-commenting the following line
+        // addBoughtItemsToItemGraph(itemGraph, i2, i0);
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
         // And exactly one of the edges i0->i1 and i1->i2 should still be part of the itemGraph
         if (itemGraph.edgeFromToExists(i0, i1)) {
@@ -774,12 +754,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         }
         assertTrue("Edge not contained in result of getEdgesFrom(), although it exists according to itemGraph.edgeFromToExists", edgeFound);
 
-
-        List<BoughtItem> cycleClosingItems = new ArrayList<>(2);
-        cycleClosingItems.add(i2);
-        cycleClosingItems.add(i0);
-
-        itemGraph.addBoughtItems(cycleClosingItems);
+        addBoughtItemsToItemGraph(itemGraph, i2, i0);
         // This would add an edge i2->i0
         // so the resulting item graph would be i0-->i1-->i2->i0
         // where --> is an edge with weight 2 and -> an edge with weight 1
@@ -798,20 +773,14 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i0 = items.get(0);
         i1 = items.get(1);
         i2 = items.get(2);
-        itemGraph.addBoughtItems(items);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2);
 
-        List<BoughtItem> secondPurchase = new ArrayList<>(2);
-        secondPurchase.add(i0);
-        secondPurchase.add(i1);
-        itemGraph.addBoughtItems(secondPurchase);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1);
 
         // now the item graph should look like this:
         // i0-->i1->i2
 
-        List<BoughtItem> thirdPurchase = new ArrayList<>(2);
-        thirdPurchase.add(i2);
-        thirdPurchase.add(i0);
-        itemGraph.addBoughtItems(thirdPurchase);
+        addBoughtItemsToItemGraph(itemGraph, i2, i0);
 
         // This would close the cycle. As new data is preferred, the weight-1-edge i1->i2 should be removed
 

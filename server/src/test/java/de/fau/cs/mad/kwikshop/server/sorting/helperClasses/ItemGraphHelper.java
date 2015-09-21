@@ -1,6 +1,5 @@
 package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,10 +29,7 @@ public class ItemGraphHelper {
         for (int i = 0; i < boughtItems.length; i++) {
             BoughtItem firstItem = boughtItems[i];
             BoughtItem secondItem = boughtItems[(i+1) % boughtItems.length];
-            List<BoughtItem> itemsToAdd = new ArrayList<>(2);
-            itemsToAdd.add(firstItem);
-            itemsToAdd.add(secondItem);
-            itemGraph.addBoughtItems(itemsToAdd);
+            addBoughtItemsToItemGraph(itemGraph, firstItem, secondItem);
         }
     }
 
@@ -52,42 +48,12 @@ public class ItemGraphHelper {
         i4 = itemCreationHelper.createBoughtItemWithIdAndSupermarket(4, ONE);
         i5 = itemCreationHelper.createBoughtItemWithIdAndSupermarket(5, ONE);
 
-        List<BoughtItem> first, second, third, fourth, fifth, sixth;
-        first = new ArrayList<>(2);
-        first.add(i0);
-        first.add(i2);
-
-        second = new ArrayList<>(3);
-        second.add(i0);
-        second.add(i1);
-        second.add(i3);
-
-        third = new ArrayList<>(3);
-        third.add(i0);
-        third.add(i1);
-        third.add(i2);
-
-        fourth = new ArrayList<>(2);
-        fourth.add(i3);
-        fourth.add(i4);
-
-        fifth = new ArrayList<>(2);
-        fifth.add(i5);
-        fifth.add(i3);
-
-        sixth = new ArrayList<>(4);
-        sixth.add(i1);
-        sixth.add(i5);
-        sixth.add(i3);
-        sixth.add(i4);
-
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
-        itemGraph.addBoughtItems(fourth);
-        itemGraph.addBoughtItems(fifth);
-        itemGraph.addBoughtItems(sixth);
+        addBoughtItemsToItemGraph(itemGraph, i0, i2);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i3);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2);
+        addBoughtItemsToItemGraph(itemGraph, i3, i4);
+        addBoughtItemsToItemGraph(itemGraph, i5, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i5, i3, i4);
     }
 
     public void addBoughtItemsToItemGraph(ItemGraph itemGraph, BoughtItem... boughtItems) {

@@ -288,29 +288,9 @@ public class MagicSortTest extends SortingTestSuperclass {
         i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
         i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
 
-        List<BoughtItem> first, second, third;
-
-        first = new ArrayList<>(3);
-        first.add(i4);
-        first.add(i3);
-        first.add(i0);
-
-        second = new ArrayList<>(3);
-        second.add(i5);
-        second.add(i1);
-        second.add(i2);
-
-        third = new ArrayList<>(6);
-        third.add(i5);
-        third.add(i4);
-        third.add(i3);
-        third.add(i2);
-        third.add(i1);
-        third.add(i0);
-
-        itemGraph.addBoughtItems(first);
-        itemGraph.addBoughtItems(second);
-        itemGraph.addBoughtItems(third);
+        addBoughtItemsToItemGraph(itemGraph, i4, i3, i0);
+        addBoughtItemsToItemGraph(itemGraph, i5, i1, i2);
+        addBoughtItemsToItemGraph(itemGraph, i5, i4, i3, i2, i1, i0);
 
         // This data should not have changed much in the item graph, so sorting is still the same
 
