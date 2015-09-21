@@ -1,21 +1,14 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
-import de.fau.cs.mad.kwikshop.common.ShoppingList;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
-import de.fau.cs.mad.kwikshop.common.sorting.ItemOrderWrapper;
 import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
-import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
-import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
-import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
-import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 
 public class ItemGraph {
 
@@ -36,7 +29,7 @@ public class ItemGraph {
 
     public Set<BoughtItem> getVertices() {
         if(vertices == null)
-            vertices = new HashSet<BoughtItem>();
+            vertices = new HashSet<>();
         return vertices;
     }
 
@@ -44,9 +37,9 @@ public class ItemGraph {
         if(edges == null) {
             List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
             if (edgeList != null)
-                edges = new HashSet<Edge>(edgeList);
+                edges = new HashSet<>(edgeList);
             else
-                edges = new HashSet<Edge>();
+                edges = new HashSet<>();
         }
         return edges;
     }
@@ -90,12 +83,12 @@ public class ItemGraph {
         /* Load Edges */
         List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
         if(edgeList != null)
-            edges = new HashSet<Edge>(edgeList);
+            edges = new HashSet<>(edgeList);
         else
-            edges = new HashSet<Edge>();
+            edges = new HashSet<>();
 
         /* Load Vertices */
-        vertices = new HashSet<BoughtItem>();
+        vertices = new HashSet<>();
         for(Edge edge : edgeList) {
             if(!vertices.contains(edge.getFrom()))
                 vertices.add(edge.getFrom());
@@ -242,14 +235,14 @@ public class ItemGraph {
 
     public void addBoughtItems(List<BoughtItem> newBoughtItems) {
 
-        List<BoughtItem> boughtItems = new ArrayList<BoughtItem>(newBoughtItems);
+        List<BoughtItem> boughtItems = new ArrayList<>(newBoughtItems);
 
         /* Add start and end Items for every Supermarket */
         boughtItems = addStartEnd(boughtItems);
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
-            if(daoHelper.getBoughtItemByName(boughtItem.getName()) == null)
+            if(daoHelper.getBoughtItemByName(boughtItem.getName()) == null && !boughtItem.isServerInternalItem())
                 daoHelper.createBoughtItem(boughtItem);
         }
 
@@ -259,6 +252,12 @@ public class ItemGraph {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
             BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
             BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
+
+            if (i == 0) {
+                i1 = daoHelper.getStartBoughtItem();
+            } else if (i + 1 == boughtItems.size() - 1) {
+                i2 = daoHelper.getEndBoughtItem();
+            }
 
             /* Continue if the Items are not from the same Supermarket. Here we have to use the parameter boughtItems because the placeId is not stored in the DB */
             if(!boughtItems.get(i).getSupermarketPlaceId().equals(boughtItems.get(i + 1).getSupermarketPlaceId())) {
@@ -312,7 +311,7 @@ public class ItemGraph {
     }
 
     public List<BoughtItem> getParents(BoughtItem child) {
-        List<BoughtItem> parents = new ArrayList<BoughtItem>();
+        List<BoughtItem> parents = new ArrayList<>();
 
         for(Edge edge: daoHelper.getEdgesByTo(child, supermarket)) {
             if(edge.getTo().equals(child) && edge.getDistance() == 0)
@@ -323,7 +322,7 @@ public class ItemGraph {
     }
 
     public List<BoughtItem> getChildren(BoughtItem parent) {
-        List<BoughtItem> children = new ArrayList<BoughtItem>();
+        List<BoughtItem> children = new ArrayList<>();
 
         for(Edge edge: getEdges()) {
             if(edge.getFrom().equals(parent) && edge.getDistance() == 0)
@@ -334,7 +333,7 @@ public class ItemGraph {
     }
 
     public List<BoughtItem> getSiblings(BoughtItem child) {
-        List<BoughtItem> siblings = new ArrayList<BoughtItem>();
+        List<BoughtItem> siblings = new ArrayList<>();
 
         for(BoughtItem parent: getParents(child)) {
             siblings.addAll(getChildren(parent));
@@ -347,7 +346,7 @@ public class ItemGraph {
     }
 
     public Set<Edge> getEdgesFrom(BoughtItem boughtItem) {
-        Set<Edge> edges = new HashSet<Edge>();
+        Set<Edge> edges = new HashSet<>();
 
         for(Edge edge: getEdges()) {
             if(edge.getFrom().equals(boughtItem))
