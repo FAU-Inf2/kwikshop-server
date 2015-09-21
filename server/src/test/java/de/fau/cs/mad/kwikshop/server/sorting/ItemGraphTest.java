@@ -531,5 +531,6 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
         itemGraph.addBoughtItems(items);
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
+        assertFalse("Cycle found", itemGraph.edgeFromToExists(i4, i5));
     }
 }
