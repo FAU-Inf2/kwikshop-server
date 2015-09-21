@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
@@ -87,5 +88,10 @@ public class ItemGraphHelper {
         itemGraph.addBoughtItems(fourth);
         itemGraph.addBoughtItems(fifth);
         itemGraph.addBoughtItems(sixth);
+    }
+
+    public void addBoughtItemsToItemGraph(ItemGraph itemGraph, BoughtItem... boughtItems) {
+        List<BoughtItem> items = Arrays.asList(boughtItems);
+        itemGraph.addBoughtItems(items);
     }
 }

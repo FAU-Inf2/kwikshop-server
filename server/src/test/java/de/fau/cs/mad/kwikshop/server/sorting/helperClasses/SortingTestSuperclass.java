@@ -66,4 +66,7 @@ public class SortingTestSuperclass {
         return itemCreationHelper.createBoughtItemWithIdAndSupermarket(id, supermarketPlaceId);
     }
 
+    protected void addBoughtItemsToItemGraph(ItemGraph itemGraph, BoughtItem... boughtItems) {
+        itemGraphHelper.addBoughtItemsToItemGraph(itemGraph, boughtItems);
+    }
 }
