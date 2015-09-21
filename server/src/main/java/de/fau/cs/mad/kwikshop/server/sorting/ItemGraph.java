@@ -137,18 +137,21 @@ public class ItemGraph {
                 //edge.setWeight(edge.getWeight()-1);
 
                 //decrease weight of all edges to direct parent nodes (minimum distance) of the first item (which comes after the second one in the graph)
-                for(BoughtItem parent : getParents(i1)){
-                    Edge edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket);
-                    edgeToParentNode.setWeight(edgeToParentNode.getWeight() -1);
+                for(BoughtItem parent : getParents(i1)) {
+                    //only decrement if the parent node is connected with the other item
+                    if (edgeFromToExists(i2, parent) || parent.equals(i2)) {
+                        Edge edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket);
+                        edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
 
                     /* Create edge in the opposite direction */
-                    if(edgeToParentNode.getWeight() <= 0) {
-                        for(Edge toBeRemoved : daoHelper.getEdgesByTo(i1, supermarket)){
-                            daoHelper.deleteEdge(toBeRemoved);
+                        if (edgeToParentNode.getWeight() <= 0) {
+                            for (Edge toBeRemoved : daoHelper.getEdgesByTo(i1, supermarket)) {
+                                daoHelper.deleteEdge(toBeRemoved);
+                            }
+                            daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                            edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                            break;
                         }
-                        daoHelper.createEdge(new Edge(i1, i2, supermarket));
-                        edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
-                        break;
                     }
                 }
 
@@ -161,7 +164,7 @@ public class ItemGraph {
 
         } else {
             /* Edit existing edge - increase weight */
-            edge.setWeight(edge.getWeight()+1);
+            edge.setWeight(edge.getWeight() + 1);
         }
 
         System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
@@ -306,7 +309,7 @@ public class ItemGraph {
         List<BoughtItem> parents = new ArrayList<BoughtItem>();
 
         for(Edge edge: daoHelper.getEdgesByTo(child, supermarket)) {
-            if(edge.getTo() == child && edge.getDistance() == 0)
+            if(edge.getTo().equals(child) && edge.getDistance() == 0)
                 parents.add(edge.getFrom());
         }
 
@@ -317,7 +320,7 @@ public class ItemGraph {
         List<BoughtItem> children = new ArrayList<BoughtItem>();
 
         for(Edge edge: getEdges()) {
-            if(edge.getFrom() == parent && edge.getDistance() == 0)
+            if(edge.getFrom().equals(parent) && edge.getDistance() == 0)
                 children.add(edge.getTo());
         }
 
@@ -354,7 +357,7 @@ public class ItemGraph {
             if(edge.getTo().equals(to))
                 return true;
         }
-        
+
         return false;
     }
 
