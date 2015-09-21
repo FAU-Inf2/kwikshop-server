@@ -788,4 +788,37 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i1, i2));
     }
+
+    @Test
+    public void addItemsToItemGraphWithTheSameNameAsTheStartAndEndItems() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        String startItemName = DAOHelper.START_ITEM;
+        String endItemName = DAOHelper.END_ITEM;
+        /*
+         * Never trust user input -- even if the user does not know our start and end item names
+         * (which are not difficult to find out, as we are open source), a user might choose the
+         * same name.
+         */
+
+        BoughtItem i0, iEnd, iStart, i3;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        iEnd = new BoughtItem(endItemName, ONE, ONE);
+        iEnd.setId(1);
+        iStart = new BoughtItem(startItemName, ONE, ONE);
+        iStart.setId(2);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+
+        addBoughtItemsToItemGraph(itemGraph, i0, iEnd, iStart, i3);
+
+        // All four items should be contained in the itemGraph, as should be the corresponding edges
+        Set<BoughtItem> vertices = itemGraph.getVertices();
+        assertTrue("Item i0 not contained in vertices, although it has been added", vertices.contains(i0));
+        assertTrue("Item iEnd not contained in vertices, although it has been added", vertices.contains(iEnd));
+        assertTrue("Item iStart not contained in vertices, although it has been added", vertices.contains(iStart));
+        assertTrue("Item i3 not contained in vertices, although it has been added", vertices.contains(i3));
+
+        assertTrue("Missing edge detected", itemGraph.edgeFromToExists(i0, iEnd));
+        assertTrue("Missing edge detected", itemGraph.edgeFromToExists(iEnd, iStart));
+        assertTrue("Missing edge detected", itemGraph.edgeFromToExists(iStart, i3));
+    }
 }
