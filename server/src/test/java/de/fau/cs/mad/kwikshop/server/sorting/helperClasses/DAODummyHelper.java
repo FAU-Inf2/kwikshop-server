@@ -44,6 +44,7 @@ public class DAODummyHelper implements DAOHelper {
         defaultSupermarketChainOneGlobalSupermarket = new Supermarket();
         defaultSupermarketChainOneGlobalSupermarket.setId(-1);
         defaultSupermarketChainOneGlobalSupermarket.setPlaceId(CHAIN_ONE);
+        defaultSupermarketChainOneGlobalSupermarket.setSupermarketChain(defaultSupermarketChainOne);
 
         defaultSupermarketChainTwo = new SupermarketChain();
         defaultSupermarketChainTwo.setId(2);
@@ -51,6 +52,7 @@ public class DAODummyHelper implements DAOHelper {
         defaultSupermarketChainTwoGlobalSupermarket = new Supermarket();
         defaultSupermarketChainTwoGlobalSupermarket.setId(-2);
         defaultSupermarketChainTwoGlobalSupermarket.setPlaceId(CHAIN_TWO);
+        defaultSupermarketChainTwoGlobalSupermarket.setSupermarketChain(defaultSupermarketChainTwo);
 
         defaultSupermarketOne = new Supermarket();
         defaultSupermarketOne.setId(1);
