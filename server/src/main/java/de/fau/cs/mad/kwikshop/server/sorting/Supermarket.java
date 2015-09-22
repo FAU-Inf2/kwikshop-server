@@ -51,8 +51,13 @@ public class Supermarket {
     public int hashCode() {
         int result = 1;
 
-        result = 37 * result + supermarketChain.hashCode();
         result = 37 * result + placeId.hashCode();
+
+        int supermarketChainHash = 0;
+        if(supermarketChain != null) {
+            supermarketChainHash = supermarketChain.hashCode();
+        }
+        result = 37 * result + supermarketChainHash;
 
         return result;
     }

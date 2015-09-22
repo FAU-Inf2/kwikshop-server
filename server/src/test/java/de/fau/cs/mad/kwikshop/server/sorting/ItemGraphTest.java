@@ -873,7 +873,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
     @Test
-    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted() {
+    public void closeACycleWhereOnlyTwoEdgesAreAllowedToBeDeleted() {
         List<BoughtItem> items = createBoughtItems(7, ONE);
         BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
         i0 = items.get(0);
@@ -884,12 +884,88 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i5 = items.get(5);
         i6 = items.get(6);
 
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        if (itemGraph.edgeFromToExists(i3, i4)) {
+            assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
+            assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+        } else {
+            assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
+        }
+    }
+
+    @Test
+    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i4_i6_mayBeDeleted() {
+        List<BoughtItem> items = createBoughtItems(7, ONE);
+        BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        i5 = items.get(5);
+        i6 = items.get(6);
+
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+        addBoughtItemsToItemGraph(itemGraph, i3, i4);
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+        // i3->i4 has higher weight, so i4->i6 should be deleted
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i3, i4));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+    }
+
+    @Test
+    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i3_i4_mayBeDeleted() {
+        List<BoughtItem> items = createBoughtItems(7, ONE);
+        BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        i5 = items.get(5);
+        i6 = items.get(6);
+
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+        addBoughtItemsToItemGraph(itemGraph, i4, i6);
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+        // i4->i6 has higher weight, so i3->i4 should be deleted
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i4, i6));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i3, i4));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+    }
+
+    // helper method
+    private ItemGraph createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(BoughtItem i0, BoughtItem i1, BoughtItem i2, BoughtItem i3, BoughtItem i4, BoughtItem i5, BoughtItem i6) {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         addBoughtItemsToItemGraph(itemGraph, i0, i1, i5);
         addBoughtItemsToItemGraph(itemGraph, i0, i2, i4, i6);
         addBoughtItemsToItemGraph(itemGraph, i1, i3, i4);
-
-        start = itemGraph.getDaoHelper().getStartBoughtItem();
 
         /*
          * This item graph looks something like this:
@@ -910,19 +986,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
          * All edges have weight 1
          */
 
-        addBoughtItemsToItemGraph(itemGraph, i6, i1);
-
-        // This would close the cycle i1->i3->i4->i6
-        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
-        // break the cycle; otherwise it would not be possible to reach all items any more
-
-        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
-        if (itemGraph.edgeFromToExists(i3, i4)) {
-            assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
-            assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
-        } else {
-            assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
-        }
+        return itemGraph;
     }
 
     @Test
@@ -963,4 +1027,43 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Not all vertices contained", vertices.containsAll(items));
     }
 
+    @Test
+    public void supermarketChainGraphShouldBeUpdatedAlsoIfItemsAreBoughtInMultipleSupermarkets() {
+        ItemGraph itemGraphOne = createNewItemGraphWithSupermarket(ONE);
+        DAOHelper daoHelper = itemGraphOne.getDaoHelper();
+        ItemGraph itemGraphThree = createNewItemGraphWithSupermarketAndDAOHelper(THREE, daoHelper);
+
+        Supermarket supermarketOne = itemGraphOne.getSupermarket();
+        SupermarketChain supermarketChain = supermarketOne.getSupermarketChain();
+
+        Supermarket supermarketFour = itemGraphThree.getSupermarket();
+        assertSame("The two supermarkets don't have the same supermarket chain", supermarketChain, supermarketFour.getSupermarketChain());
+
+        BoughtItem i0One, i0Three, i1One, i1Three, i2One, i2Three, i3One, i3Three;
+        i0One = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i0Three = createBoughtItemWithIdAndSupermarket(0, THREE);
+        i1One = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i1Three = createBoughtItemWithIdAndSupermarket(1, THREE);
+        i2One = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i2Three = createBoughtItemWithIdAndSupermarket(2, THREE);
+        i3One = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i3Three = createBoughtItemWithIdAndSupermarket(3, THREE);
+
+        addBoughtItemsToItemGraph(itemGraphOne, i0One, i1One, i2One);
+        addBoughtItemsToItemGraph(itemGraphThree, i0Three, i1Three, i3Three);
+
+        SupermarketHelper supermarketHelper = new SupermarketHelper((DAODummyHelper) daoHelper);
+        Supermarket globalSupermarket = supermarketHelper.getGlobalSupermarket(supermarketChain);
+
+        ItemGraph globalSupermarketItemGraph = createNewItemGraphWithSupermarketAndDAOHelper(globalSupermarket.getPlaceId(), daoHelper);
+        globalSupermarketItemGraph.update();
+
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i0One, i1One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1One, i2One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1One, i3One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i0Three, i1Three));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i2Three));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i3Three));
+
+    }
 }
