@@ -919,4 +919,28 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("cycle detected", itemGraph.edgeFromToExists(i3, i4));
     }
 
+    @Test
+    public void itemGraphGetsBrokenIfMultipleSupermarketsAreUsed() {
+        ItemGraph itemGraphOne = createNewItemGraphWithSupermarket(ONE);
+        ItemGraph itemGraphTwo = createNewItemGraphWithSupermarket(TWO);
+        // These two supermarkets don't belong to the same chain
+        BoughtItem i0One, i0Two, i1One, i1Two, i2One, i2Two, i3One, i3Two;
+        i0One = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i0Two = createBoughtItemWithIdAndSupermarket(0, TWO);
+        i1One = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i1Two = createBoughtItemWithIdAndSupermarket(1, TWO);
+        i2One = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i2Two = createBoughtItemWithIdAndSupermarket(2, TWO);
+        i3One = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i3Two = createBoughtItemWithIdAndSupermarket(3, TWO);
+
+        addBoughtItemsToItemGraph(itemGraphOne, i0One, i1One, i2One);
+        addBoughtItemsToItemGraph(itemGraphTwo, i0Two, i1Two, i3Two);
+        itemGraphOne.update();
+        itemGraphTwo.update();
+
+        assertFalse("Edge should only exist in other item graph", itemGraphOne.edgeFromToExists(i1One, i3One));
+        assertFalse("Edge should only exist in other item graph", itemGraphTwo.edgeFromToExists(i1Two, i2Two));
+    }
+
 }
