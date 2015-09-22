@@ -694,6 +694,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
             assertTrue("missing edge found", i2ToI3Exists);
             assertTrue("missing edge found", i3ToI1Exists);
         }
+        //check if indirect edge was set correctly
+        assertTrue("missing indirect edge found", itemGraph.edgeFromToExists(i3, i2));
     }
 
     @Test
