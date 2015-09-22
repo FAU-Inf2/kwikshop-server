@@ -963,4 +963,43 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Not all vertices contained", vertices.containsAll(items));
     }
 
+    @Test
+    public void supermarketChainGraphShouldBeUpdatedAlsoIfItemsAreBoughtInMultipleSupermarkets() {
+        ItemGraph itemGraphOne = createNewItemGraphWithSupermarket(ONE);
+        DAOHelper daoHelper = itemGraphOne.getDaoHelper();
+        ItemGraph itemGraphThree = createNewItemGraphWithSupermarketAndDAOHelper(THREE, daoHelper);
+
+        Supermarket supermarketOne = itemGraphOne.getSupermarket();
+        SupermarketChain supermarketChain = supermarketOne.getSupermarketChain();
+
+        Supermarket supermarketFour = itemGraphThree.getSupermarket();
+        assertSame("The two supermarkets don't have the same supermarket chain", supermarketChain, supermarketFour.getSupermarketChain());
+
+        BoughtItem i0One, i0Three, i1One, i1Three, i2One, i2Three, i3One, i3Three;
+        i0One = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i0Three = createBoughtItemWithIdAndSupermarket(0, THREE);
+        i1One = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i1Three = createBoughtItemWithIdAndSupermarket(1, THREE);
+        i2One = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i2Three = createBoughtItemWithIdAndSupermarket(2, THREE);
+        i3One = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i3Three = createBoughtItemWithIdAndSupermarket(3, THREE);
+
+        addBoughtItemsToItemGraph(itemGraphOne, i0One, i1One, i2One);
+        addBoughtItemsToItemGraph(itemGraphThree, i0Three, i1Three, i3Three);
+
+        SupermarketHelper supermarketHelper = new SupermarketHelper((DAODummyHelper) daoHelper);
+        Supermarket globalSupermarket = supermarketHelper.getGlobalSupermarket(supermarketChain);
+
+        ItemGraph globalSupermarketItemGraph = createNewItemGraphWithSupermarketAndDAOHelper(globalSupermarket.getPlaceId(), daoHelper);
+        globalSupermarketItemGraph.update();
+
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i0One, i1One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1One, i2One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1One, i3One));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i0Three, i1Three));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i2Three));
+        assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i3Three));
+
+    }
 }
