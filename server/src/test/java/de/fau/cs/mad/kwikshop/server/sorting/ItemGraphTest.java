@@ -477,7 +477,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         SupermarketHelper supermarketHelper = new SupermarketHelper((DAODummyHelper) itemGraph.getDaoHelper());
         Supermarket globalSupermarket = supermarketHelper.getGlobalSupermarket(supermarketChain);
 
-        ItemGraph globalSupermarketItemGraph = createNewItemGraphWithSupermarket(globalSupermarket.getPlaceId());
+        ItemGraph globalSupermarketItemGraph = createNewItemGraphWithSupermarketAndDAOHelper(globalSupermarket.getPlaceId(), itemGraph.getDaoHelper());
         globalSupermarketItemGraph.update();
 
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(globalSupermarketItemGraph);

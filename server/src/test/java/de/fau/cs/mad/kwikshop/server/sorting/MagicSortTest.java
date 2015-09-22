@@ -410,7 +410,8 @@ public class MagicSortTest extends SortingTestSuperclass {
 
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(3);
 
-        ItemGraph otherItemGraph = createNewItemGraphWithSupermarket(THREE);
+        ItemGraph otherItemGraph = createNewItemGraphWithSupermarketAndDAOHelper(THREE, itemGraph.getDaoHelper());
+        otherItemGraph.update();
         SortingRequest sortingRequest = new SortingRequest(THREE, THREE); // This supermarket belongs to the same chain as ONE
         List<Item> sorted = magicSortHelper.sort(otherItemGraph, shoppingListServer, sortingRequest);
 
