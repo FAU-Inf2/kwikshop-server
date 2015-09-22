@@ -946,4 +946,15 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Edge should only exist in other item graph", itemGraphTwo.edgeFromToExists(i1Two, i2Two));
     }
 
+    @Test
+    public void updateItemGraphThatDoesNotBelongToASupermarketChain() {
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(FOUR);
+        List<BoughtItem> items = createBoughtItems(2, FOUR);
+        itemGraph.addBoughtItems(items);
+        itemGraph.update();
+
+        Set<BoughtItem> vertices = itemGraph.getVertices();
+        assertTrue("Not all vertices contained", vertices.containsAll(items));
+    }
+
 }
