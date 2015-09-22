@@ -871,4 +871,52 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertEquals("END_ITEM not added correctly", endItemName, returnedValue.get(5).getName());
         assertTrue("END_ITEM not added correctly", returnedValue.get(5).isServerInternalItem());
     }
+
+    @Test
+    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted() {
+        List<BoughtItem> items = createBoughtItems(7, ONE);
+        BoughtItem i0, i1, i2, i3, i4, i5, i6;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        i5 = items.get(5);
+        i6 = items.get(6);
+
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i5);
+        addBoughtItemsToItemGraph(itemGraph, i0, i2, i4, i6);
+        addBoughtItemsToItemGraph(itemGraph, i1, i3, i4);
+
+        /*
+         * This item graph looks something like this:
+         *                    i0
+         *                   /  \
+         *                  /    \
+         *                 /      \
+         *                |       |
+         *                v       v
+         *                i1      i2
+         *               /  \      \
+         *              /   |      |
+         *             /    v      v
+         *            /     i3 --> i4
+         *           |             |
+         *           v             v
+         *           i5            i6
+         * All edges have weight 1
+         */
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Only the edge i3 -> i4 should have been removed in order to break the cycle; otherwise it
+        // would not be possible to reach all items any more
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i3, i4));
+    }
+
 }
