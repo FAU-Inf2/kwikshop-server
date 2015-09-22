@@ -420,4 +420,44 @@ public class MagicSortTest extends SortingTestSuperclass {
         assertEquals("The third item was not sorted correctly according to the global data of this supermarket", "i2", sorted.get(2).getName());
     }
 
+    @Test
+    public void sortingShouldUseGlobalDataThatWasCreatedAfterTheCreationOfTheItemGraph() {
+        ItemGraph itemGraphOne = createNewItemGraphWithSupermarket(ONE);
+        ItemGraph itemGraphThree = createNewItemGraphWithSupermarketAndDAOHelper(THREE, itemGraphOne.getDaoHelper());
+                // both item graphs belong to supermarkets of the same chain
+        int n = 4;
+        BoughtItem[] itemsOne = new BoughtItem[n], itemsThree = new BoughtItem[n];
+        for (int i = 0; i < n; i++) {
+            itemsOne[i] = createBoughtItemWithIdAndSupermarket(i, ONE);
+            itemsThree[i] = createBoughtItemWithIdAndSupermarket(i, THREE);
+        }
+        addBoughtItemsToItemGraph(itemGraphOne, itemsOne[0], itemsOne[1]);
+        addBoughtItemsToItemGraph(itemGraphThree, itemsThree[0], itemsThree[1]);
+
+        itemGraphOne.update();
+        itemGraphThree.update();
+
+        addBoughtItemsToItemGraph(itemGraphOne, itemsOne[0], itemsOne[1], itemsOne[2], itemsOne[3]);
+
+        itemGraphThree.update();
+
+        // The global graph should now also contain that i2 comes after i1 and i0
+
+        ArrayList<Item> items = new ArrayList<>();
+        for (int i = n - 1; i >= 0; i--) {
+            Item item = createItemWithId(i);
+            items.add(item);
+        }
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0, items);
+
+        SortingRequest sortingRequest = new SortingRequest(THREE, THREE); // This supermarket belongs to the same chain as ONE
+        List<Item> sorted = magicSortHelper.sort(itemGraphThree, shoppingListServer, sortingRequest);
+
+        // Data for supermarket three is insufficient, so the global data should be used
+        assertEquals("The first item was not sorted correctly according to the global data of this supermarket", "i0", sorted.get(0).getName());
+        assertEquals("The second item was not sorted correctly according to the global data of this supermarket", "i1", sorted.get(1).getName());
+        assertEquals("The third item was not sorted correctly according to the global data of this supermarket", "i2", sorted.get(2).getName());
+        assertEquals("The fourth item was not sorted correctly according to the global data of this supermarket", "i3", sorted.get(3).getName());
+    }
+
 }
