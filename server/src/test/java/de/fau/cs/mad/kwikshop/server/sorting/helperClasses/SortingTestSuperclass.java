@@ -5,6 +5,7 @@ import java.util.List;
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 
 public class SortingTestSuperclass {
@@ -28,6 +29,10 @@ public class SortingTestSuperclass {
 
     protected ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {
         return itemGraphHelper.createNewItemGraphWithSupermarket(supermarketPlaceId);
+    }
+
+    protected ItemGraph createNewItemGraphWithSupermarketAndDAOHelper(String supermarketPlaceId, DAOHelper daoHelper) {
+        return itemGraphHelper.createNewItemGraphWithSupermarketAndDaoHelper(supermarketPlaceId, daoHelper);
     }
 
     protected void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {

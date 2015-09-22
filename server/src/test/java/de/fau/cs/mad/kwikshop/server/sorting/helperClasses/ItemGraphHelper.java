@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 
 public class ItemGraphHelper {
@@ -16,7 +17,11 @@ public class ItemGraphHelper {
     }
 
     public ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {
-        ItemGraph itemGraph = new ItemGraph(new DAODummyHelper());
+        return createNewItemGraphWithSupermarketAndDaoHelper(supermarketPlaceId, new DAODummyHelper());
+    }
+
+    public ItemGraph createNewItemGraphWithSupermarketAndDaoHelper(String supermarketPlaceId, DAOHelper daoHelper) {
+        ItemGraph itemGraph = new ItemGraph(daoHelper);
         itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
         return itemGraph;
     }

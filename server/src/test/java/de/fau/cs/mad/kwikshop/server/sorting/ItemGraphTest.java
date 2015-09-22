@@ -922,7 +922,10 @@ public class ItemGraphTest extends SortingTestSuperclass {
     @Test
     public void itemGraphGetsBrokenIfMultipleSupermarketsAreUsed() {
         ItemGraph itemGraphOne = createNewItemGraphWithSupermarket(ONE);
-        ItemGraph itemGraphTwo = createNewItemGraphWithSupermarket(TWO);
+        ItemGraph itemGraphTwo = createNewItemGraphWithSupermarketAndDAOHelper(TWO, itemGraphOne.getDaoHelper());
+
+        assertSame("The two ItemGraphs work with different DAOHelpers", itemGraphOne.getDaoHelper(), itemGraphTwo.getDaoHelper());
+
         // These two supermarkets don't belong to the same chain
         BoughtItem i0One, i0Two, i1One, i1Two, i2One, i2Two, i3One, i3Two;
         i0One = createBoughtItemWithIdAndSupermarket(0, ONE);
