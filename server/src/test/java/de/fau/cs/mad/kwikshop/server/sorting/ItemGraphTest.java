@@ -949,14 +949,13 @@ public class ItemGraphTest extends SortingTestSuperclass {
         addBoughtItemsToItemGraph(itemGraph, i6, i1);
 
         // This would close the cycle i1->i3->i4->i6
-        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
-        // break the cycle; otherwise it would not be possible to reach all items any more
-        // i4->i6 has higher weight, so i3->i4 should be deleted
+        // i4->i6 has a weight of 2, so the weight should be decreased and no new edge should be added
 
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
-        assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i4, i6));
-        assertFalse("cycle detected", itemGraph.edgeFromToExists(i3, i4));
-        assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i3, i4));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i6, i1));
+
     }
 
     // helper method
