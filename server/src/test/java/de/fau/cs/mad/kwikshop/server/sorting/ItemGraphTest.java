@@ -873,7 +873,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
     @Test
-    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted() {
+    public void closeACycleWhereOnlyTwoEdgesAreAllowedToBeDeleted() {
         List<BoughtItem> items = createBoughtItems(7, ONE);
         BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
         i0 = items.get(0);
