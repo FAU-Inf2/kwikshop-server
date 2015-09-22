@@ -71,4 +71,9 @@ public class ItemGraphHelper {
         List<BoughtItem> items = Arrays.asList(boughtItems);
         itemGraph.addBoughtItems(items);
     }
+
+    public boolean checkForDoubleEdge(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2) {
+        return (itemGraph.getDaoHelper().getEdgeByFromTo(i1, i2, itemGraph.getSupermarket()) != null &&
+                itemGraph.getDaoHelper().getEdgeByFromTo(i2, i1, itemGraph.getSupermarket()) != null);
+    }
 }
