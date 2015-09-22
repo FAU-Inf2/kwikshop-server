@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
@@ -21,6 +22,9 @@ public class ItemGraph {
 
     private DAOHelper daoHelper;
 
+    private static final ReentrantLock noSupermarketChainLock = new ReentrantLock();
+    private final ReentrantLock setSupermarketLock = new ReentrantLock();
+
     public ItemGraph(DAOHelper daoHelper) {
         this.daoHelper = daoHelper;
     }
@@ -30,12 +34,16 @@ public class ItemGraph {
     }
 
     public Set<BoughtItem> getVertices() {
+        // TODO: Check whether this can be replaced by a method that only returns vertices for the current supermarket
+        // TODO: Make threadsafe
         if(vertices == null)
             vertices = new HashSet<>();
         return vertices;
     }
 
     public Set<Edge> getEdges() {
+        // TODO: Check whether this can be replaced by a method that only returns vertices for the current supermarket
+        // TODO: Make threadsafe
         if(edges == null) {
             List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
             if (edgeList != null)
@@ -49,33 +57,48 @@ public class ItemGraph {
     public boolean setSupermarket(String placeId, String supermarketName) {
 
         boolean isNewSupermarket = false;
-
-        this.supermarket = daoHelper.getSupermarketByPlaceID(placeId);
+        try {
+            setSupermarketLock.lock();
+            this.supermarket = daoHelper.getSupermarketByPlaceID(placeId);
 
         /* Supermarket does not exist yet, create it and try to find a matching SupermarketChain */
-        if(supermarket == null) {
-            isNewSupermarket = true;
-            supermarket = new Supermarket(placeId);
+            if(supermarket == null) {
+                isNewSupermarket = true;
+                supermarket = new Supermarket(placeId);
 
-            for(SupermarketChain supermarketChain : daoHelper.getAllSupermarketChains()) {
+                for(SupermarketChain supermarketChain : daoHelper.getAllSupermarketChains()) {
                 /* If the supermarket's name contains the name of a chain, it (most likely) belongs to that chain */
-                if(supermarketName.toLowerCase().contains(supermarketChain.getName().toLowerCase())) {
-                    supermarket.setSupermarketChain(supermarketChain);
-                    break;
+                    if(supermarketName.toLowerCase().contains(supermarketChain.getName().toLowerCase())) {
+                        supermarket.setSupermarketChain(supermarketChain);
+                        break;
+                    }
                 }
+                daoHelper.createSupermarket(supermarket);
             }
-            daoHelper.createSupermarket(supermarket);
+        } finally {
+            setSupermarketLock.unlock();
         }
-
         return isNewSupermarket;
 
     }
 
     private void setSupermarket(Supermarket supermarket) {
-        this.supermarket = supermarket;
+        try {
+            setSupermarketLock.lock();
+            this.supermarket = supermarket;
+        } finally {
+            setSupermarketLock.unlock();
+        }
     }
 
     public Supermarket getSupermarket() {
+        Supermarket supermarket;
+        try {
+            setSupermarketLock.lock();
+            supermarket = this.supermarket;
+        } finally {
+            setSupermarketLock.unlock();
+        }
         return supermarket;
     }
 

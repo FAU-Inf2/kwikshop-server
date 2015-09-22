@@ -1,5 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 import javax.persistence.*;
 
 @Entity
@@ -11,6 +13,8 @@ public class SupermarketChain {
 
     @Column(name="name")
     private String name;
+
+    private ReentrantLock lock = new ReentrantLock();
 
     public SupermarketChain() {
 
@@ -34,6 +38,10 @@ public class SupermarketChain {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public ReentrantLock getLock() {
+        return lock;
     }
 
     @Override
