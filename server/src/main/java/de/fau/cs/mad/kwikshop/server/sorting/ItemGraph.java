@@ -224,10 +224,12 @@ public class ItemGraph {
                     //edge exists in the opposite direction
 
                 }else{
-                    //edge does not exist already, so create it
-                    Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
-                    toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
-                    daoHelper.createEdge(toBeAdded);
+                    //edge does not exist already, so create it if from != to
+                    if(!toParentNode.getFrom().equals(fromCurrentNode.getTo())) {
+                        Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
+                        toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                        daoHelper.createEdge(toBeAdded);
+                    }
                 }
             }
         }
