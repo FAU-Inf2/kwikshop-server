@@ -657,7 +657,6 @@ public class ItemGraphTest extends SortingTestSuperclass {
                         assertTrue("Missing edge found", i4ToI0Exists);
                     }
                 } else {
-                    assertTrue("Missing edge found", i3ToI4Exists);
                     assertTrue("Missing edge found", i4ToI0Exists);
                 }
             } else {
