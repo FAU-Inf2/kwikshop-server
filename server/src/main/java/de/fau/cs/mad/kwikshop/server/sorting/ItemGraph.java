@@ -15,6 +15,8 @@ public class ItemGraph {
     private Set<BoughtItem> vertices;
     private Set<Edge> edges;
 
+    private Set<Edge> edgesAddedThisTrip;
+
     private Supermarket supermarket;
 
     private DAOHelper daoHelper;
@@ -140,18 +142,24 @@ public class ItemGraph {
 
                     /* Create edge in the opposite direction */
                             if (edgeToParentNode.getWeight() <= 0) {
-                                System.out.println("Starting to delete");
+                                System.out.println("Starting to delete, conflict: " + edge.getFrom().getName() + "->" + edge.getTo().getName());
 
-                                Edge edge1;
+                                Edge edge2;
                                 //delete all edges between the conflicting items
                                 for (BoughtItem betweenTheConflictingVertices : getVertices()) {
                                     if (daoHelper.getEdgeByFromTo(i2, betweenTheConflictingVertices, supermarket) != null
-                                            && (edge1 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
+                                            && (edge2 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
                                         if (betweenTheConflictingVertices.equals(i1) || betweenTheConflictingVertices.equals(i2))
                                             continue;
-                                        //daoHelper.deleteEdge(edge1);
-                                        System.out.println("Deleted: " + edge1.getFrom().getName() + "->" + edge1.getTo().getName());
-                                        daoHelper.deleteEdge(edge1);
+                                        System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
+                                        boolean contains = false;
+                                        for(Edge edgeFromThisTrip : edgesAddedThisTrip){
+                                            if(edgeFromThisTrip.equals(edge2)) contains = true;
+                                        }
+                                        if (!contains) {
+                                            //only delete edges if they were not added on this shopping list
+                                            daoHelper.deleteEdge(edge2);
+                                        }
                                     }
                                 }
                                 daoHelper.deleteEdge(daoHelper.getEdgeByFromTo(i2, i1, supermarket));
@@ -274,6 +282,8 @@ public class ItemGraph {
 
         List<BoughtItem> boughtItems = new ArrayList<>(newBoughtItems);
 
+        edgesAddedThisTrip = new HashSet<>();
+
         /* Add start and end Items for every Supermarket */
         boughtItems = addStartEnd(boughtItems);
 
@@ -304,7 +314,8 @@ public class ItemGraph {
             /* Load / create the Supermarket */
             setSupermarket(boughtItems.get(i).getSupermarketPlaceId(), boughtItems.get(i).getSupermarketName());
 
-            createOrUpdateEdge(i1, i2, supermarket);
+            Edge currentEdge = createOrUpdateEdge(i1, i2, supermarket);
+            edgesAddedThisTrip.add(currentEdge);
 
             /* If this supermarkt belongs to a chain, apply the Edge to this chain's global graph */
             if(supermarket.getSupermarketChain() != null) {
