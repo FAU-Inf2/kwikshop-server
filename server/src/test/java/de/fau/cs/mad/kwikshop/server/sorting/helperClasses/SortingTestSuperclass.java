@@ -35,6 +35,10 @@ public class SortingTestSuperclass {
         return itemGraphHelper.createNewItemGraphWithSupermarketAndDaoHelper(supermarketPlaceId, daoHelper);
     }
 
+    protected ItemGraph createNewItemGraphWithSupermarketAndDAOHelper(String supermarketPlaceId, String supermarketName, DAOHelper daoHelper) {
+        return itemGraphHelper.createNewItemGraphWithSupermarketAndDaoHelper(supermarketPlaceId, supermarketName, daoHelper);
+    }
+
     protected void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
         itemGraphHelper.addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
     }

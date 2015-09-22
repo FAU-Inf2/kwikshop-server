@@ -26,6 +26,12 @@ public class ItemGraphHelper {
         return itemGraph;
     }
 
+    public ItemGraph createNewItemGraphWithSupermarketAndDaoHelper(String supermarketPlaceId, String supermarketName, DAOHelper daoHelper) {
+        ItemGraph itemGraph = new ItemGraph(daoHelper);
+        itemGraph.setSupermarket(supermarketPlaceId, supermarketName);
+        return itemGraph;
+    }
+
     public void addItemsToItemGraphThatWouldProduceACycleOfThree(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2, BoughtItem i3) {
         addItemsToItemGraphThatWouldProduceACycle(itemGraph, i1, i2, i3);
     }
