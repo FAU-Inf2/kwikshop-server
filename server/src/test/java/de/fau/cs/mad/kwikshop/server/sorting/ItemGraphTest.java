@@ -884,12 +884,88 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i5 = items.get(5);
         i6 = items.get(6);
 
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        if (itemGraph.edgeFromToExists(i3, i4)) {
+            assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
+            assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+        } else {
+            assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
+        }
+    }
+
+    @Test
+    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i4_i6_mayBeDeleted() {
+        List<BoughtItem> items = createBoughtItems(7, ONE);
+        BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        i5 = items.get(5);
+        i6 = items.get(6);
+
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+        addBoughtItemsToItemGraph(itemGraph, i3, i4);
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+        // i3->i4 has higher weight, so i4->i6 should be deleted
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i3, i4));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+    }
+
+    @Test
+    public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i3_i4_mayBeDeleted() {
+        List<BoughtItem> items = createBoughtItems(7, ONE);
+        BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
+        i0 = items.get(0);
+        i1 = items.get(1);
+        i2 = items.get(2);
+        i3 = items.get(3);
+        i4 = items.get(4);
+        i5 = items.get(5);
+        i6 = items.get(6);
+
+        ItemGraph itemGraph = createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(i0, i1, i2, i3, i4, i5, i6);
+        start = itemGraph.getDaoHelper().getStartBoughtItem();
+        addBoughtItemsToItemGraph(itemGraph, i4, i6);
+
+        addBoughtItemsToItemGraph(itemGraph, i6, i1);
+
+        // This would close the cycle i1->i3->i4->i6
+        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
+        // break the cycle; otherwise it would not be possible to reach all items any more
+        // i4->i6 has higher weight, so i3->i4 should be deleted
+
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
+        assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i4, i6));
+        assertFalse("cycle detected", itemGraph.edgeFromToExists(i3, i4));
+        assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
+    }
+
+    // helper method
+    private ItemGraph createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(BoughtItem i0, BoughtItem i1, BoughtItem i2, BoughtItem i3, BoughtItem i4, BoughtItem i5, BoughtItem i6) {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         addBoughtItemsToItemGraph(itemGraph, i0, i1, i5);
         addBoughtItemsToItemGraph(itemGraph, i0, i2, i4, i6);
         addBoughtItemsToItemGraph(itemGraph, i1, i3, i4);
-
-        start = itemGraph.getDaoHelper().getStartBoughtItem();
 
         /*
          * This item graph looks something like this:
@@ -910,19 +986,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
          * All edges have weight 1
          */
 
-        addBoughtItemsToItemGraph(itemGraph, i6, i1);
-
-        // This would close the cycle i1->i3->i4->i6
-        // Either only the edge i3 -> i4 or the edge i4->i6 should have been removed in order to
-        // break the cycle; otherwise it would not be possible to reach all items any more
-
-        assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i3));
-        if (itemGraph.edgeFromToExists(i3, i4)) {
-            assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
-            assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
-        } else {
-            assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
-        }
+        return itemGraph;
     }
 
     @Test
