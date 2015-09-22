@@ -211,9 +211,23 @@ public class ItemGraph {
     }
 
     public void insertIndirectEdgesToDescendantsForNode(BoughtItem currentNode, BoughtItem parentNode){
-        for(Edge toParentNode : daoHelper.getEdgesByTo(parentNode, supermarket)){
-            for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
-                Edge currentEdge;
+        for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
+            Edge currentEdge;
+            if((currentEdge = daoHelper.getEdgeByFromTo(parentNode, fromCurrentNode.getTo(), supermarket)) != null){
+                //edge to parent already exists
+                if(currentEdge.getDistance() > fromCurrentNode.getDistance() +1){
+                    //update distance if its shorter
+                    currentEdge.setDistance(fromCurrentNode.getDistance() +1);
+                }
+            }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
+                //edge exists in the opposite direction
+            }else{
+                Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
+                toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
+                daoHelper.createEdge(toBeAdded);
+            }
+
+            for(Edge toParentNode : daoHelper.getEdgesByTo(currentNode, supermarket)){
                 if((currentEdge = daoHelper.getEdgeByFromTo(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket)) != null) {
                     //edge already exists
                     if (currentEdge.getDistance() > toParentNode.getDistance() + fromCurrentNode.getDistance() + 1) {
