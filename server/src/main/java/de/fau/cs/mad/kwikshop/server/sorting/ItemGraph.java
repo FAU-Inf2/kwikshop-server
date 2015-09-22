@@ -69,11 +69,23 @@ public class ItemGraph {
 
     }
 
+    private void setSupermarket(Supermarket supermarket) {
+        this.supermarket = supermarket;
+    }
+
     public Supermarket getSupermarket() {
         return supermarket;
     }
 
     public void update() {
+        wrappedUpdate(false);
+    }
+
+    public void updateGlobalItemGraph() {
+        wrappedUpdate(true);
+    }
+
+    private void wrappedUpdate(boolean isGlobal) {
 
         /* Update() loads all Edges and Vertices of one specific supermarket -> supermarket may not be null */
         if(supermarket == null) {
@@ -95,6 +107,13 @@ public class ItemGraph {
 
             if(!vertices.contains(edge.getTo()))
                 vertices.add(edge.getTo());
+        }
+
+        if(!isGlobal) {
+            /* If there are no Vertices for this Supermarket but it does belong to a SupermarketChain, copy the data from this SupermarketChain */
+            if (vertices.size() == 0 && supermarket.getSupermarketChain() != null) {
+                copyDataFromItemGraph(daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain()));
+            }
         }
 
         /* Debug output */
@@ -280,15 +299,37 @@ public class ItemGraph {
 
     }
 
+    /* Create a new ItemGraph, load all Edges and Vertices from 'supermarket' and copy them to this ItemGraph */
+    private void copyDataFromItemGraph(Supermarket supermarket) {
+        if(supermarket == null)
+            return;
+        
+        ItemGraph globalItemGraph = new ItemGraph(this.daoHelper);
+        globalItemGraph.setSupermarket(supermarket);
+        globalItemGraph.updateGlobalItemGraph();
+        this.edges = globalItemGraph.getEdges();
+        this.vertices = globalItemGraph.getVertices();
+        for(Edge edge : this.edges) {
+            daoHelper.createEdge(edge);
+        }
+        for(BoughtItem boughtItem : this.vertices) {
+            daoHelper.createBoughtItem(boughtItem);
+        }
+    }
+
     public ShoppingListServer sort(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
 
         /* setSupermarket() returns true if this supermarket is new - in this case, try to use the SupermarketChain's ItemGraph */
         if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
-            this.supermarket = daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain());
+            Supermarket globalSupermarket = daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain());
 
             /* If the Supermarket is new and does not belong to a chain, we can't sort the ShoppingList - just return the ShoppingList in this case */
-            if(supermarket == null)
+            if(globalSupermarket == null)
                 return shoppingList;
+            else {
+                /* Copy all Vertices and Edges from the global ItemGraph to this ItemGraph */
+                copyDataFromItemGraph(globalSupermarket);
+            }
 
             System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
         }
