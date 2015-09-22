@@ -131,21 +131,34 @@ public class ItemGraph {
 
                 //decrease weight of all edges to direct parent nodes (minimum distance) of the first item (which comes after the second one in the graph)
                 for(BoughtItem parent : getParents(i1)) {
+
                     //only decrement if the parent node is connected with the other item
                     if (edgeFromToExists(i2, parent) || parent.equals(i2)) {
-                        Edge edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket);
-                        edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
+                        Edge edgeToParentNode;
+                        if ((edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket)) != null) {
+                            edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
 
                     /* Create edge in the opposite direction */
-                        if (edgeToParentNode.getWeight() <= 0) {
-                            for (Edge toBeRemoved : daoHelper.getEdgesByTo(i1, supermarket)) {
-                                if(toBeRemoved.getFrom().equals(i2) || toBeRemoved.getFrom()    .equals(parent)) {
-                                    daoHelper.deleteEdge(toBeRemoved);
+                            if (edgeToParentNode.getWeight() <= 0) {
+                                System.out.println("Starting to delete");
+
+                                Edge edge1;
+                                //delete all edges between the conflicting items
+                                for (BoughtItem betweenTheConflictingVertices : getVertices()) {
+                                    if (daoHelper.getEdgeByFromTo(i2, betweenTheConflictingVertices, supermarket) != null
+                                            && (edge1 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
+                                        if (betweenTheConflictingVertices.equals(i1) || betweenTheConflictingVertices.equals(i2))
+                                            continue;
+                                        //daoHelper.deleteEdge(edge1);
+                                        System.out.println("Deleted: " + edge1.getFrom().getName() + "->" + edge1.getTo().getName());
+                                        daoHelper.deleteEdge(edge1);
+                                    }
                                 }
+                                daoHelper.deleteEdge(daoHelper.getEdgeByFromTo(i2, i1, supermarket));
+                                daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                                edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                                break;
                             }
-                            daoHelper.createEdge(new Edge(i1, i2, supermarket));
-                            edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
-                            break;
                         }
                     }
                 }
@@ -163,15 +176,39 @@ public class ItemGraph {
         }
 
         System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
-        insertIndirectEdges(i2, i1, supermarket);
+        insertIndirectEdgesToAncestors(i2, i1, supermarket);
+        insertIndirectEdgesToDescendantsForNode(i2, i1);
 
         return edge;
 
     }
 
+    public void insertIndirectEdgesToDescendantsForNode(BoughtItem currentNode, BoughtItem parentNode){
+        for(Edge toParentNode : daoHelper.getEdgesByTo(parentNode, supermarket)){
+            for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
+                Edge currentEdge;
+                if((currentEdge = daoHelper.getEdgeByFromTo(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket)) != null) {
+                    //edge already exists
+                    if (currentEdge.getDistance() > toParentNode.getDistance() + fromCurrentNode.getDistance() + 1) {
+                        //update distance if its shorter than the existing one
+                        currentEdge.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                    }
+                }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), toParentNode.getFrom(), supermarket)) != null){
+                    //edge exists in the opposite direction
+
+                }else{
+                    //edge does not exist already, so create it
+                    Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
+                    toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                    daoHelper.createEdge(toBeAdded);
+                }
+            }
+        }
+    }
+
     /* Connects a BoughtItem currentNode with all ancestors of his parent and sets distance
      if it's lower than the existing distance for a given Supermarket*/
-    public void insertIndirectEdges(BoughtItem currentNode, BoughtItem parent, Supermarket supermarket) {
+    public void insertIndirectEdgesToAncestors(BoughtItem currentNode, BoughtItem parent, Supermarket supermarket) {
         for (Edge edgeToParent : daoHelper.getEdgesByTo(parent, supermarket)) {
             BoughtItem ancestor = edgeToParent.getFrom();
             System.out.println("Ancestor found: " + ancestor.getName());
