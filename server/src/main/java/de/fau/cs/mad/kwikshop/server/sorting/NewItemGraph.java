@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
@@ -18,6 +19,14 @@ public class NewItemGraph {
     private final Set<Vertex> vertices = new HashSet<>();
 
     private final static HashMap<String, SoftReference<NewItemGraph>> itemGraphCache = new HashMap<>();
+
+    private final static ReentrantLock[] locks = new ReentrantLock[1000];
+
+    static {
+        for (int i = 0; i < locks.length; i++) {
+            locks[i] = new ReentrantLock();
+        }
+    }
 
     private NewItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
@@ -167,6 +176,215 @@ public class NewItemGraph {
                 return true;
         }
         return false;
+    }
+
+    public void addBoughtItems(List<BoughtItem> newBoughtItems) {
+
+        List<BoughtItem> boughtItems = new ArrayList<>(newBoughtItems);
+
+        Set<Edge> edgesAddedThisTrip = new HashSet<>();
+
+        /* Add start and end Items for every Supermarket */
+        boughtItems = addStartEnd(boughtItems);
+
+        /* Save all new boughtItems (vertices) */
+        for(BoughtItem boughtItem: boughtItems) {
+            synchronized (daoHelper) {
+                if (daoHelper.getBoughtItemByName(boughtItem.getName()) == null && !boughtItem.isServerInternalItem())
+                    daoHelper.createBoughtItem(boughtItem);
+            }
+        }
+
+        Supermarket supermarket = getSupermarket(); // retrieve supermarket thread-safely, as it cannot change anyways
+
+        List<BoughtItem> foreignSupermarketItems = new ArrayList<>();
+        List<BoughtItem> thisSupermarketItems = new ArrayList<>(boughtItems.size());
+
+        for(BoughtItem boughtItem : boughtItems) {
+            if (boughtItem.getSupermarketPlaceId().equals(this.supermarket.getPlaceId()) || boughtItem.isServerInternalItem()) {
+                thisSupermarketItems.add(boughtItem);
+            } else {
+                foreignSupermarketItems.add(boughtItem);
+            }
+        }
+
+        /* Save all new edges for the supermarket of this item graph */
+        for(int i = 0; i < thisSupermarketItems.size()-1; i++) {
+            /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
+            BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
+            BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
+
+            if (i == 0) {
+                i1 = daoHelper.getStartBoughtItem();
+            } else if (i + 1 == boughtItems.size() - 1) {
+                i2 = daoHelper.getEndBoughtItem();
+            }
+
+            /* Continue if the Items are not from the same Supermarket. Here we have to use the parameter boughtItems because the placeId is not stored in the DB */
+            /* Items belong to the same supermarket, or they would not be in this list */
+            /*if(!boughtItems.get(i).getSupermarketPlaceId().equals(boughtItems.get(i + 1).getSupermarketPlaceId())) {
+                continue;
+            }*/
+
+            /* Load / create the Supermarket */
+            // The supermarket is already set up, as item graphs can no longer change their supermarket
+            //setSupermarket(boughtItems.get(i).getSupermarketPlaceId(), boughtItems.get(i).getSupermarketName());
+
+            Edge currentEdge = createOrUpdateEdge(i1, i2, supermarket);
+            edgesAddedThisTrip.add(currentEdge);
+
+            /* If this supermarket belongs to a chain, apply the Edge to this chain's global graph */
+            if(supermarket.getSupermarketChain() != null) {
+                Supermarket globalSupermarket = daoHelper.getGlobalSupermarketBySupermarketChain(supermarket.getSupermarketChain());
+                createOrUpdateEdge(i1, i2, globalSupermarket);
+            }
+        }
+
+        update();
+
+    }
+
+    /* Adds the start and end Items for each Supermarket */
+    private List<BoughtItem> addStartEnd(List<BoughtItem> boughtItemList) {
+        String lastPlaceId = boughtItemList.get(0).getSupermarketPlaceId();
+        String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
+
+        /* Add the very first start item and the very last end item */
+        BoughtItem first = new BoughtItem(DAOHelper.START_ITEM, lastPlaceId, lastSupermarketName);
+        first.setServerInternalItem(true);
+        BoughtItem last  = new BoughtItem(DAOHelper.END_ITEM, boughtItemList.get(boughtItemList.size()-1).getSupermarketPlaceId(), boughtItemList.get(boughtItemList.size()-1).getSupermarketName());
+        last.setServerInternalItem(true);
+        boughtItemList.add(0, first);
+        boughtItemList.add(boughtItemList.size(), last);
+
+        for(int i = 0; i < boughtItemList.size(); i++) {
+            BoughtItem current = boughtItemList.get(i);
+
+            if(current.equals(daoHelper.getStartBoughtItem()) || current.equals(daoHelper.getEndBoughtItem()))
+                continue;
+
+            if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
+                BoughtItem startItem = new BoughtItem(DAOHelper.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
+                startItem.setServerInternalItem(true);
+                BoughtItem endItem   = new BoughtItem(DAOHelper.END_ITEM, lastPlaceId, lastSupermarketName);
+                endItem.setServerInternalItem(true);
+                boughtItemList.add(i, startItem);
+                boughtItemList.add(i, endItem);
+
+                lastPlaceId = current.getSupermarketPlaceId();
+                lastSupermarketName = current.getSupermarketName();
+            }
+        }
+
+        /*for(BoughtItem item : boughtItemList) {
+            System.out.println(item.getName() + " - (" + item.getSupermarketName() + ")");
+        }*/
+
+        return boughtItemList;
+
+    }
+
+    private Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket, Set<Edge> edgesAddedThisTrip) {
+
+        ReentrantLock lock1, lock2;
+        int id1 = i1.getId();
+        int id2 = i2.getId();
+        int numberOfLocks = locks.length;
+        if(id1 % numberOfLocks <= id2 % numberOfLocks) {
+            /* the locks have a global order in which they have to be acquired, in order to prevent deadlocks
+             * it doesn't matter if the two lock references hold the same object, as the lock can
+             * be acquired multiple times by one thread without having to wait */
+            lock1 = locks[id1 % numberOfLocks];
+            lock2 = locks[id2 % numberOfLocks];
+        } else {
+            lock1 = locks[id2 % numberOfLocks];
+            lock2 = locks[id1 % numberOfLocks];
+        }
+
+        Edge edge;
+
+        try {
+            lock1.lock();
+            lock2.lock();
+            /* Supermarket must be included because different supermarkets have different edges */
+            edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+
+            if(edge == null) {
+
+            /* Check if there is an Edge in the opposite direction */
+                edge = daoHelper.getEdgeByFromTo(i2, i1, supermarket);
+
+                if(edge != null) {
+                /* Edit existing edge - decrease weight */
+                    //edge.setWeight(edge.getWeight()-1);
+
+                    //decrease weight of all edges to direct parent nodes (minimum distance) of the first item (which comes after the second one in the graph)
+                    for(BoughtItem parent : getParents(i1)) {
+
+                        //only decrement if the parent node is connected with the other item
+                        if (edgeFromToExists(i2, parent) || parent.equals(i2)) {
+                            Edge edgeToParentNode;
+                            if ((edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket)) != null) {
+                                edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
+
+                    /* Create edge in the opposite direction */
+                                if (edgeToParentNode.getWeight() <= 0) {
+                                    System.out.println("Starting to delete, conflict: " + edge.getFrom().getName() + "->" + edge.getTo().getName());
+
+                                    Edge edge2;
+                                    //delete all edges between the conflicting items
+                                    for (BoughtItem betweenTheConflictingVertices : getVertices()) {
+                                        if (daoHelper.getEdgeByFromTo(i2, betweenTheConflictingVertices, supermarket) != null
+                                                && (edge2 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
+                                            if (betweenTheConflictingVertices.equals(i1) || betweenTheConflictingVertices.equals(i2))
+                                                continue;
+                                            System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
+                                            boolean contains = false;
+                                            for(Edge edgeFromThisTrip : edgesAddedThisTrip){
+                                                if(edgeFromThisTrip.equals(edge2)) contains = true;
+                                            }
+                                            if (!contains) {
+                                                //only delete edges if they were not added on this shopping list
+                                                daoHelper.deleteEdge(edge2);
+                                            }
+                                        }
+                                    }
+                                    daoHelper.deleteEdge(daoHelper.getEdgeByFromTo(i2, i1, supermarket));
+                                    daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                                    edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+
+                } else {
+                /* Create new edge */
+                    daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                    edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                }
+
+            } else {
+            /* Edit existing edge - increase weight */
+                edge.setWeight(edge.getWeight() + 1);
+            }
+
+            System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+            insertIndirectEdgesToAncestors(i2, i1, supermarket);
+            insertIndirectEdgesToDescendantsForNode(i2, i1);
+        } finally {
+            lock2.unlock();
+            lock1.unlock();
+        }
+        return edge;
+
+    }
+
+    /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
+    public Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
+        Set<Edge> edgesAddedThisTrip = new HashSet<>();
+        return createOrUpdateEdge(i1, i2, supermarket, edgesAddedThisTrip);
     }
 
     @Override
