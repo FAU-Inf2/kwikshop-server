@@ -69,6 +69,10 @@ public class NewItemGraph {
         return supermarket;
     }
 
+    public DAOHelper getDaoHelper() {
+        return daoHelper;
+    }
+
     public Set<BoughtItem> getVertices() {
         Set<BoughtItem> items;
         synchronized (vertices) {
@@ -163,5 +167,30 @@ public class NewItemGraph {
                 return true;
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        /* Debug output */
+        StringBuilder stringBuilder = new StringBuilder();
+        Set<BoughtItem> vertices;
+        Set<Edge> edges;
+        synchronized (this.vertices) {
+            vertices = getVertices();
+            edges = getEdges();
+        }
+        stringBuilder.append(String.format("ItemGraph refreshed, containing %s Edges and %s vertices.\n", edges.size(), vertices.size()));
+        stringBuilder.append("Vertices:\n");
+        for(BoughtItem boughtItem : vertices) {
+            stringBuilder.append(boughtItem.getName());
+            stringBuilder.append('\n');
+        }
+        stringBuilder.append("Edges:\n\ndigraph G {\n");
+        for(Edge edge: edges) {
+            double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
+            stringBuilder.append(String.format("%s -> %s [label=\"%s\"]", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(Math.round(currentWeightDistanceRatio*1000.0)/1000.0)));
+        }
+        stringBuilder.append("}\n\n");
+        return stringBuilder.toString();
     }
 }
