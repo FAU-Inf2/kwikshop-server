@@ -242,7 +242,56 @@ public class NewItemGraph {
         }
 
         update();
+    }
 
+    public void update() {
+        wrappedUpdate(false);
+    }
+
+    public void updateGlobalItemGraph() {
+        wrappedUpdate(true);
+    }
+
+    private void wrappedUpdate(boolean isGlobal) {
+
+        /* Update() loads all Edges and Vertices of one specific supermarket -> supermarket may not be null */
+        if(supermarket == null) {
+            throw new ArgumentNullException("supermarket");
+        }
+
+        synchronized (vertices) {
+            /* Load Edges */
+            List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
+            Set<Edge> edges;
+            if (edgeList != null)
+                edges = new HashSet<>(edgeList);
+            else
+                edges = new HashSet<>();
+
+            /* Load Vertices */
+            Set<BoughtItem> vertices = new HashSet<>();
+            for (Edge edge : edges) {
+                if (!vertices.contains(edge.getFrom()))
+                    vertices.add(edge.getFrom());
+
+                if (!vertices.contains(edge.getTo()))
+                    vertices.add(edge.getTo());
+            }
+
+            this.vertices.clear();
+            for (BoughtItem item : vertices) {
+                this.vertices.add(new Vertex(item));
+            }
+
+            if (!isGlobal) {
+            /* If there are no Vertices for this Supermarket but it does belong to a SupermarketChain, copy the data from this SupermarketChain */
+                if (vertices.size() == 0 && supermarket.getSupermarketChain() != null) {
+                    copyDataFromItemGraph(daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain()));
+                }
+            }
+        }
+        /* Debug output */
+        System.out.println(this.toString());
     }
 
     /* Adds the start and end Items for each Supermarket */
@@ -478,7 +527,7 @@ public class NewItemGraph {
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
             stringBuilder.append(String.format("%s -> %s [label=\"%s\"]", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(Math.round(currentWeightDistanceRatio*1000.0)/1000.0)));
         }
-        stringBuilder.append("}\n\n");
+        stringBuilder.append("}\n");
         return stringBuilder.toString();
     }
 }
