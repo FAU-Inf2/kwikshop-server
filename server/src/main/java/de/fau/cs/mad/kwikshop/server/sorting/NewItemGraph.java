@@ -21,6 +21,7 @@ public class NewItemGraph {
     private final static HashMap<String, SoftReference<NewItemGraph>> itemGraphCache = new HashMap<>();
 
     private final static ReentrantLock[] locks = new ReentrantLock[1000];
+            // two of these locks have to be acquired to make sure no two threads modify the same edge at one
 
     static {
         for (int i = 0; i < locks.length; i++) {
@@ -284,6 +285,12 @@ public class NewItemGraph {
 
     }
 
+    /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
+    public Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
+        Set<Edge> edgesAddedThisTrip = new HashSet<>();
+        return createOrUpdateEdge(i1, i2, supermarket, edgesAddedThisTrip);
+    }
+
     private Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket, Set<Edge> edgesAddedThisTrip) {
 
         ReentrantLock lock1, lock2;
@@ -378,13 +385,76 @@ public class NewItemGraph {
             lock1.unlock();
         }
         return edge;
-
     }
 
-    /* Create or update an Edge for the given combination of BoughtItems and Supermarket */
-    public Edge createOrUpdateEdge(BoughtItem i1, BoughtItem i2, Supermarket supermarket) {
-        Set<Edge> edgesAddedThisTrip = new HashSet<>();
-        return createOrUpdateEdge(i1, i2, supermarket, edgesAddedThisTrip);
+    private void insertIndirectEdgesToDescendantsForNode(BoughtItem currentNode, BoughtItem parentNode){
+
+        assert locks[currentNode.getId() % locks.length].isHeldByCurrentThread();
+        assert locks[parentNode.getId() % locks.length].isHeldByCurrentThread();
+
+        for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
+            Edge currentEdge;
+            if((currentEdge = daoHelper.getEdgeByFromTo(parentNode, fromCurrentNode.getTo(), supermarket)) != null){
+                //edge to parent already exists
+                if(currentEdge.getDistance() > fromCurrentNode.getDistance() +1){
+                    //update distance if its shorter
+                    currentEdge.setDistance(fromCurrentNode.getDistance() +1);
+                }
+            }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
+                //edge exists in the opposite direction
+            }else{
+                Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
+                toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
+                daoHelper.createEdge(toBeAdded);
+            }
+
+            for(Edge toParentNode : daoHelper.getEdgesByTo(currentNode, supermarket)){
+                if((currentEdge = daoHelper.getEdgeByFromTo(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket)) != null) {
+                    //edge already exists
+                    if (currentEdge.getDistance() > toParentNode.getDistance() + fromCurrentNode.getDistance() + 1) {
+                        //update distance if its shorter than the existing one
+                        currentEdge.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                    }
+                }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), toParentNode.getFrom(), supermarket)) != null){
+                    //edge exists in the opposite direction
+
+                }else{
+                    //edge does not exist already, so create it if from != to
+                    if(!toParentNode.getFrom().equals(fromCurrentNode.getTo())) {
+                        Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
+                        toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                        daoHelper.createEdge(toBeAdded);
+                    }
+                }
+            }
+        }
+    }
+
+    /* Connects a BoughtItem currentNode with all ancestors of his parent and sets distance
+     if it's lower than the existing distance for a given Supermarket*/
+    private void insertIndirectEdgesToAncestors(BoughtItem currentNode, BoughtItem parent, Supermarket supermarket) {
+
+        assert locks[currentNode.getId() % locks.length].isHeldByCurrentThread();
+        assert locks[parent.getId() % locks.length].isHeldByCurrentThread();
+
+        for (Edge edgeToParent : daoHelper.getEdgesByTo(parent, supermarket)) {
+            BoughtItem ancestor = edgeToParent.getFrom();
+            System.out.println("Ancestor found: " + ancestor.getName());
+            Edge existingEdge;
+            if ((existingEdge = daoHelper.getEdgeByFromTo(ancestor, currentNode, supermarket)) != null) {
+                //update distance
+                System.out.println("Existing edge found: " + ancestor.getName() +  "->" + currentNode.getName());
+                existingEdge.setWeight(existingEdge.getWeight() + 1);
+                if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1);
+
+            } else {
+                //new Edge
+                System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
+                existingEdge = new Edge(ancestor, currentNode, supermarket);
+                existingEdge.setDistance(edgeToParent.getDistance() + 1);
+                daoHelper.createEdge(existingEdge);
+            }
+        }
     }
 
     @Override
