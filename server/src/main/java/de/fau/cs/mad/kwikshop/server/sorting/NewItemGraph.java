@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.lang.ref.SoftReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -260,7 +261,7 @@ public class NewItemGraph {
         }
 
         synchronized (vertices) {
-            /* Load Edges */
+            /* Cache Edges */
             List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
             Set<Edge> edges;
             if (edgeList != null)
@@ -278,10 +279,7 @@ public class NewItemGraph {
                     vertices.add(edge.getTo());
             }
 
-            this.vertices.clear();
-            for (BoughtItem item : vertices) {
-                this.vertices.add(new Vertex(item));
-            }
+            setVerticesAndEdges(vertices, edges);
 
             if (!isGlobal) {
             /* If there are no Vertices for this Supermarket but it does belong to a SupermarketChain, copy the data from this SupermarketChain */
@@ -292,6 +290,38 @@ public class NewItemGraph {
         }
         /* Debug output */
         System.out.println(this.toString());
+    }
+
+    private void setVerticesAndEdges(Collection<BoughtItem> vertices, Collection<Edge> edges) {
+        synchronized (vertices) {
+            this.vertices.clear();
+            for (BoughtItem item : vertices) {
+                this.vertices.add(new Vertex(item));
+            }
+
+            for (Edge edge : edges) {
+                BoughtItem from = edge.getFrom();
+                Vertex vertex = getVertexForBoughtItem(from);
+                vertex.addEdge(edge);
+            }
+        }
+    }
+
+    /* Create a new ItemGraph, load all Edges and Vertices from 'supermarket' and copy them to this ItemGraph */
+    private void copyDataFromItemGraph(Supermarket supermarket) {
+        if(supermarket == null)
+            return;
+
+        NewItemGraph globalItemGraph = getItemGraph(this.daoHelper, supermarket);
+        globalItemGraph.updateGlobalItemGraph();
+        Set<Edge> edges = globalItemGraph.getEdges();
+        setVerticesAndEdges(globalItemGraph.getVertices(), edges);
+        for(Edge edge : edges) {
+            daoHelper.createEdge(edge);
+        }
+        for(Vertex vertex : this.vertices) {
+            daoHelper.createBoughtItem(vertex.getBoughtItem());
+        }
     }
 
     /* Adds the start and end Items for each Supermarket */
