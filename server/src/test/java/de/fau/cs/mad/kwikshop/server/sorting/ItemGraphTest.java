@@ -11,6 +11,7 @@ import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.DAODummyHelper;
+import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemGraphHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SortingTestSuperclass;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SupermarketHelper;
 
@@ -583,8 +584,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i0,i1));
         assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i1,i2));
-        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2,i3));
-        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3,i4));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i2, i3));
+        assertTrue("Missing edge found, although no inconsistent data was added so far", itemGraph.edgeFromToExists(i3, i4));
 
         addBoughtItemsToItemGraph(itemGraph, i4, i2, i0);
         // i4->i2 would close cycle i2->i3->i4->i2
@@ -694,6 +695,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
             assertTrue("missing edge found", i2ToI3Exists);
             assertTrue("missing edge found", i3ToI1Exists);
         }
+        //check if indirect edge was set correctly
+        assertTrue("missing indirect edge found", itemGraph.edgeFromToExists(i3, i2));
     }
 
     @Test
@@ -1063,5 +1066,67 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i2Three));
         assertTrue("missing edge found in global supermarket graph", globalSupermarketItemGraph.edgeFromToExists(i1Three, i3Three));
 
+    }
+
+    @Test
+    public void checkForDoubleEdges() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        for (int i = 0; i < 10; i++) {
+            // make sure the edges of the global graph have a high weight
+            addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        }
+
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, THREE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, THREE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, THREE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, THREE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, THREE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, THREE);
+
+        addBoughtItemsToItemGraph(itemGraph, i2, i1, i0);
+        addBoughtItemsToItemGraph(itemGraph, i5, i4, i3, i2);
+        addBoughtItemsToItemGraph(itemGraph, i5, i4, i3, i2, i1, i0);
+        addBoughtItemsToItemGraph(itemGraph, i4, i3, i2, i0);
+        addBoughtItemsToItemGraph(itemGraph, i4, i2, i1);
+
+        itemGraph.update();
+
+        assertFalse("Edge i0 -> i1 AND Edge i1 -> i0 exist", checkForDoubleEdge(itemGraph, i0, i1));
+        assertFalse("Edge i1 -> i2 AND Edge i2 -> i1 exist", checkForDoubleEdge(itemGraph, i1, i2));
+        assertFalse("Edge i2 -> i3 AND Edge i3 -> i2 exist", checkForDoubleEdge(itemGraph, i2, i3));
+        assertFalse("Edge i3 -> i4 AND Edge i4 -> i3 exist", checkForDoubleEdge(itemGraph, i3, i4));
+        assertFalse("Edge i4 -> i5 AND Edge i5 -> i4 exist", checkForDoubleEdge(itemGraph, i4, i5));
+    }
+
+    @Test
+    public void checkForEdgesFromXToX() {
+        ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
+        for (int i = 0; i < 10; i++) {
+            // make sure the edges of the global graph have a high weight
+            addCycleFreeDataWithSixVerticesToItemGraph(itemGraph);
+        }
+
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, THREE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, THREE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, THREE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, THREE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, THREE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, THREE);
+
+        addBoughtItemsToItemGraph(itemGraph, i2, i1, i0);
+        addBoughtItemsToItemGraph(itemGraph, i5, i4, i3, i2);
+        addBoughtItemsToItemGraph(itemGraph, i5, i4, i3, i2, i1, i0);
+        addBoughtItemsToItemGraph(itemGraph, i4, i3, i2, i0);
+        addBoughtItemsToItemGraph(itemGraph, i4, i2, i1);
+
+        itemGraph.update();
+
+        assertFalse("Edge i0 -> i0 exist", itemGraph.edgeFromToExists(i0, i0));
+        assertFalse("Edge i1 -> i1 exist", itemGraph.edgeFromToExists(i1, i1));
+        assertFalse("Edge i2 -> i2 exist", itemGraph.edgeFromToExists(i2, i2));
+        assertFalse("Edge i3 -> i3 exist", itemGraph.edgeFromToExists(i3, i3));
+        assertFalse("Edge i4 -> i4 exist", itemGraph.edgeFromToExists(i4, i4));
     }
 }

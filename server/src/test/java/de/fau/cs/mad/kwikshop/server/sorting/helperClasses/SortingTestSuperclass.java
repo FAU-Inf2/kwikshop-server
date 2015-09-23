@@ -78,4 +78,8 @@ public class SortingTestSuperclass {
     protected void addBoughtItemsToItemGraph(ItemGraph itemGraph, BoughtItem... boughtItems) {
         itemGraphHelper.addBoughtItemsToItemGraph(itemGraph, boughtItems);
     }
+
+    protected boolean checkForDoubleEdge(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2) {
+        return itemGraphHelper.checkForDoubleEdge(itemGraph, i1, i2);
+    }
 }
