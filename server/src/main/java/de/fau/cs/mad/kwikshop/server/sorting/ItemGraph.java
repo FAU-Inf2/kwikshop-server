@@ -44,6 +44,7 @@ public class ItemGraph {
     public Set<Edge> getEdges() {
         // TODO: Check whether this can be replaced by a method that only returns vertices for the current supermarket
         // TODO: Make threadsafe
+        Supermarket supermarket = getSupermarket(); // retrieve supermarket thread-safely
         if(edges == null) {
             List<Edge> edgeList = daoHelper.getEdgesBySupermarket(supermarket);
             if (edgeList != null)
@@ -337,6 +338,7 @@ public class ItemGraph {
                 daoHelper.createBoughtItem(boughtItem);
         }
 
+        Supermarket supermarket = getSupermarket(); // retrieve supermarket thread-safely
 
         /* Save all new edges */
         for(int i = 0; i < boughtItems.size()-1; i++) {
@@ -361,7 +363,7 @@ public class ItemGraph {
             Edge currentEdge = createOrUpdateEdge(i1, i2, supermarket);
             edgesAddedThisTrip.add(currentEdge);
 
-            /* If this supermarkt belongs to a chain, apply the Edge to this chain's global graph */
+            /* If this supermarket belongs to a chain, apply the Edge to this chain's global graph */
             if(supermarket.getSupermarketChain() != null) {
                 Supermarket globalSupermarket = daoHelper.getGlobalSupermarketBySupermarketChain(supermarket.getSupermarketChain());
                 createOrUpdateEdge(i1, i2, globalSupermarket);
