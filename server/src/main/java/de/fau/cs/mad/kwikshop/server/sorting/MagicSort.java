@@ -206,25 +206,36 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     public List<BoughtItem> sortBoughtItems(List<BoughtItem> items){
 
         for(int i = 0; i < items.size(); i++){
-            for(int j = i + 1; j < items.size(); j++){
-                if(itemGraph.edgeFromToExists(items.get(i), items.get(j))){
+            for(int j = i + 1; j < items.size(); j++) {
+                if (itemGraph.edgeFromToExists(items.get(i), items.get(j))) {
                     //edge exists: those two items have the correct order
                     continue;
-                }else if(itemGraph.edgeFromToExists(items.get(j), items.get(i))){
+                } else if (itemGraph.edgeFromToExists(items.get(j), items.get(i))) {
                     //edge is the other way around: put j before i
                     items.add(i, items.get(j));
-                    items.remove(j+1);
+                    items.remove(j + 1);
 
                     //repeat this step with a new from node
                     i--;
                     break;
-                }else{
-                    //no edge between the two items: leave order unchanged
+                } else {
+                    insertAfterAncestor(items, j);
                     continue;
                 }
             }
         }
         return items;
+    }
+
+    //inserts the item at currentIndex after an ancestor if the item after the ancestor isn't also an ancestor of the item at currentIndex
+    private void insertAfterAncestor(List<BoughtItem> items, int currentIndex){
+        for (int k = 0; k < currentIndex; k++) {
+            if (itemGraph.edgeFromToExists(items.get(k), items.get(currentIndex)) && !itemGraph.edgeFromToExists(items.get(k+1), items.get(currentIndex))) {
+                items.add(k + 1, items.get(currentIndex));
+                items.remove(currentIndex + 1);
+                break;
+            }
+        }
     }
 
 
