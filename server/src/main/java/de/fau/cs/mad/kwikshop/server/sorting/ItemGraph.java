@@ -263,9 +263,12 @@ public class ItemGraph {
                 existingEdge.setWeight(existingEdge.getWeight() + 1);
                 if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1);
 
-            } else {
+            } else if(daoHelper.getEdgeByFromTo(currentNode, ancestor, supermarket) != null) {
+                //edge already exists in the opposite direction
+            }else {
+
                 //new Edge
-                if(ancestor != currentNode) {
+                if (ancestor != currentNode) {
                     System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
                     existingEdge = new Edge(ancestor, currentNode, supermarket);
                     existingEdge.setDistance(edgeToParent.getDistance() + 1);
