@@ -2,11 +2,17 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.lang.ref.SoftReference;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
+
+import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 
 public class NewItemGraph {
 
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
+
+    private final Set<Vertex> vertices = new HashSet<>();
 
     private final static HashMap<String, SoftReference<NewItemGraph>> itemGraphCache = new HashMap<>();
 
@@ -51,5 +57,30 @@ public class NewItemGraph {
             daoHelper.createSupermarket(supermarket);
         }
         return getItemGraph(daoHelper, supermarket);
+    }
+
+    public Supermarket getSupermarket() {
+        return supermarket;
+    }
+
+    public Set<BoughtItem> getVertices() {
+        Set<BoughtItem> items;
+        synchronized (vertices) {
+            items = new HashSet<>(vertices.size());
+            for (Vertex vertex : vertices) {
+                items.add(vertex.getBoughtItem());
+            }
+        }
+        return items;
+    }
+
+    public Set<Edge> getEdges() {
+        Set<Edge> edges = new HashSet<>(); // size is not known at the moment
+        synchronized (vertices) {
+            for (Vertex vertex : vertices) {
+                edges.addAll(vertex.getEdges());
+            }
+        }
+        return edges;
     }
 }
