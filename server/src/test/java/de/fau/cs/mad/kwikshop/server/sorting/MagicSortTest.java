@@ -567,4 +567,61 @@ public class MagicSortTest extends SortingTestSuperclass {
 
     }
 
+    @Test
+    public void checkStartItemTest() {
+        ItemGraph itemGraph = createNewItemGraph();
+
+        BoughtItem i0, i1, i2, i3;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i0, i1, i2);
+        addBoughtItemsToItemGraph(itemGraph, i2, i3);
+
+        ArrayList<Item> items = new ArrayList<>(6);
+
+        Item item0 = new Item();
+        Item item1 = new Item();
+        Item item2 = new Item();
+
+        item0.setName("i0");
+        item1.setName("i1");
+        item2.setName("i2");
+
+        items.add(item2);
+        items.add(item0);
+        items.add(item1);
+
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0,items);
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer, sortingRequest);
+
+        assertTrue("First Item is not i0", sorted.get(0).getName().equals("i0"));
+
+        /* This should definitely change the first Item */
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+        addBoughtItemsToItemGraph(itemGraph, i1, i0, i2, i3);
+
+        ShoppingListServer shoppingListServer2 = new ShoppingListServer(0,items);
+
+        SortingRequest sortingRequest2 = new SortingRequest(ONE, ONE);
+        List<Item> sorted2 = magicSortHelper.sort(itemGraph, shoppingListServer2, sortingRequest2);
+
+        assertTrue("First Item is not i1", sorted2.get(0).getName().equals("i1"));
+    }
+
 }
