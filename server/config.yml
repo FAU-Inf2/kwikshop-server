@@ -22,8 +22,7 @@ database:
     #hibernate.dialect: org.hibernate.dialect.HSQLDialect
     hibernate.dialect: org.hibernate.dialect.H2Dialect
 
-    #TODO flip to validate on server
-    hibernate.hbm2ddl.auto: 'update'
+    hibernate.hbm2ddl.auto: 'validate'
 
 #logging:
 #    level: DEBUG
