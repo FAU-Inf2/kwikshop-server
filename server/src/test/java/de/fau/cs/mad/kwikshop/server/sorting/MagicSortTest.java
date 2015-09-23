@@ -504,4 +504,67 @@ public class MagicSortTest extends SortingTestSuperclass {
         assertEquals("The sixth item was not sorted correctly according to the global data of this supermarket", "i0", sorted.get(5).getName());
     }
 
+    @Test
+    public void wrongSortOrderWhenTheGraphContainsParallelWays(){
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+
+        BoughtItem i0, i1, i2, i3, i4, i5;
+        i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
+        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+        i5 = createBoughtItemWithIdAndSupermarket(5, ONE);
+
+        addBoughtItemsToItemGraph(itemGraph, i0, i5);
+        addBoughtItemsToItemGraph(itemGraph, i1, i5);
+        addBoughtItemsToItemGraph(itemGraph, i2, i3, i4, i5);
+
+
+        ArrayList<Item> items = new ArrayList<>(6);
+
+        Item item0 = new Item();
+        Item item1 = new Item();
+        Item item2 = new Item();
+        Item item3 = new Item();
+        Item item4 = new Item();
+        Item item5 = new Item();
+
+        item0.setName("i0");
+        item1.setName("i1");
+        item2.setName("i2");
+        item3.setName("i3");
+        item4.setName("i4");
+        item5.setName("i5");
+
+        //the order of the items is important
+        items.add(item2);
+        items.add(item3);
+        items.add(item1);
+        items.add(item5);
+        items.add(item0);
+        items.add(item4);
+
+        ShoppingListServer shoppingListServer = new ShoppingListServer(0,items);
+
+        SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
+        List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer, sortingRequest);
+
+        assertTrue("Wrong list size", sorted.size() == items.size());
+
+        assertFalse("Wrong starting item", sorted.get(0).getName().equals("i5"));
+        assertFalse("Wrong starting item", sorted.get(0).getName().equals("i3"));
+        assertFalse("Wrong starting item", sorted.get(0).getName().equals("i4"));
+
+        for(int i = 0; i < items.size(); i++){
+            if(sorted.get(i).getName().equals("i2")){
+                //only i0 and i1 should come before i2
+                assertTrue("Wrong position for i2", i < 3);
+                assertTrue("Wrong position for i3", sorted.get(i+1).getName().equals("i3"));
+                assertTrue("Wrong position for i4, instead: "  + sorted.get(i+2).getName(), sorted.get(i+2).getName().equals("i4"));
+            }
+        }
+
+    }
+
 }
