@@ -460,7 +460,7 @@ public class MagicSortTest extends SortingTestSuperclass {
         assertEquals("The fourth item was not sorted correctly according to the global data of this supermarket", "i3", sorted.get(3).getName());
     }
 
-    @Test
+    @Test(timeout = 5000)
     public void globalDataShouldNotBeUsedIfSufficientLocalDataIsAvailable() {
         ItemGraph itemGraphOne = createCyclicFreeDataWithSixVertices();
         for (int i = 0; i < 10; i++) {
