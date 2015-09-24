@@ -78,6 +78,11 @@ public class ItemGraph {
         return getItemGraph(daoHelper, supermarket);
     }
 
+    public static void clearCache() {
+        // this method needs to be called before every test, so the ItemGraph cache is empty
+        itemGraphCache.clear();
+    }
+
     public Supermarket getSupermarket() {
         return supermarket;
     }
@@ -141,7 +146,9 @@ public class ItemGraph {
         }
         List<BoughtItem> children = new ArrayList<>(edges.size());
         for (Edge edge : edges) {
-            children.add(edge.getTo());
+            if (edge.getDistance() == 0) {
+                children.add(edge.getTo());
+            }
         }
         return children;
 
