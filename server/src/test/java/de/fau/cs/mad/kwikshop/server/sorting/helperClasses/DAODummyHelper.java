@@ -3,15 +3,17 @@ package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.server.sorting.AbstractDAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.Edge;
 import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
 import de.fau.cs.mad.kwikshop.server.sorting.SupermarketChain;
 
 /*This class should be used only for testing!!!*/
-public class DAODummyHelper implements DAOHelper {
+public class DAODummyHelper extends AbstractDAOHelper {
 
     private final String ONE = "ONE";
     private final String TWO = "TWO";
@@ -36,8 +38,8 @@ public class DAODummyHelper implements DAOHelper {
     private final BoughtItem endBoughtItem;
     private final HashMap<String, BoughtItem> boughtItems;
 
-
     public DAODummyHelper() {
+        super();
         defaultSupermarketChainOne = new SupermarketChain();
         defaultSupermarketChainOne.setId(1);
         defaultSupermarketChainOne.setName(CHAIN_ONE);

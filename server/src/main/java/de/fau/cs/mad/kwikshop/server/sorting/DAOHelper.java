@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 
@@ -22,4 +23,6 @@ public interface DAOHelper {
     void createBoughtItem(BoughtItem boughtItem);
     Supermarket getGlobalSupermarketBySupermarketChain(SupermarketChain supermarketChain);
     Supermarket getGlobalSupermarket(SupermarketChain supermarketChain);
+    int getNumberOfLocks();
+    ReentrantLock getLockWithNumber(int number);
 }

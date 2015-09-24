@@ -23,15 +23,6 @@ public class ItemGraph {
 
     private final static HashMap<String, SoftReference<ItemGraph>> itemGraphCache = new HashMap<>();
 
-    private final static ReentrantLock[] locks = new ReentrantLock[1000];
-            // two of these locks have to be acquired to make sure no two threads modify the same edge at one
-
-    static {
-        for (int i = 0; i < locks.length; i++) {
-            locks[i] = new ReentrantLock();
-        }
-    }
-
     private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
@@ -410,16 +401,16 @@ public class ItemGraph {
         ReentrantLock lock1, lock2;
         int id1 = i1.getId();
         int id2 = i2.getId();
-        int numberOfLocks = locks.length;
+        int numberOfLocks = daoHelper.getNumberOfLocks();
         if(id1 % numberOfLocks <= id2 % numberOfLocks) {
             /* the locks have a global order in which they have to be acquired, in order to prevent deadlocks
              * it doesn't matter if the two lock references hold the same object, as the lock can
              * be acquired multiple times by one thread without having to wait */
-            lock1 = locks[id1 % numberOfLocks];
-            lock2 = locks[id2 % numberOfLocks];
+            lock1 = daoHelper.getLockWithNumber(id1 % numberOfLocks);
+            lock2 = daoHelper.getLockWithNumber(id2 % numberOfLocks);
         } else {
-            lock1 = locks[id2 % numberOfLocks];
-            lock2 = locks[id1 % numberOfLocks];
+            lock1 = daoHelper.getLockWithNumber(id2 % numberOfLocks);
+            lock2 = daoHelper.getLockWithNumber(id1 % numberOfLocks);
         }
 
         Edge edge;
@@ -502,8 +493,8 @@ public class ItemGraph {
 
     private void insertIndirectEdgesToDescendantsForNode(BoughtItem currentNode, BoughtItem parentNode){
 
-        assert locks[currentNode.getId() % locks.length].isHeldByCurrentThread();
-        assert locks[parentNode.getId() % locks.length].isHeldByCurrentThread();
+        assert daoHelper.getLockWithNumber(currentNode.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
+        assert daoHelper.getLockWithNumber(parentNode.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
 
         for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
             Edge currentEdge;
@@ -549,8 +540,8 @@ public class ItemGraph {
      if it's lower than the existing distance for a given Supermarket*/
     private void insertIndirectEdgesToAncestors(BoughtItem currentNode, BoughtItem parent, Supermarket supermarket) {
 
-        assert locks[currentNode.getId() % locks.length].isHeldByCurrentThread();
-        assert locks[parent.getId() % locks.length].isHeldByCurrentThread();
+        assert daoHelper.getLockWithNumber(currentNode.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
+        assert daoHelper.getLockWithNumber(parent.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
 
         for (Edge edgeToParent : daoHelper.getEdgesByTo(parent, supermarket)) {
             BoughtItem ancestor = edgeToParent.getFrom();

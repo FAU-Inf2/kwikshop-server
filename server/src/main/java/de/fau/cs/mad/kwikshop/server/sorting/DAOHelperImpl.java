@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.dao.BoughtItemDAO;
@@ -8,7 +9,7 @@ import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketChainDAO;
 import de.fau.cs.mad.kwikshop.server.dao.SupermarketDAO;
 
-public class DAOHelperImpl implements DAOHelper {
+public class DAOHelperImpl extends AbstractDAOHelper {
 
     private BoughtItemDAO boughtItemDAO;
     private EdgeDAO edgeDAO;
@@ -17,6 +18,7 @@ public class DAOHelperImpl implements DAOHelper {
 
     public DAOHelperImpl(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
                          SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
+        super();
         this.boughtItemDAO = boughtItemDAO;
         this.edgeDAO = edgeDAO;
         this.supermarketDAO = supermarketDAO;
