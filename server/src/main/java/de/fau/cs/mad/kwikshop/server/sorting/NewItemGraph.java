@@ -417,7 +417,6 @@ public class NewItemGraph {
 
                     /* Create edge in the opposite direction */
                                 if (edgeToParentNode.getWeight() <= 0) {
-                                    System.out.println("Starting to delete, conflict: " + edge.getFrom().getName() + "->" + edge.getTo().getName());
 
                                     Edge edge2;
                                     //delete all edges between the conflicting items
@@ -484,9 +483,11 @@ public class NewItemGraph {
             }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
                 //edge exists in the opposite direction
             }else{
-                Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
-                toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
-                daoHelper.createEdge(toBeAdded);
+                if(!parentNode.equals(fromCurrentNode.getTo())) {
+                    Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
+                    toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
+                    daoHelper.createEdge(toBeAdded);
+                }
             }
 
             for(Edge toParentNode : daoHelper.getEdgesByTo(currentNode, supermarket)){
@@ -530,10 +531,12 @@ public class NewItemGraph {
 
             } else {
                 //new Edge
-                System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
-                existingEdge = new Edge(ancestor, currentNode, supermarket);
-                existingEdge.setDistance(edgeToParent.getDistance() + 1);
-                daoHelper.createEdge(existingEdge);
+                if(ancestor != currentNode) {
+                    System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
+                    existingEdge = new Edge(ancestor, currentNode, supermarket);
+                    existingEdge.setDistance(edgeToParent.getDistance() + 1);
+                    daoHelper.createEdge(existingEdge);
+                }
             }
         }
     }
