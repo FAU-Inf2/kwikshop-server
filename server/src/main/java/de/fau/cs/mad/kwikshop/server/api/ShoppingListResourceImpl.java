@@ -25,6 +25,7 @@ import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelperImpl;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
 import de.fau.cs.mad.kwikshop.server.sorting.MagicSort;
+import de.fau.cs.mad.kwikshop.server.sorting.Supermarket;
 import io.dropwizard.auth.Auth;
 import io.dropwizard.hibernate.UnitOfWork;
 
@@ -397,13 +398,14 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             System.out.println("Name:" + boughtItem.getName() + " - " + (boughtItem.getDate() != null? boughtItem.getDate().toString() : ""));
         }
 
-        /* Single item 'lists' are not useable */
+        /* Single item 'lists' are not usable */
         if(itemOrder.getBoughtItemList().size() < 2)
             return;
 
         /* Add the itemOrder to the graph */
         DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
-        ItemGraph itemGraph = new ItemGraph(daoHelper);
+        BoughtItem firstItem = itemOrder.getBoughtItemList().get(0);
+        ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, firstItem.getSupermarketPlaceId(), firstItem.getSupermarketName());
         itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
     }
 
@@ -426,7 +428,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
         }
 
         DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
-        ItemGraph itemGraph = new ItemGraph(daoHelper);
+        ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, sortingRequest.getPlaceId(), sortingRequest.getSupermarketName());
         ShoppingListServer result = itemGraph.sort(new MagicSort(), shoppingList, sortingRequest);
 
         try {

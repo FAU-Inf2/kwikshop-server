@@ -24,7 +24,7 @@ public class SortingTestSuperclass {
     /* Helper methods that might be useful in all test classes concerning sorting */
 
     protected ItemGraph createNewItemGraph() {
-        return itemGraphHelper.createNewItemGraph();
+        return itemGraphHelper.createNewItemGraphWithSupermarket(ONE);
     }
 
     protected ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {

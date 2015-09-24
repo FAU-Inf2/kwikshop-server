@@ -12,23 +12,21 @@ public class ItemGraphHelper {
     private final String ONE = "ONE";
     private final ItemCreationHelper itemCreationHelper = new ItemCreationHelper();
 
-    public ItemGraph createNewItemGraph() {
+    /*public ItemGraph createNewItemGraph() {
         return new ItemGraph(new DAODummyHelper());
-    }
+    }*/
 
     public ItemGraph createNewItemGraphWithSupermarket(String supermarketPlaceId) {
         return createNewItemGraphWithSupermarketAndDaoHelper(supermarketPlaceId, new DAODummyHelper());
     }
 
     public ItemGraph createNewItemGraphWithSupermarketAndDaoHelper(String supermarketPlaceId, DAOHelper daoHelper) {
-        ItemGraph itemGraph = new ItemGraph(daoHelper);
-        itemGraph.setSupermarket(supermarketPlaceId, supermarketPlaceId);
+        ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, supermarketPlaceId, supermarketPlaceId);
         return itemGraph;
     }
 
     public ItemGraph createNewItemGraphWithSupermarketAndDaoHelper(String supermarketPlaceId, String supermarketName, DAOHelper daoHelper) {
-        ItemGraph itemGraph = new ItemGraph(daoHelper);
-        itemGraph.setSupermarket(supermarketPlaceId, supermarketName);
+        ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, supermarketPlaceId, supermarketName);
         return itemGraph;
     }
 

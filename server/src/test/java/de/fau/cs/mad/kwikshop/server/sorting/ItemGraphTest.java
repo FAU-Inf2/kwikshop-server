@@ -42,29 +42,29 @@ public class ItemGraphTest extends SortingTestSuperclass {
         }
     }
 
-    @Test
-    public void newItemGraphShouldNotHaveASupermarket() {
+    // item graphs without specifying a supermarket is not possible outside the test classes;
+    // inside the test classes it defaults to supermarket one
+    /*public void newItemGraphShouldNotHaveASupermarket() {
         ItemGraph itemGraph = createNewItemGraph();
         assertNull("Newly created ItemGraph already has supermarket set", itemGraph.getSupermarket());
-    }
+    }*/
 
     @Test
     public void setAndGetSupermarketTest() {
-        ItemGraph itemGraph = createNewItemGraph();
-        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
-        itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId());
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(TWO);
+        Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(TWO);
         assertEquals("The returned supermarket by getSupermarket should be the same as the supermarket that was set", supermarket.getPlaceId(), itemGraph.getSupermarket().getPlaceId());
     }
 
-    @Test
-    public void setSupermarketReturnsCorrectValue() {
+    // set supermarket was removed, because item graphs now cannot change their supermarket any longer
+    /*public void setSupermarketReturnsCorrectValue() {
         ItemGraph itemGraph = createNewItemGraph();
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
         assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId()));
         assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket(supermarket.getPlaceId(), supermarket.getPlaceId()));
         assertTrue("setSupermarket returned false although it is a new supermarket", itemGraph.setSupermarket("blah", "blah"));
         assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", "blah"));
-    }
+    }*/
 
     @Test
     public void createOrUpdateEdgeForEmptyGraphShouldReturnAEdge() {
@@ -81,13 +81,12 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
     @Test
     public void createdEdgeShouldBeContainedInResultOfGetEdges() {
-        ItemGraph itemGraph = createNewItemGraph();
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
         BoughtItem i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
         Supermarket supermarket = itemGraph.getDaoHelper().getSupermarketByPlaceID(ONE);
 
         Edge edge = itemGraph.createOrUpdateEdge(i1, i2, supermarket);
-        itemGraph.setSupermarket(ONE, ONE);
         itemGraph.update();
 
         Set<Edge> edges = itemGraph.getEdges();
@@ -113,8 +112,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
     // Helper method for a limited number of related tests
     private void getVerticesReturnsTheItemsThatWereAddedBeforeForNItems(int n) {
-        ItemGraph itemGraph = createNewItemGraph();
-        itemGraph.setSupermarket(ONE, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(n, ONE);
         itemGraph.addBoughtItems(items);
 
