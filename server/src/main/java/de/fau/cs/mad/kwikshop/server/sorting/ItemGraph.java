@@ -602,7 +602,7 @@ public class ItemGraph {
         stringBuilder.append("Edges:\n\ndigraph G {\n");
         for(Edge edge: edges) {
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
-            stringBuilder.append(String.format("%s -> %s [label=\"%s\"]", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(Math.round(currentWeightDistanceRatio*1000.0)/1000.0)));
+            stringBuilder.append(String.format("%s -> %s [label=\"%s\"]\n", edge.getFrom().getName(), edge.getTo().getName(), String.valueOf(Math.round(currentWeightDistanceRatio*1000.0)/1000.0)));
         }
         stringBuilder.append("}\n");
         return stringBuilder.toString();
