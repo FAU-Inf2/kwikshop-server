@@ -165,7 +165,7 @@ public class ItemGraph {
         synchronized (vertices) {
             Vertex vertex = getVertexForBoughtItem(boughtItem);
             if (vertex == null) {
-                return null; // item not contained in this item graph
+                return new HashSet<>();
             }
             edges=vertex.getEdges();
         }
@@ -578,7 +578,7 @@ public class ItemGraph {
 
         /* Load the ItemGraph and sort the ShoppingList */
         update();
-        //algorithm.setUp(this);
+        algorithm.setUp(this);
         return (ShoppingListServer) algorithm.execute(shoppingList);
 
     }
