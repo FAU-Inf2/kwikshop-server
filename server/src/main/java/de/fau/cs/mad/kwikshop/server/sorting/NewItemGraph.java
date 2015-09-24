@@ -216,7 +216,14 @@ public class NewItemGraph {
         for(int i = 0; i < thisSupermarketItems.size()-1; i++) {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
             BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
+            if(i1 == null) {
+                i1 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i).getName());
+            }
+
             BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
+            if(i2 == null) {
+                i2 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i + 1).getName());
+            }
 
             if (i == 0) {
                 i1 = daoHelper.getStartBoughtItem();
@@ -330,6 +337,7 @@ public class NewItemGraph {
     private List<BoughtItem> addStartEnd(List<BoughtItem> boughtItemList) {
         String lastPlaceId = boughtItemList.get(0).getSupermarketPlaceId();
         String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
+        long lastTime = 0;
 
         /* Add the very first start item and the very last end item */
         BoughtItem first = new BoughtItem(DAOHelper.START_ITEM, lastPlaceId, lastSupermarketName);
@@ -345,7 +353,10 @@ public class NewItemGraph {
             if(current.equals(daoHelper.getStartBoughtItem()) || current.equals(daoHelper.getEndBoughtItem()))
                 continue;
 
-            if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
+            if(!current.getSupermarketPlaceId().equals(lastPlaceId) || current.getDate() != null) {
+                if(current.getDate().getTime() - lastTime < 3 * 3600000) {
+                     continue;
+                }
                 BoughtItem startItem = new BoughtItem(DAOHelper.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
                 startItem.setServerInternalItem(true);
                 BoughtItem endItem   = new BoughtItem(DAOHelper.END_ITEM, lastPlaceId, lastSupermarketName);
@@ -355,12 +366,16 @@ public class NewItemGraph {
 
                 lastPlaceId = current.getSupermarketPlaceId();
                 lastSupermarketName = current.getSupermarketName();
+
+                if(current.getDate() != null) {
+                    lastTime = current.getDate().getTime();
+                }
             }
         }
 
-        /*for(BoughtItem item : boughtItemList) {
-            System.out.println(item.getName() + " - (" + item.getSupermarketName() + ")");
-        }*/
+        for(BoughtItem item : boughtItemList) {
+            System.out.println(item.getName() + " - (" + item.getSupermarketName() + " at " + (item.getDate() != null? item.getDate().toString() : "?") + ")");
+        }
 
         return boughtItemList;
 
