@@ -185,6 +185,11 @@ public class DAODummyHelper implements DAOHelper {
     }
 
     @Override
+    public BoughtItem getBoughtItemByNameIncludingStartAndEnd(String name) {
+        return boughtItems.get(name);
+    }
+
+    @Override
     public void createBoughtItem(BoughtItem boughtItem) {
         if (!boughtItems.containsValue(boughtItem)) {
             boughtItems.put(boughtItem.getName(), boughtItem);
