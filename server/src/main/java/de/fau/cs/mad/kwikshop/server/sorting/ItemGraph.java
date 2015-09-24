@@ -179,6 +179,17 @@ public class ItemGraph {
         return new HashSet<>(edges);
     }
 
+    public Set<Edge> getDirectEdgesFrom(BoughtItem boughtItem) {
+        Set<Edge> edges = getEdgesFrom(boughtItem);
+        HashSet<Edge> foundEdges = new HashSet<>();
+        for (Edge edge : edges) {
+            if (edge.getDistance() == 0) {
+                foundEdges.add(edge);
+            }
+        }
+        return foundEdges;
+    }
+
     //checks if there is an edge from node from to node to
     public boolean edgeFromToExists(BoughtItem from, BoughtItem to){
         Set<Edge> edges = getEdgesFrom(from);
