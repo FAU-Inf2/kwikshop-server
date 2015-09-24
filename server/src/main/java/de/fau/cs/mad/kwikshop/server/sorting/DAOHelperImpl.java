@@ -28,76 +28,122 @@ public class DAOHelperImpl extends AbstractDAOHelper {
 
     @Override
     public Supermarket getSupermarketByPlaceID(String placeId) {
-        return supermarketDAO.getByPlaceId(placeId);
+        synchronized (supermarketDAO) {
+            return supermarketDAO.getByPlaceId(placeId);
+        }
     }
 
     @Override
     public List<SupermarketChain> getAllSupermarketChains() {
-        return supermarketChainDAO.getAll();
+        synchronized (supermarketChainDAO) {
+            return supermarketChainDAO.getAll();
+        }
     }
 
     @Override
     public void createSupermarket(Supermarket supermarket) {
-        supermarketDAO.createSupermarket(supermarket);
+        synchronized (supermarketDAO) {
+            supermarketDAO.createSupermarket(supermarket);
+        }
     }
 
     @Override
     public List<Edge> getEdgesBySupermarket(Supermarket supermarket) {
-        return edgeDAO.getBySupermarket(supermarket);
+        synchronized (edgeDAO) {
+            return edgeDAO.getBySupermarket(supermarket);
+        }
     }
 
     @Override
     public Edge getEdgeByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
-        return edgeDAO.getByFromTo(from, to, supermarket);
+        try {
+            lockLocksWithIds(from.getId(), to.getId());
+            return edgeDAO.getByFromTo(from, to, supermarket);
+        } finally {
+            unlockLocksWithIds(from.getId(), to.getId());
+        }
     }
 
     @Override
     public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
-        return edgeDAO.getByTo(boughtItem, supermarket);
+        try {
+            lockLockWithId(boughtItem.getId());
+            return edgeDAO.getByTo(boughtItem, supermarket);
+        } finally {
+            unlockLockWithId(boughtItem.getId());
+        }
     }
 
     @Override
     public Edge createEdge(Edge edge) {
-        return edgeDAO.createEdge(edge);
+        int id1 = edge.getFrom().getId();
+        int id2 = edge.getTo().getId();
+        try {
+            lockLocksWithIds(id1, id2);
+            return edgeDAO.createEdge(edge);
+        } finally {
+            unlockLocksWithIds(id1, id2);
+        }
     }
 
     @Override
     public void deleteEdge(Edge edge) {
-        edgeDAO.deleteEdge(edge);
+        int id1 = edge.getFrom().getId();
+        int id2 = edge.getTo().getId();
+        try {
+            lockLocksWithIds(id1, id2);
+            edgeDAO.deleteEdge(edge);
+        } finally {
+            unlockLocksWithIds(id1, id2);
+        }
     }
 
     @Override
     public BoughtItem getStartBoughtItem() {
-        return boughtItemDAO.getStart();
+        synchronized (boughtItemDAO) {
+            return boughtItemDAO.getStart();
+        }
     }
 
     @Override
     public BoughtItem getEndBoughtItem() {
-        return boughtItemDAO.getEnd();
+        synchronized (boughtItemDAO) {
+            return boughtItemDAO.getEnd();
+        }
     }
 
     @Override
     public BoughtItem getBoughtItemByName(String name) {
-        return boughtItemDAO.getByName(name);
+        synchronized (boughtItemDAO) {
+            return boughtItemDAO.getByName(name);
+        }
     }
 
     @Override
     public BoughtItem getBoughtItemByNameIncludingStartAndEnd(String name) {
-        return boughtItemDAO.getByNameIncludingStartAndEnd(name);
+        synchronized (boughtItemDAO) {
+            return boughtItemDAO.getByNameIncludingStartAndEnd(name);
+        }
     }
 
     @Override
     public void createBoughtItem(BoughtItem boughtItem) {
-        boughtItemDAO.createBoughtItem(boughtItem);
+        synchronized (boughtItemDAO) {
+            boughtItemDAO.createBoughtItem(boughtItem);
+        }
     }
 
     @Override
     public Supermarket getGlobalSupermarketBySupermarketChain(SupermarketChain supermarketChain) {
-        return supermarketDAO.getGlobalBySupermarketChain(supermarketChain);
+        synchronized (supermarketDAO) {
+            return supermarketDAO.getGlobalBySupermarketChain(supermarketChain);
+        }
     }
 
     @Override
     public Supermarket getGlobalSupermarket(SupermarketChain supermarketChain) {
-        return supermarketChainDAO.getGlobalSupermarket(supermarketChain);
+        synchronized (supermarketChainDAO) {
+            return supermarketChainDAO.getGlobalSupermarket(supermarketChain);
+        }
     }
 }
