@@ -185,7 +185,6 @@ public class ItemGraph {
 
                     /* Create edge in the opposite direction */
                             if (edgeToParentNode.getWeight() <= 0) {
-                                System.out.println("Starting to delete, conflict: " + edge.getFrom().getName() + "->" + edge.getTo().getName());
 
                                 Edge edge2;
                                 //delete all edges between the conflicting items
@@ -246,9 +245,11 @@ public class ItemGraph {
             }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
                 //edge exists in the opposite direction
             }else{
-                Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
-                toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
-                daoHelper.createEdge(toBeAdded);
+                if(!parentNode.equals(fromCurrentNode.getTo())) {
+                    Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
+                    toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
+                    daoHelper.createEdge(toBeAdded);
+                }
             }
 
             for(Edge toParentNode : daoHelper.getEdgesByTo(currentNode, supermarket)){
@@ -286,12 +287,17 @@ public class ItemGraph {
                 existingEdge.setWeight(existingEdge.getWeight() + 1);
                 if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1);
 
-            } else {
+            } else if(daoHelper.getEdgeByFromTo(currentNode, ancestor, supermarket) != null) {
+                //edge already exists in the opposite direction
+            }else {
+
                 //new Edge
-                System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
-                existingEdge = new Edge(ancestor, currentNode, supermarket);
-                existingEdge.setDistance(edgeToParent.getDistance() + 1);
-                daoHelper.createEdge(existingEdge);
+                if (ancestor != currentNode) {
+                    System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
+                    existingEdge = new Edge(ancestor, currentNode, supermarket);
+                    existingEdge.setDistance(edgeToParent.getDistance() + 1);
+                    daoHelper.createEdge(existingEdge);
+                }
             }
         }
     }
@@ -301,6 +307,7 @@ public class ItemGraph {
     private List<BoughtItem> addStartEnd(List<BoughtItem> boughtItemList) {
         String lastPlaceId = boughtItemList.get(0).getSupermarketPlaceId();
         String lastSupermarketName = boughtItemList.get(0).getSupermarketName();
+        long lastTime = 0;
 
         /* Add the very first start item and the very last end item */
         BoughtItem first = new BoughtItem(DAOHelper.START_ITEM, lastPlaceId, lastSupermarketName);
@@ -316,7 +323,10 @@ public class ItemGraph {
             if(current.equals(daoHelper.getStartBoughtItem()) || current.equals(daoHelper.getEndBoughtItem()))
                 continue;
 
-            if(!current.getSupermarketPlaceId().equals(lastPlaceId)) {
+            if(!current.getSupermarketPlaceId().equals(lastPlaceId) || current.getDate() != null) {
+                if(current.getDate().getTime() - lastTime < 3 * 3600000) {
+                    continue;
+                }
                 BoughtItem startItem = new BoughtItem(DAOHelper.START_ITEM, current.getSupermarketPlaceId(), current.getSupermarketName());
                 startItem.setServerInternalItem(true);
                 BoughtItem endItem   = new BoughtItem(DAOHelper.END_ITEM, lastPlaceId, lastSupermarketName);
@@ -326,12 +336,15 @@ public class ItemGraph {
 
                 lastPlaceId = current.getSupermarketPlaceId();
                 lastSupermarketName = current.getSupermarketName();
+                if(current.getDate() != null) {
+                    lastTime = current.getDate().getTime();
+                }
             }
         }
 
-        /*for(BoughtItem item : boughtItemList) {
-            System.out.println(item.getName() + " - (" + item.getSupermarketName() + ")");
-        }*/
+        for(BoughtItem item : boughtItemList) {
+            System.out.println(item.getName() + " - (" + item.getSupermarketName() + " at " + (item.getDate() != null? item.getDate().toString() : "?") + ")");
+        }
 
         return boughtItemList;
 
@@ -357,9 +370,17 @@ public class ItemGraph {
         /* Save all new edges */
         for(int i = 0; i < boughtItems.size()-1; i++) {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
+            /* We need to insert Edges from and to Start / End, so we are using getBoughtItemByNameIncludingStartAndEnd */
             BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
-            BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
+            if(i1 == null) {
+                i1 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i).getName());
+            }
 
+            BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
+            if(i2 == null) {
+                i2 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i + 1).getName());
+            }
+            
             if (i == 0) {
                 i1 = daoHelper.getStartBoughtItem();
             } else if (i + 1 == boughtItems.size() - 1) {

@@ -30,6 +30,10 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
         return getByName(name, false);
     }
 
+    public BoughtItem getByNameIncludingStartAndEnd(String name) {
+        return getByName(name, true);
+    }
+
     private BoughtItem getByName(String name, boolean serverInternalItem) {
         Query query = namedQuery(NamedQueryConstants.BOUGHTITEM_GET_BY_NAME)
                 .setParameter(NamedQueryConstants.BOUGHTITEM_NAME, name);

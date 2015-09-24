@@ -394,7 +394,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
     public void postBoughtItems(@Auth User user, @ApiParam(value = "ItemOrder", required = true) ItemOrderWrapper itemOrder) {
 
         for(BoughtItem boughtItem : itemOrder.getBoughtItemList()) {
-            System.out.println("Name:" + boughtItem.getName());
+            System.out.println("Name:" + boughtItem.getName() + " - " + (boughtItem.getDate() != null? boughtItem.getDate().toString() : ""));
         }
 
         /* Single item 'lists' are not useable */

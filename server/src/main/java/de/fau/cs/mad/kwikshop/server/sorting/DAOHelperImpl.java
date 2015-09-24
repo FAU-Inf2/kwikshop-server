@@ -80,6 +80,11 @@ public class DAOHelperImpl implements DAOHelper {
     }
 
     @Override
+    public BoughtItem getBoughtItemByNameIncludingStartAndEnd(String name) {
+        return boughtItemDAO.getByNameIncludingStartAndEnd(name);
+    }
+
+    @Override
     public void createBoughtItem(BoughtItem boughtItem) {
         boughtItemDAO.createBoughtItem(boughtItem);
     }

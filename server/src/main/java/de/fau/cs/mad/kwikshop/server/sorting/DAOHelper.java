@@ -18,6 +18,7 @@ public interface DAOHelper {
     BoughtItem getStartBoughtItem();
     BoughtItem getEndBoughtItem();
     BoughtItem getBoughtItemByName(String name);
+    BoughtItem getBoughtItemByNameIncludingStartAndEnd(String name);
     void createBoughtItem(BoughtItem boughtItem);
     Supermarket getGlobalSupermarketBySupermarketChain(SupermarketChain supermarketChain);
     Supermarket getGlobalSupermarket(SupermarketChain supermarketChain);
