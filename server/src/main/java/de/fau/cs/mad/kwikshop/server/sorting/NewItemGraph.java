@@ -10,7 +10,9 @@ import java.util.Set;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 
 public class NewItemGraph {
 
@@ -534,6 +536,31 @@ public class NewItemGraph {
                 daoHelper.createEdge(existingEdge);
             }
         }
+    }
+
+    public ShoppingListServer sort(Algorithm algorithm, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+
+        // The global data should already be copied in the call to update()
+        /* setSupermarket() returns true if this supermarket is new - in this case, try to use the SupermarketChain's ItemGraph */
+//        if(setSupermarket(sortingRequest.getPlaceId(), sortingRequest.getSupermarketName()) == true) {
+//            Supermarket globalSupermarket = daoHelper.getGlobalSupermarket(supermarket.getSupermarketChain());
+//
+//            /* If the Supermarket is new and does not belong to a chain, we can't sort the ShoppingList - just return the ShoppingList in this case */
+//            if(globalSupermarket == null)
+//                return shoppingList;
+//            else {
+//                /* Copy all Vertices and Edges from the global ItemGraph to this ItemGraph */
+//                copyDataFromItemGraph(globalSupermarket);
+//            }
+//
+//            System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
+//        }
+
+        /* Load the ItemGraph and sort the ShoppingList */
+        update();
+        algorithm.setUp(this);
+        return (ShoppingListServer) algorithm.execute(shoppingList);
+
     }
 
     @Override
