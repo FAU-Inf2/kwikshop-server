@@ -95,7 +95,9 @@ public class DAODummyHelper extends AbstractDAOHelper {
 
     @Override
     public Supermarket getSupermarketByPlaceID(String placeId) {
-        return supermarkets.get(placeId);
+        synchronized (supermarkets) {
+            return supermarkets.get(placeId);
+        }
     }
 
     @Override
@@ -108,10 +110,12 @@ public class DAODummyHelper extends AbstractDAOHelper {
 
     @Override
     public void createSupermarket(Supermarket supermarket) {
-        if (supermarkets.containsKey(supermarket.getPlaceId())) {
-            throw new IllegalArgumentException("Supermarket already created");
+        synchronized (supermarkets) {
+            if (supermarkets.containsKey(supermarket.getPlaceId())) {
+                throw new IllegalArgumentException("Supermarket already created");
+            }
+            supermarkets.put(supermarket.getPlaceId(), supermarket);
         }
-        supermarkets.put(supermarket.getPlaceId(), supermarket);
     }
 
     @Override
@@ -119,56 +123,85 @@ public class DAODummyHelper extends AbstractDAOHelper {
         if(supermarket == null) {
             return new ArrayList<>();
         }
-
-        List<Edge> edges = this.edges.get(supermarket.getPlaceId());
-        if (edges == null) {
-            return new ArrayList<>();
+        synchronized (edges) {
+            List<Edge> edges = this.edges.get(supermarket.getPlaceId());
+            if (edges == null) {
+                return new ArrayList<>();
+            }
+            return new ArrayList<>(edges);
         }
-        return new ArrayList<>(edges);
     }
 
     @Override
     public Edge getEdgeByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
-        List<Edge> edges = getEdgesBySupermarket(supermarket);
-        for (Edge edge : edges) {
-            if (edge.getFrom().equals(from) && edge.getTo().equals(to)) {
-                return edge;
+        try {
+            lockLocksWithIds(to.getId(), from.getId());
+
+            List<Edge> edges = getEdgesBySupermarket(supermarket);
+            for (Edge edge : edges) {
+                if (edge.getFrom().equals(from) && edge.getTo().equals(to)) {
+                    return edge;
+                }
             }
+            return null;
+        } finally {
+            // gets called before the return in the try-block is really executed
+            unlockLocksWithIds(to.getId(), from.getId());
         }
-        return null;
     }
 
     @Override
     public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
-        List<Edge> allEdges = getEdgesBySupermarket(supermarket);
-        List<Edge> foundEdges = new ArrayList<>();
-        for (Edge edge : allEdges) {
-            if (edge.getTo().equals(boughtItem)) {
-                foundEdges.add(edge);
+        try {
+            lockLockWithId(boughtItem.getId());
+            List<Edge> allEdges = getEdgesBySupermarket(supermarket);
+            List<Edge> foundEdges = new ArrayList<>();
+            for (Edge edge : allEdges) {
+                if (edge.getTo().equals(boughtItem)) {
+                    foundEdges.add(edge);
+                }
             }
+            return foundEdges;
+        } finally {
+            unlockLockWithId(boughtItem.getId());
         }
-        return foundEdges;
+
     }
 
     @Override
     public Edge createEdge(Edge edge) {
+        int id1 = edge.getFrom().getId();
+        int id2 = edge.getTo().getId();
         String supermarketPlaceId = edge.getSupermarket().getPlaceId();
-        List<Edge> edges = this.edges.get(supermarketPlaceId);
-        if (edges == null) {
-            // the specified supermarket doesn't have edges yet
-            edges = new ArrayList<>();
-            this.edges.put(supermarketPlaceId, edges);
+        try {
+            lockLocksWithIds(id1, id2);
+            List<Edge> edges = this.edges.get(supermarketPlaceId);
+            if (edges == null) {
+                // the specified supermarket doesn't have edges yet
+                edges = new ArrayList<>();
+                this.edges.put(supermarketPlaceId, edges);
+            }
+            edges.add(edge);
+            return edge;
+        } finally {
+            unlockLocksWithIds(id1, id2);
         }
-        edges.add(edge);
-        return edge;
     }
 
     @Override
     public void deleteEdge(Edge edge) {
-        List<Edge> edges = this.edges.get(edge.getSupermarket().getPlaceId());
-        if (edges != null) {
-            edges.remove(edge);
+        int id1 = edge.getFrom().getId();
+        int id2 = edge.getTo().getId();
+        try {
+            lockLocksWithIds(id1, id2);
+            List<Edge> edges = this.edges.get(edge.getSupermarket().getPlaceId());
+            if (edges != null) {
+                edges.remove(edge);
+            }
+        } finally {
+            unlockLocksWithIds(id1, id2);
         }
+
     }
 
     @Override
@@ -183,18 +216,27 @@ public class DAODummyHelper extends AbstractDAOHelper {
 
     @Override
     public BoughtItem getBoughtItemByName(String name) {
-        return boughtItems.get(name);
+        synchronized (boughtItems) { // visibility synchronization
+            return boughtItems.get(name);
+        }
     }
 
     @Override
     public BoughtItem getBoughtItemByNameIncludingStartAndEnd(String name) {
-        return boughtItems.get(name);
+        synchronized (boughtItems) { // visibility synchronization
+            return boughtItems.get(name);
+        }
     }
 
     @Override
     public void createBoughtItem(BoughtItem boughtItem) {
-        if (!boughtItems.containsValue(boughtItem)) {
-            boughtItems.put(boughtItem.getName(), boughtItem);
+        try {
+            lockLockWithId(boughtItem.getId());
+            if (!boughtItems.containsValue(boughtItem)) {
+                boughtItems.put(boughtItem.getName(), boughtItem);
+            }
+        } finally {
+            unlockLockWithId(boughtItem.getId());
         }
     }
 

@@ -24,4 +24,38 @@ public abstract class AbstractDAOHelper implements DAOHelper {
         return locks[number];
     }
 
+    protected void lockLockWithId(int id) {
+        int n = getNumberOfLocks();
+        int index = id % n;
+        getLockWithNumber(index).lock();
+    }
+
+    protected void unlockLockWithId(int id) {
+        int n = getNumberOfLocks();
+        int index = id % n;
+        getLockWithNumber(index).unlock();
+    }
+
+    protected void lockLocksWithIds(int id1, int id2) {
+        int n = getNumberOfLocks();
+        int index1 = id1 % n;
+        int index2 = id2 % n;
+        // global ordering of locks
+        if (id1 <= id2) {
+            getLockWithNumber(index1).lock();
+            getLockWithNumber(index2).lock();
+        } else {
+            getLockWithNumber(index2).lock();
+            getLockWithNumber(index1).lock();
+        }
+    }
+
+    protected void unlockLocksWithIds(int id1, int id2) {
+        int n = getNumberOfLocks();
+        int index1 = id1 % n;
+        int index2 = id2 % n;
+        // unlocking order does not matter
+        getLockWithNumber(index1).unlock();
+        getLockWithNumber(index2).unlock();
+    }
 }
