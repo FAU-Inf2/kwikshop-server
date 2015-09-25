@@ -403,7 +403,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             return;
 
         /* Add the itemOrder to the graph */
-        DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        DAOHelper daoHelper = DAOHelperImpl.getInstance(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
         BoughtItem firstItem = itemOrder.getBoughtItemList().get(0);
         ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, firstItem.getSupermarketPlaceId(), firstItem.getSupermarketName());
         itemGraph.addBoughtItems(itemOrder.getBoughtItemList());
@@ -427,7 +427,7 @@ public class ShoppingListResourceImpl implements ShoppingListResource {
             }
         }
 
-        DAOHelper daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        DAOHelper daoHelper = DAOHelperImpl.getInstance(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
         ItemGraph itemGraph = ItemGraph.getItemGraph(daoHelper, sortingRequest.getPlaceId(), sortingRequest.getSupermarketName());
         ShoppingListServer result = itemGraph.sort(new MagicSort(), shoppingList, sortingRequest);
 

@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -16,7 +17,9 @@ public class DAOHelperImpl extends AbstractDAOHelper {
     private SupermarketDAO supermarketDAO;
     private SupermarketChainDAO supermarketChainDAO;
 
-    public DAOHelperImpl(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
+    private static final List<DAOHelperImpl> instances = new LinkedList<>();
+
+    private DAOHelperImpl(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
                          SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
         super();
         this.boughtItemDAO = boughtItemDAO;
@@ -24,6 +27,22 @@ public class DAOHelperImpl extends AbstractDAOHelper {
         this.supermarketDAO = supermarketDAO;
         this.supermarketChainDAO = supermarketChainDAO;
         this.supermarketChainDAO.setUp();
+    }
+
+    public static synchronized DAOHelperImpl getInstance(BoughtItemDAO boughtItemDAO, EdgeDAO edgeDAO,
+                        SupermarketDAO supermarketDAO, SupermarketChainDAO supermarketChainDAO) {
+        for (DAOHelperImpl daoHelper : instances) {
+            // if a instance with the same DAOs has already been created, return this instance
+            if (daoHelper.boughtItemDAO == boughtItemDAO && daoHelper.edgeDAO == edgeDAO
+                    && daoHelper.supermarketDAO == supermarketDAO
+                    && daoHelper.supermarketChainDAO == supermarketChainDAO) {
+                return daoHelper;
+            }
+        }
+        // no such instance found, thus a new instance has to be created
+        DAOHelperImpl daoHelper = new DAOHelperImpl(boughtItemDAO, edgeDAO, supermarketDAO, supermarketChainDAO);
+        instances.add(daoHelper);
+        return daoHelper;
     }
 
     @Override
