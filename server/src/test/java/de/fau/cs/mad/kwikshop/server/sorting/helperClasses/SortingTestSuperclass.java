@@ -84,9 +84,4 @@ public class SortingTestSuperclass {
     protected boolean checkForDoubleEdge(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2) {
         return itemGraphHelper.checkForDoubleEdge(itemGraph, i1, i2);
     }
-
-    @Before
-    public void clearItemGraphCache() {
-        ItemGraph.clearCache();
-    }
 }

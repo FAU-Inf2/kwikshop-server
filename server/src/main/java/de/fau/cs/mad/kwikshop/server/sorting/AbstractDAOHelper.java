@@ -1,11 +1,18 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.lang.ref.SoftReference;
+import java.util.HashMap;
 import java.util.concurrent.locks.ReentrantLock;
+
+import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 
 public abstract class AbstractDAOHelper implements DAOHelper {
 
     private final ReentrantLock[] locks;
         // two of these locks have to be acquired to make sure no two threads modify the same edge at one
+
+    private final HashMap<String, SoftReference<ItemGraph>> itemGraphCache = new HashMap<>();
+        // cache for ItemGraphs, so they are not created multiple times per supermarket, if they are still reference-able
 
     public AbstractDAOHelper() {
         locks = new ReentrantLock[1000];
@@ -22,6 +29,26 @@ public abstract class AbstractDAOHelper implements DAOHelper {
     @Override
     public ReentrantLock getLockWithNumber(int number) {
         return locks[number];
+    }
+
+    @Override
+    public ItemGraph getItemGraphForSupermarket(Supermarket supermarket) {
+        if(supermarket == null) {
+            throw new ArgumentNullException("supermarket");
+        }
+        ItemGraph itemGraph = null;
+        synchronized (supermarket) {
+            // make sure only one item graph per supermarket is created
+            SoftReference<ItemGraph> reference = itemGraphCache.get(supermarket.getPlaceId());
+            if (reference != null) {
+                itemGraph = reference.get();
+            }
+            if (itemGraph == null) {
+                itemGraph = ItemGraph.callItemGraphConstructor(this, supermarket);
+                itemGraphCache.put(supermarket.getPlaceId(), new SoftReference<>(itemGraph));
+            }
+        }
+        return itemGraph;
     }
 
     protected void lockLockWithId(int id) {

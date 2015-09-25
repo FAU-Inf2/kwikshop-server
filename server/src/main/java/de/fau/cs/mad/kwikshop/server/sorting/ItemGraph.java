@@ -21,34 +21,22 @@ public class ItemGraph {
 
     private final Set<Vertex> vertices = new HashSet<>();
 
-    private final static HashMap<String, SoftReference<ItemGraph>> itemGraphCache = new HashMap<>();
-
     private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
     }
 
+    @Deprecated
+    // Only use in AbstractDAOHelper when creating an new ItemGraph
+    static ItemGraph callItemGraphConstructor(DAOHelper daoHelper, Supermarket supermarket) {
+        return new ItemGraph(daoHelper, supermarket);
+    }
+
     public static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
-        if(supermarket == null) {
-            throw new ArgumentNullException("supermarket");
-        }
-        ItemGraph itemGraph = null;
-        synchronized (supermarket) {
-            // make sure only one item graph per supermarket is created
-            SoftReference<ItemGraph> reference = itemGraphCache.get(supermarket.getPlaceId());
-            if (reference != null) {
-                itemGraph = reference.get();
-            }
-            if (itemGraph == null) {
-                itemGraph = new ItemGraph(daoHelper, supermarket);
-                itemGraphCache.put(supermarket.getPlaceId(), new SoftReference<>(itemGraph));
-            }
-        }
-        return itemGraph;
+        return daoHelper.getItemGraphForSupermarket(supermarket);
     }
 
     public static ItemGraph getItemGraph(DAOHelper daoHelper, String supermarketPlaceId, String supermarketName) {
-        // TODO: daoHelper.getSupermarketByPlaceId and daoHelper.createSupermarket needs to be synchronized
         boolean isNewSupermarket = false;
         Supermarket supermarket = daoHelper.getSupermarketByPlaceID(supermarketPlaceId);
 
@@ -67,11 +55,6 @@ public class ItemGraph {
             daoHelper.createSupermarket(supermarket);
         }
         return getItemGraph(daoHelper, supermarket);
-    }
-
-    public static void clearCache() {
-        // this method needs to be called before every test, so the ItemGraph cache is empty
-        itemGraphCache.clear();
     }
 
     public Supermarket getSupermarket() {

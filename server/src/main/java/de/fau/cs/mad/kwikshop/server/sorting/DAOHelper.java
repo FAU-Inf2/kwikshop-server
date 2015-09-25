@@ -25,4 +25,5 @@ public interface DAOHelper {
     Supermarket getGlobalSupermarket(SupermarketChain supermarketChain);
     int getNumberOfLocks();
     ReentrantLock getLockWithNumber(int number);
+    ItemGraph getItemGraphForSupermarket(Supermarket supermarket);
 }
