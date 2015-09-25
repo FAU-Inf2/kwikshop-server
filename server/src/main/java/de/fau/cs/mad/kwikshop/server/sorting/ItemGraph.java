@@ -184,6 +184,7 @@ public class ItemGraph {
         List<BoughtItem> boughtItems = new ArrayList<>(newBoughtItems);
 
         Set<Edge> edgesAddedThisTrip = new HashSet<>();
+        Set<Edge> globalEdgesAddedThisTrip = new HashSet<>();
 
         /* Add start and end Items for every Supermarket */
         boughtItems = addStartEnd(boughtItems);
@@ -238,13 +239,16 @@ public class ItemGraph {
             // The supermarket is already set up, as item graphs can no longer change their supermarket
             //setSupermarket(boughtItems.get(i).getSupermarketPlaceId(), boughtItems.get(i).getSupermarketName());
 
-            Edge currentEdge = createOrUpdateEdge(i1, i2, supermarket);
+            Edge currentEdge = createOrUpdateEdge(i1, i2, supermarket, edgesAddedThisTrip);
             edgesAddedThisTrip.add(currentEdge);
 
             /* If this supermarket belongs to a chain, apply the Edge to this chain's global graph */
             if(supermarket.getSupermarketChain() != null) {
                 Supermarket globalSupermarket = daoHelper.getGlobalSupermarketBySupermarketChain(supermarket.getSupermarketChain());
-                createOrUpdateEdge(i1, i2, globalSupermarket);
+
+
+                Edge currentGlobalEdge = createOrUpdateEdge(i1, i2, globalSupermarket, globalEdgesAddedThisTrip);
+                globalEdgesAddedThisTrip.add(currentGlobalEdge);
             }
         }
 
@@ -437,13 +441,13 @@ public class ItemGraph {
                                                 && (edge2 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
                                             if (betweenTheConflictingVertices.equals(i1) || betweenTheConflictingVertices.equals(i2))
                                                 continue;
-                                            System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
                                             boolean contains = false;
                                             for(Edge edgeFromThisTrip : edgesAddedThisTrip){
                                                 if(edgeFromThisTrip.equals(edge2)) contains = true;
                                             }
                                             if (!contains) {
                                                 //only delete edges if they were not added on this shopping list
+                                                System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
                                                 daoHelper.deleteEdge(edge2);
                                             }
                                         }
