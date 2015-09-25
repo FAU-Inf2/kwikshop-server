@@ -13,6 +13,8 @@ import de.fau.cs.mad.kwikshop.server.dao.EdgeDAO;
 
 public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServer> {
 
+    public static boolean printDebugOutput = true;
+
     private ItemGraph itemGraph;
     private DAOHelper daoHelper;
 
@@ -65,11 +67,13 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         /* Step 3-5 /
         traverse(daoHelper.getStartBoughtItem());
 
-        System.out.println("-----TRAVERSE-----");
-        for(BoughtItem item: sortedList) {
-            System.out.println("---> " + item.getName());
+        if (printDebugOutput) {
+            System.out.println("-----TRAVERSE-----");
+            for(BoughtItem item: sortedList) {
+                System.out.println("---> " + item.getName());
+            }
+            System.out.println("----------");
         }
-        System.out.println("----------");
 
         /* Step 6 /
         while(knownItems.size() > 0)
@@ -87,11 +91,13 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
         //sortedList.remove(daoHelper.getStartBoughtItem());
 
-        System.out.println("=====FINAL=====");
-        for(BoughtItem item: sortedList) {
-            System.out.println("===> " + item.getName());
+        if (printDebugOutput) {
+            System.out.println("=====FINAL=====");
+            for (BoughtItem item : sortedList) {
+                System.out.println("===> " + item.getName());
+            }
+            System.out.println("==========");
         }
-        System.out.println("==========");
 
         /* Apply the order of BoughtItems to the ShoppingList */
         applyOrderToShoppingList();
@@ -112,7 +118,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
 
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
 
-            System.out.println("Traverse: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
+            if (printDebugOutput) {
+                System.out.println("Traverse: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
+            }
 
             if( (currentWeightDistanceRatio > maxWeightDistanceRatio) ) /*&&
                     (knownItems.contains(edge.getTo())) ) */{
@@ -131,7 +139,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     }
 
     private void addMissingItems(BoughtItem item) {
-        System.out.println("MISSING ITEM: " + item.getName());
+        if (printDebugOutput) {
+            System.out.println("MISSING ITEM: " + item.getName());
+        }
 
         double maxWeightDistanceRatio = 0;
 
@@ -141,7 +151,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
         for(Edge edge: parentEdges) {
             double currentWeightDistanceRatio = ((double)edge.getWeight()+1) / ((double)edge.getDistance()+1);
 
-            System.out.println("MISSING ITEM EDGE: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
+            if (printDebugOutput) {
+                System.out.println("MISSING ITEM EDGE: " + edge.getFrom().getName() + " -> " + edge.getTo().getName() + " (" + currentWeightDistanceRatio + ")");
+            }
 
             if( (currentWeightDistanceRatio > maxWeightDistanceRatio) && !edge.getFrom().equals(daoHelper.getStartBoughtItem()))
                 /*&& (sortedList.contains(edge.getFrom())) )*/ {
@@ -164,7 +176,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
             if(insertAfter.equals(daoHelper.getStartBoughtItem()))
                 insertAfter = sortedList.get(1);
 
-            System.out.println("INSERT AFTER: " + insertAfter.getName());
+            if (printDebugOutput) {
+                System.out.println("INSERT AFTER: " + insertAfter.getName());
+            }
             sortedList.add(sortedList.indexOf(insertAfter) + 1, item);
         } else {
             if(knownItems.size() == 0) {
@@ -191,7 +205,9 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
                 if (item.getDeleted())
                     continue;
 
-                System.out.println("Setting order for: " + item.getName());
+                if (printDebugOutput) {
+                    System.out.println("Setting order for: " + item.getName());
+                }
                 item.setOrder(i);
                 item.setVersion(item.getVersion() + 1);
                 i++;

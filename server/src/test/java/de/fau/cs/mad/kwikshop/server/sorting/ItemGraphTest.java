@@ -1146,33 +1146,42 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
     private void createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n) {
-        Random random = new Random(42);
-        List<BoughtItem> items = createBoughtItems(n, ONE);
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        boolean[] itemAlreadyAdded = new boolean[n];
-        for (int i = 0; i < n/4; i++) {
-            int numberOfItemsToAdd = (n/10) + (int)((random.nextDouble() - 0.5) * (n / 10));
-            List<BoughtItem> boughtItems = new ArrayList<>(numberOfItemsToAdd);
-            for (int j = 0; j < numberOfItemsToAdd; j++) {
-                int index = random.nextInt(n);
-                itemAlreadyAdded[index] = true;
-                boughtItems.add(items.get(index));
+        boolean magicSortDebugOutput = MagicSort.printDebugOutput;
+        boolean itemGraphDebugOutput = ItemGraph.printDebugOutput;
+        try {
+            MagicSort.printDebugOutput = false;
+            ItemGraph.printDebugOutput = false;
+            Random random = new Random(42);
+            List<BoughtItem> items = createBoughtItems(n, ONE);
+            ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+            boolean[] itemAlreadyAdded = new boolean[n];
+            for (int i = 0; i < n / 4; i++) {
+                int numberOfItemsToAdd = (n / 10) + (int) ((random.nextDouble() - 0.5) * (n / 10));
+                List<BoughtItem> boughtItems = new ArrayList<>(numberOfItemsToAdd);
+                for (int j = 0; j < numberOfItemsToAdd; j++) {
+                    int index = random.nextInt(n);
+                    itemAlreadyAdded[index] = true;
+                    boughtItems.add(items.get(index));
+                }
+                itemGraph.addBoughtItems(boughtItems);
             }
-            itemGraph.addBoughtItems(boughtItems);
-        }
 
-        Set<BoughtItem> addedItems = itemGraph.getVertices();
-        int numberOfItemsAdded = 0;
-        for (int i = 0; i < n; i++) {
-            if (itemAlreadyAdded[i]) {
-                numberOfItemsAdded++;
-                assertTrue("Item not contained in list of items, although it has been added", addedItems.contains(items.get(i)));
-            } else {
-                assertFalse("Item contained in list of items, although it has not been added", addedItems.contains(items.get(i)));
+            Set<BoughtItem> addedItems = itemGraph.getVertices();
+            int numberOfItemsAdded = 0;
+            for (int i = 0; i < n; i++) {
+                if (itemAlreadyAdded[i]) {
+                    numberOfItemsAdded++;
+                    assertTrue("Item not contained in list of items, although it has been added", addedItems.contains(items.get(i)));
+                } else {
+                    assertFalse("Item contained in list of items, although it has not been added", addedItems.contains(items.get(i)));
+                }
             }
+            assertEquals("", numberOfItemsAdded, addedItems.size() - 2); // -2 because of START/END
+            System.out.print("Number of items added: " + numberOfItemsAdded);
+            System.out.println(" (=" + ((double) numberOfItemsAdded / (double) n) * 100 + "%)");
+        } finally {
+            MagicSort.printDebugOutput = magicSortDebugOutput;
+            ItemGraph.printDebugOutput = itemGraphDebugOutput;
         }
-        assertEquals("", numberOfItemsAdded, addedItems.size() - 2); // -2 because of START/END
-        System.out.print("Number of items added: " + numberOfItemsAdded);
-        System.out.println(" (=" + ((double)numberOfItemsAdded / (double)n)*100 + "%)" );
     }
 }

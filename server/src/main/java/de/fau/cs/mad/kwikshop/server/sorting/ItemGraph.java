@@ -20,6 +20,8 @@ public class ItemGraph {
         ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket);
     }
 
+    public static boolean printDebugOutput = true;
+
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
 
@@ -299,7 +301,9 @@ public class ItemGraph {
             }
         }
         /* Debug output */
-        System.out.println(this.toString());
+        if (printDebugOutput) {
+            System.out.println(this.toString());
+        }
     }
 
     private void setVerticesAndEdges(Collection<BoughtItem> vertices, Collection<Edge> edges) {
@@ -374,8 +378,10 @@ public class ItemGraph {
             }
         }
 
-        for(BoughtItem item : boughtItemList) {
-            System.out.println(item.getName() + " - (" + item.getSupermarketName() + " at " + (item.getDate() != null? item.getDate().toString() : "?") + ")");
+        if (printDebugOutput) {
+            for (BoughtItem item : boughtItemList) {
+                System.out.println(item.getName() + " - (" + item.getSupermarketName() + " at " + (item.getDate() != null ? item.getDate().toString() : "?") + ")");
+            }
         }
 
         return boughtItemList;
@@ -447,7 +453,9 @@ public class ItemGraph {
                                             }
                                             if (!contains) {
                                                 //only delete edges if they were not added on this shopping list
-                                                System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
+                                                if (printDebugOutput) {
+                                                    System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
+                                                }
                                                 daoHelper.deleteEdge(edge2);
                                             }
                                         }
@@ -473,7 +481,9 @@ public class ItemGraph {
                 edge.setWeight(edge.getWeight() + 1);
             }
 
-            System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+            if (printDebugOutput) {
+                System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+            }
             insertIndirectEdgesToAncestors(i2, i1, supermarket);
             insertIndirectEdgesToDescendantsForNode(i2, i1);
         } finally {
@@ -537,11 +547,15 @@ public class ItemGraph {
 
         for (Edge edgeToParent : daoHelper.getEdgesByTo(parent, supermarket)) {
             BoughtItem ancestor = edgeToParent.getFrom();
-            System.out.println("Ancestor found: " + ancestor.getName());
+            if (printDebugOutput) {
+                System.out.println("Ancestor found: " + ancestor.getName());
+            }
             Edge existingEdge;
             if ((existingEdge = daoHelper.getEdgeByFromTo(ancestor, currentNode, supermarket)) != null) {
                 //update distance
-                System.out.println("Existing edge found: " + ancestor.getName() +  "->" + currentNode.getName());
+                if (printDebugOutput) {
+                    System.out.println("Existing edge found: " + ancestor.getName() + "->" + currentNode.getName());
+                }
                 existingEdge.setWeight(existingEdge.getWeight() + 1);
                 if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1);
 
@@ -550,7 +564,9 @@ public class ItemGraph {
             }else {
                 //new Edge
                 if (ancestor != currentNode) {
-                    System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
+                    if (printDebugOutput) {
+                        System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
+                    }
                     existingEdge = new Edge(ancestor, currentNode, supermarket);
                     existingEdge.setDistance(edgeToParent.getDistance() + 1);
                     daoHelper.createEdge(existingEdge);
@@ -573,8 +589,9 @@ public class ItemGraph {
 //                /* Copy all Vertices and Edges from the global ItemGraph to this ItemGraph */
 //                copyDataFromItemGraph(globalSupermarket);
 //            }
-//
-//            System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
+//            if (printDebugOutput) {
+//                System.out.println("Using global ItemGraph for SupermarketChain " + supermarket.getSupermarketChain().getName());
+//            }
 //        }
 
         /* Load the ItemGraph and sort the ShoppingList */
