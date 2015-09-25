@@ -16,24 +16,29 @@ import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 
 public class ItemGraph {
 
+    /*package visible*/ interface ItemGraphFactory {
+        ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket);
+    }
+
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
 
     private final Set<Vertex> vertices = new HashSet<>();
 
-    private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
+    protected ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
     }
 
-    @Deprecated
-    // Only use in AbstractDAOHelper when creating an new ItemGraph
-    static ItemGraph callItemGraphConstructor(DAOHelper daoHelper, Supermarket supermarket) {
-        return new ItemGraph(daoHelper, supermarket);
-    }
-
     public static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
-        return daoHelper.getItemGraphForSupermarket(supermarket);
+        ItemGraphFactory itemGraphFactory = new ItemGraphFactory() {
+            @Override
+            public ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
+                return new ItemGraph(daoHelper, supermarket);
+            }
+        };
+
+        return daoHelper.getItemGraphForSupermarket(supermarket, itemGraphFactory);
     }
 
     public static ItemGraph getItemGraph(DAOHelper daoHelper, String supermarketPlaceId, String supermarketName) {

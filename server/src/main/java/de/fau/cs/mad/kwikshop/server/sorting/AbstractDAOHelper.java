@@ -32,7 +32,7 @@ public abstract class AbstractDAOHelper implements DAOHelper {
     }
 
     @Override
-    public ItemGraph getItemGraphForSupermarket(Supermarket supermarket) {
+    public ItemGraph getItemGraphForSupermarket(Supermarket supermarket, ItemGraph.ItemGraphFactory itemGraphFactory) {
         if(supermarket == null) {
             throw new ArgumentNullException("supermarket");
         }
@@ -44,7 +44,7 @@ public abstract class AbstractDAOHelper implements DAOHelper {
                 itemGraph = reference.get();
             }
             if (itemGraph == null) {
-                itemGraph = ItemGraph.callItemGraphConstructor(this, supermarket);
+                itemGraph = itemGraphFactory.createItemGraph(this, supermarket);
                 itemGraphCache.put(supermarket.getPlaceId(), new SoftReference<>(itemGraph));
             }
         }
