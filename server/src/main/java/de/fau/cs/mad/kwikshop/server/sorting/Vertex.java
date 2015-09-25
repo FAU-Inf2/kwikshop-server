@@ -10,7 +10,10 @@ import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 public class Vertex {
     private final BoughtItem boughtItem;
     private List<Edge> edges; // adjacency list of edges
-    private Set<Vertex> parents; // set of all parents (i.e. vertices with an edge with distance 0 to this edge)
+    private Set<Vertex> parents;
+            // Set of all parents (i.e. vertices with an edge with distance 0 to this edge).
+            // As edges won't reduce their distance to 0, no edges have to be added after modifying their distance value
+
     private final ItemGraph itemGraph;
 
     public Vertex(BoughtItem boughtItem, ItemGraph itemGraph) {
@@ -28,6 +31,7 @@ public class Vertex {
         edges.add(edge);
         if (edge.getDistance() == 0) {
             Vertex child = itemGraph.getVertexForBoughtItem(edge.getTo());
+            assert child != null : "This is " + boughtItem.getName() + "; Vertex not found: " + edge.getTo().getName();
             child.parents.add(this);
         }
     }

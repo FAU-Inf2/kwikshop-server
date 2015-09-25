@@ -26,21 +26,17 @@ public class ItemGraph {
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
 
+    // the keys in this map should all be loaded from the DAOHelper before.
+    // Otherwise Hibernate might complain about unsaved objects, if they are used
     private final TreeMap<BoughtItem, Vertex> vertices = new TreeMap<>(new Comparator<BoughtItem>() {
         @Override
         public int compare(BoughtItem i1, BoughtItem i2) {
+            if (i1.isServerInternalItem() != i2.isServerInternalItem()) {
+                return i1.isServerInternalItem() ? -1 : +1;
+            }
             return i1.getName().compareTo(i2.getName());
         }
     });
-
-    // set of BoughtItems; only BoughtItem objects loaded from the DAOHelper should be put in there,
-    // otherwise otherwise Hibernate might complain about unsaved objects, if they are used
-    /*private final Set<BoughtItem> boughtItems = new TreeSet<>(new Comparator<BoughtItem>() {
-        @Override
-        public int compare(BoughtItem i1, BoughtItem i2) {
-            return i1.getName().compareTo(i2.getName());
-        }
-    });*/
 
     protected ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
@@ -99,20 +95,37 @@ public class ItemGraph {
     }
 
     /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
-        /*Vertex vertexToFind = new Vertex(item, this);
+        Vertex foundVertex;
         synchronized (vertices) {
-            Vertex vertexFound = vertices.
-        }*/
-        synchronized (vertices) {
-            for (Vertex v : vertices.values()) {
-                if (v.getBoughtItem().equals(item)) {
-                    return v;
+            foundVertex = vertices.get(item);
+            if (foundVertex == null) {
+                synchronized (daoHelper) {
+                    BoughtItem itemFromDatabase = daoHelper.getBoughtItemByName(item.getName());
+                    if (itemFromDatabase == null && !item.isServerInternalItem()) {
+                        daoHelper.createBoughtItem(item);
+                        itemFromDatabase = daoHelper.getBoughtItemByName(item.getName());
+                        foundVertex = new Vertex(itemFromDatabase, this);
+                        vertices.put(itemFromDatabase, foundVertex);
+                    } else if (itemFromDatabase == null && item.isServerInternalItem()) {
+                        String itemName = item.getName();
+                        BoughtItem start = daoHelper.getStartBoughtItem();
+                        BoughtItem end = daoHelper.getEndBoughtItem();
+                        if (itemName.equals(start.getName())) {
+                            itemFromDatabase = start;
+                        } else {
+                            assert itemName.equals(end.getName());
+                            itemFromDatabase = end;
+                        }
+                        foundVertex = new Vertex(itemFromDatabase, this);
+                        vertices.put(itemFromDatabase, foundVertex);
+                    } else { // itemFromDatabase != null
+                        foundVertex = new Vertex(itemFromDatabase, this);
+                        vertices.put(itemFromDatabase, foundVertex);
+                    }
                 }
             }
-            Vertex vertex = new Vertex(item, this);
-            vertices.put(item, vertex);
-            return vertex;
         }
+        return foundVertex;
     }
 
     public Set<Edge> getEdges() {
