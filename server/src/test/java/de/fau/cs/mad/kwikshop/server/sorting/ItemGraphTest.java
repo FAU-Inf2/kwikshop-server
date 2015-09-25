@@ -1129,23 +1129,28 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Edge i4 -> i4 exist", itemGraph.edgeFromToExists(i4, i4));
     }
 
-    @Test(timeout = 60000) //60 Seconds
+    @Test(timeout = 120000) //2 Minutes
+    public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated__AddItemsMoreOften() {
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 100);
+    }
+
+    @Test(timeout = 60000) //1 Minute
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 25);
     }
 
     @Test(timeout = 300000) //5 Minutes
     public void createItemGraphWith1000ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000, 250);
     }
 
     @Test(timeout = 300000) //5 Minutes
     @Ignore // currently this would take way too long
     public void createItemGraphWith10000ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000, 2500);
     }
 
-    private void createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n) {
+    private void createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, int numberOfTurns) {
         boolean magicSortDebugOutput = MagicSort.printDebugOutput;
         boolean itemGraphDebugOutput = ItemGraph.printDebugOutput;
         try {
@@ -1155,8 +1160,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
             List<BoughtItem> items = createBoughtItems(n, ONE);
             ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
             boolean[] itemAlreadyAdded = new boolean[n];
-            for (int i = 0; i < n / 4; i++) {
+            for (int i = 0; i < numberOfTurns; i++) {
                 int numberOfItemsToAdd = (n / 10) + (int) ((random.nextDouble() - 0.5) * (n / 10));
+                System.out.println("Starting to add items for the " + (i+1) + "th time; " + numberOfItemsToAdd + " will be added");
                 List<BoughtItem> boughtItems = new ArrayList<>(numberOfItemsToAdd);
                 for (int j = 0; j < numberOfItemsToAdd; j++) {
                     int index = random.nextInt(n);
