@@ -1129,6 +1129,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Edge i4 -> i4 exist", itemGraph.edgeFromToExists(i4, i4));
     }
 
+    @Ignore
     @Test(timeout = 120000) //2 Minutes
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated__AddItemsMoreOften() {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 100);
@@ -1139,6 +1140,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 25);
     }
 
+    @Ignore
     @Test(timeout = 300000) //5 Minutes
     public void createItemGraphWith1000ItemsAndCheckIfEveryItemHasBeenCreated() {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000, 250);

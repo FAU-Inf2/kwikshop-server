@@ -1,12 +1,12 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
-import java.lang.ref.SoftReference;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
@@ -25,7 +25,12 @@ public class ItemGraph {
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
 
-    private final Set<Vertex> vertices = new HashSet<>();
+    private final Set<Vertex> vertices = new TreeSet<>(new Comparator<Vertex>() {
+        @Override
+        public int compare(Vertex v1, Vertex v2) {
+            return v1.getBoughtItem().getName().compareTo(v2.getBoughtItem().getName());
+        }
+    });
 
     protected ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
@@ -83,15 +88,17 @@ public class ItemGraph {
         return items;
     }
 
-    private Vertex getVertexForBoughtItem(BoughtItem item) {
+    /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
         synchronized (vertices) {
             for (Vertex v : vertices) {
                 if (v.getBoughtItem().equals(item)) {
                     return v;
                 }
             }
+            Vertex vertex = new Vertex(item, this);
+            vertices.add(vertex);
+            return vertex;
         }
-        return null;
     }
 
     public Set<Edge> getEdges() {
@@ -105,13 +112,17 @@ public class ItemGraph {
     }
 
     public List<BoughtItem> getParents(BoughtItem child) {
-        List<BoughtItem> parents = new ArrayList<>();
+        Set<Vertex> parentVertices;
         synchronized (vertices) {
-            // this is probably not slower than iterating over all vertices and all descendants of all vertices
-            for(Edge edge: daoHelper.getEdgesByTo(child, supermarket)) {
-                if(edge.getTo().equals(child) && edge.getDistance() == 0)
-                    parents.add(edge.getFrom());
+            Vertex vertex = getVertexForBoughtItem(child);
+            if (vertex == null) {
+                return null; //child not contained in this item graph
             }
+            parentVertices = vertex.getParents();
+        }
+        List<BoughtItem> parents = new ArrayList<>(parentVertices.size());
+        for (Vertex vertex : parentVertices) {
+            parents.add(vertex.getBoughtItem());
         }
         return parents;
     }
@@ -194,8 +205,13 @@ public class ItemGraph {
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
             synchronized (daoHelper) {
-                if (daoHelper.getBoughtItemByName(boughtItem.getName()) == null && !boughtItem.isServerInternalItem())
+                BoughtItem itemFromDatabase = daoHelper.getBoughtItemByName(boughtItem.getName());
+                if (itemFromDatabase == null && !boughtItem.isServerInternalItem()) {
                     daoHelper.createBoughtItem(boughtItem);
+                    itemFromDatabase = daoHelper.getBoughtItemByName(boughtItem.getName());
+                    Vertex vertex = new Vertex(itemFromDatabase, this);
+                    vertices.add(vertex); // if vertex is already contained, no changes are made
+                }
             }
         }
 
@@ -310,7 +326,7 @@ public class ItemGraph {
         synchronized (vertices) {
             this.vertices.clear();
             for (BoughtItem item : vertices) {
-                this.vertices.add(new Vertex(item));
+                this.vertices.add(new Vertex(item, this));
             }
 
             for (Edge edge : edges) {
@@ -437,7 +453,7 @@ public class ItemGraph {
                             if ((edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket)) != null) {
                                 edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
 
-                    /* Create edge in the opposite direction */
+                            /* Create edge in the opposite direction */
                                 if (edgeToParentNode.getWeight() <= 0) {
 
                                     Edge edge2;
@@ -462,7 +478,10 @@ public class ItemGraph {
                                     }
                                     daoHelper.deleteEdge(daoHelper.getEdgeByFromTo(i2, i1, supermarket));
                                     daoHelper.createEdge(new Edge(i1, i2, supermarket));
+
                                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                                    Vertex vertex = getVertexForBoughtItem(i1);
+                                    vertex.addEdge(edge);
                                     break;
                                 }
                             }
@@ -474,6 +493,8 @@ public class ItemGraph {
                 /* Create new edge */
                     daoHelper.createEdge(new Edge(i1, i2, supermarket));
                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                    Vertex vertex = getVertexForBoughtItem(i1);
+                    vertex.addEdge(edge);
                 }
 
             } else {
@@ -513,6 +534,8 @@ public class ItemGraph {
                     Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
                     toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
                     daoHelper.createEdge(toBeAdded);
+                    Vertex vertex = getVertexForBoughtItem(parentNode);
+                    vertex.addEdge(toBeAdded);
                 }
             }
 
@@ -532,6 +555,8 @@ public class ItemGraph {
                         Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
                         toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
                         daoHelper.createEdge(toBeAdded);
+                        Vertex vertex = getVertexForBoughtItem(parentNode);
+                        vertex.addEdge(toBeAdded);
                     }
                 }
             }
@@ -570,6 +595,8 @@ public class ItemGraph {
                     existingEdge = new Edge(ancestor, currentNode, supermarket);
                     existingEdge.setDistance(edgeToParent.getDistance() + 1);
                     daoHelper.createEdge(existingEdge);
+                    Vertex vertex = getVertexForBoughtItem(ancestor);
+                    vertex.addEdge(existingEdge);
                 }
             }
         }

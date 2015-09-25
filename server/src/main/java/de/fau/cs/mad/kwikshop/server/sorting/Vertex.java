@@ -1,17 +1,23 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 
 public class Vertex {
     private final BoughtItem boughtItem;
     private List<Edge> edges; // adjacency list of edges
+    private Set<Vertex> parents; // set of all parents (i.e. vertices with an edge with distance 0 to this edge)
+    private final ItemGraph itemGraph;
 
-    public Vertex(BoughtItem boughtItem) {
+    public Vertex(BoughtItem boughtItem, ItemGraph itemGraph) {
         this.boughtItem = boughtItem;
         this.edges = new LinkedList<>();
+        this.parents = new HashSet<>();
+        this.itemGraph = itemGraph;
     }
 
     public BoughtItem getBoughtItem() {
@@ -20,9 +26,30 @@ public class Vertex {
 
     public synchronized void addEdge(Edge edge) {
         edges.add(edge);
+        if (edge.getDistance() == 0) {
+            Vertex child = itemGraph.getVertexForBoughtItem(edge.getTo());
+            child.parents.add(this);
+        }
     }
 
     public synchronized List<Edge> getEdges() {
         return new LinkedList<>(edges);
+    }
+
+    public synchronized Set<Vertex> getParents() {
+        return new HashSet<>(parents);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Vertex)) {
+            return false;
+        }
+        return boughtItem.getName().equals(((Vertex)obj).getBoughtItem().getName());
+    }
+
+    @Override
+    public int hashCode() {
+        return boughtItem.getName().hashCode();
     }
 }
