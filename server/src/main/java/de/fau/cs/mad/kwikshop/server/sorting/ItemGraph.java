@@ -141,10 +141,10 @@ public class ItemGraph {
     public List<BoughtItem> getParents(BoughtItem child) {
         Set<Vertex> parentVertices;
         synchronized (vertices) {
-            Vertex vertex = getVertexForBoughtItem(child);
-            if (vertex == null) {
+            if (!vertices.containsKey(child)) {
                 return null; //child not contained in this item graph
             }
+            Vertex vertex = getVertexForBoughtItem(child);
             parentVertices = vertex.getParents();
         }
         List<BoughtItem> parents = new ArrayList<>(parentVertices.size());
