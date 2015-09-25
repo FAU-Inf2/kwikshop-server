@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
@@ -218,6 +217,13 @@ public class ItemGraph {
         return false;
     }
 
+    public boolean directEdgeFromToExists(BoughtItem from, BoughtItem to) {
+        Vertex toVertex = getVertexForBoughtItem(to);
+        Vertex fromVertex = getVertexForBoughtItem(from);
+        Set<Vertex> parents = toVertex.getParents();
+        return parents.contains(fromVertex);
+    }
+
     public void addBoughtItems(List<BoughtItem> newBoughtItems) {
 
         List<BoughtItem> boughtItems = new ArrayList<>(newBoughtItems);
@@ -230,17 +236,8 @@ public class ItemGraph {
 
         /* Save all new boughtItems (vertices) */
         for(BoughtItem boughtItem: boughtItems) {
-            synchronized (daoHelper) {
-                BoughtItem itemFromDatabase = daoHelper.getBoughtItemByName(boughtItem.getName());
-                if (itemFromDatabase == null && !boughtItem.isServerInternalItem()) {
-                    daoHelper.createBoughtItem(boughtItem);
-                    itemFromDatabase = daoHelper.getBoughtItemByName(boughtItem.getName());
-                    if (!vertices.containsKey(itemFromDatabase)) {
-                        Vertex vertex = new Vertex(itemFromDatabase, this);
-                        vertices.put(itemFromDatabase, vertex); // if vertex is already contained, no changes are made
-                    }
-                }
-            }
+            getVertexForBoughtItem(boughtItem);
+            // this creates a new vertex if the corresponding vertex does not exist, or returns an existing one
         }
 
         Supermarket supermarket = getSupermarket(); // retrieve supermarket thread-safely, as it cannot change anyways
@@ -259,21 +256,10 @@ public class ItemGraph {
         /* Save all new edges for the supermarket of this item graph */
         for(int i = 0; i < thisSupermarketItems.size()-1; i++) {
             /* BoughtItems need to be loaded from the DB, otherwise Hibernate complains about unsaved objects */
-            BoughtItem i1 = daoHelper.getBoughtItemByName(boughtItems.get(i).getName());
-            if(i1 == null) {
-                i1 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i).getName());
-            }
-
-            BoughtItem i2 = daoHelper.getBoughtItemByName(boughtItems.get(i + 1).getName());
-            if(i2 == null) {
-                i2 = daoHelper.getBoughtItemByNameIncludingStartAndEnd(boughtItems.get(i + 1).getName());
-            }
-
-            if (i == 0) {
-                i1 = daoHelper.getStartBoughtItem();
-            } else if (i + 1 == boughtItems.size() - 1) {
-                i2 = daoHelper.getEndBoughtItem();
-            }
+            Vertex v1 = getVertexForBoughtItem(boughtItems.get(i));
+            Vertex v2 = getVertexForBoughtItem(boughtItems.get(i + 1));
+            BoughtItem i1 = v1.getBoughtItem();
+            BoughtItem i2 = v2.getBoughtItem();
 
             /* Continue if the Items are not from the same Supermarket. Here we have to use the parameter boughtItems because the placeId is not stored in the DB */
             /* Items belong to the same supermarket, or they would not be in this list */
