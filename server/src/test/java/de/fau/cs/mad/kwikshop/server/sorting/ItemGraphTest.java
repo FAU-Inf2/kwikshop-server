@@ -189,6 +189,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("item i0 is recognized as parent of i2 incorrectly", i2sParents.contains(i0));
 
         addBoughtItemsToItemGraph(itemGraph, i0, i2);
+        i2sParents = itemGraph.getParents(i2);
         assertTrue("item i0 is not recognized as parent of i2", i2sParents.contains(i0));
     }
 
