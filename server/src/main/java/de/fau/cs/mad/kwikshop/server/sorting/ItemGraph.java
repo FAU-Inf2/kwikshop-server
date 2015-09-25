@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -25,12 +26,21 @@ public class ItemGraph {
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
 
-    private final Set<Vertex> vertices = new TreeSet<>(new Comparator<Vertex>() {
+    private final TreeMap<BoughtItem, Vertex> vertices = new TreeMap<>(new Comparator<BoughtItem>() {
         @Override
-        public int compare(Vertex v1, Vertex v2) {
-            return v1.getBoughtItem().getName().compareTo(v2.getBoughtItem().getName());
+        public int compare(BoughtItem i1, BoughtItem i2) {
+            return i1.getName().compareTo(i2.getName());
         }
     });
+
+    // set of BoughtItems; only BoughtItem objects loaded from the DAOHelper should be put in there,
+    // otherwise otherwise Hibernate might complain about unsaved objects, if they are used
+    /*private final Set<BoughtItem> boughtItems = new TreeSet<>(new Comparator<BoughtItem>() {
+        @Override
+        public int compare(BoughtItem i1, BoughtItem i2) {
+            return i1.getName().compareTo(i2.getName());
+        }
+    });*/
 
     protected ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
@@ -81,7 +91,7 @@ public class ItemGraph {
         Set<BoughtItem> items;
         synchronized (vertices) {
             items = new HashSet<>(vertices.size());
-            for (Vertex vertex : vertices) {
+            for (Vertex vertex : vertices.values()) {
                 items.add(vertex.getBoughtItem());
             }
         }
@@ -89,14 +99,18 @@ public class ItemGraph {
     }
 
     /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
+        /*Vertex vertexToFind = new Vertex(item, this);
         synchronized (vertices) {
-            for (Vertex v : vertices) {
+            Vertex vertexFound = vertices.
+        }*/
+        synchronized (vertices) {
+            for (Vertex v : vertices.values()) {
                 if (v.getBoughtItem().equals(item)) {
                     return v;
                 }
             }
             Vertex vertex = new Vertex(item, this);
-            vertices.add(vertex);
+            vertices.put(item, vertex);
             return vertex;
         }
     }
@@ -104,7 +118,7 @@ public class ItemGraph {
     public Set<Edge> getEdges() {
         Set<Edge> edges = new HashSet<>(); // size is not known at the moment
         synchronized (vertices) {
-            for (Vertex vertex : vertices) {
+            for (Vertex vertex : vertices.values()) {
                 edges.addAll(vertex.getEdges());
             }
         }
@@ -209,8 +223,10 @@ public class ItemGraph {
                 if (itemFromDatabase == null && !boughtItem.isServerInternalItem()) {
                     daoHelper.createBoughtItem(boughtItem);
                     itemFromDatabase = daoHelper.getBoughtItemByName(boughtItem.getName());
-                    Vertex vertex = new Vertex(itemFromDatabase, this);
-                    vertices.add(vertex); // if vertex is already contained, no changes are made
+                    if (!vertices.containsKey(itemFromDatabase)) {
+                        Vertex vertex = new Vertex(itemFromDatabase, this);
+                        vertices.put(itemFromDatabase, vertex); // if vertex is already contained, no changes are made
+                    }
                 }
             }
         }
@@ -326,7 +342,9 @@ public class ItemGraph {
         synchronized (vertices) {
             this.vertices.clear();
             for (BoughtItem item : vertices) {
-                this.vertices.add(new Vertex(item, this));
+                if (!this.vertices.containsKey(item)) {
+                    this.vertices.put(item, new Vertex(item, this));
+                }
             }
 
             for (Edge edge : edges) {
@@ -349,7 +367,7 @@ public class ItemGraph {
         for(Edge edge : edges) {
             daoHelper.createEdge(edge);
         }
-        for(Vertex vertex : this.vertices) {
+        for(Vertex vertex : this.vertices.values()) {
             daoHelper.createBoughtItem(vertex.getBoughtItem());
         }
     }
