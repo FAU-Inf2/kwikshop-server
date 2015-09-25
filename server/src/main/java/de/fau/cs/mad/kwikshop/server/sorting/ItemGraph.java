@@ -188,10 +188,10 @@ public class ItemGraph {
     public Set<Edge> getEdgesFrom(BoughtItem boughtItem) {
         List<Edge> edges;
         synchronized (vertices) {
-            Vertex vertex = getVertexForBoughtItem(boughtItem);
-            if (vertex == null) {
-                return new HashSet<>();
+            if (!vertices.containsKey(boughtItem)) {
+                return new HashSet<>(); //item not contained in this item graph
             }
+            Vertex vertex = getVertexForBoughtItem(boughtItem);
             edges=vertex.getEdges();
         }
         return new HashSet<>(edges);

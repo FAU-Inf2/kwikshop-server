@@ -171,6 +171,28 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
     @Test
+    public void parentIsUpdated() {
+        List<BoughtItem> items = createBoughtItems(3, ONE);
+        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+        itemGraph.addBoughtItems(items);
+        BoughtItem i0 = items.get(0);
+        BoughtItem i1 = items.get(1);
+        BoughtItem i2 = items.get(2);
+        List<BoughtItem> i1sParents = itemGraph.getParents(i1);
+        assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
+        assertFalse("item i2 is recognized as parent of i1 incorretclty", i1sParents.contains(i2));
+        List<BoughtItem> i0sParents = itemGraph.getParents(i0);
+        assertFalse("item i1 is recognized as parent of i0 incorrectly", i0sParents.contains(i1));
+        assertFalse("item i2 is recognized as parent of i0 incorrectly", i0sParents.contains(i2));
+        List<BoughtItem> i2sParents = itemGraph.getParents(i2);
+        assertTrue("item i1 is not recognized as i2's parent", i2sParents.contains(i1));
+        assertFalse("item i0 is recognized as parent of i2 incorrectly", i2sParents.contains(i0));
+
+        addBoughtItemsToItemGraph(itemGraph, i0, i2);
+        assertTrue("item i0 is not recognized as parent of i2", i2sParents.contains(i0));
+    }
+
+    @Test
     public void getSiblingsWorksForTwoSimpleLists() {
         List<BoughtItem> items = createBoughtItems(3, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
