@@ -2,13 +2,21 @@ package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 
 import org.junit.Before;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.Item;
 import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.ItemGraph;
+import de.fau.cs.mad.kwikshop.server.sorting.MagicSort;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class SortingTestSuperclass {
 
@@ -83,5 +91,48 @@ public class SortingTestSuperclass {
 
     protected boolean checkForDoubleEdge(ItemGraph itemGraph, BoughtItem i1, BoughtItem i2) {
         return itemGraphHelper.checkForDoubleEdge(itemGraph, i1, i2);
+    }
+
+    protected ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, int numberOfTurns) {
+        boolean magicSortDebugOutput = MagicSort.printDebugOutput;
+        boolean itemGraphDebugOutput = ItemGraph.printDebugOutput;
+        try {
+            MagicSort.printDebugOutput = false;
+            ItemGraph.printDebugOutput = false;
+            Random random = new Random(42);
+            List<BoughtItem> items = createBoughtItems(n, ONE);
+            ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+            boolean[] itemAlreadyAdded = new boolean[n];
+            for (int i = 0; i < numberOfTurns; i++) {
+                int numberOfItemsToAdd = (n / 10) + (int) ((random.nextDouble() - 0.5) * (n / 10));
+                System.out.println("Starting to add items for the " + (i+1) + "th time; " + numberOfItemsToAdd + " will be added");
+                List<BoughtItem> boughtItems = new ArrayList<>(numberOfItemsToAdd);
+                for (int j = 0; j < numberOfItemsToAdd; j++) {
+                    int index = random.nextInt(n);
+                    itemAlreadyAdded[index] = true;
+                    boughtItems.add(items.get(index));
+                }
+                itemGraph.addBoughtItems(boughtItems);
+            }
+
+            Set<BoughtItem> addedItems = itemGraph.getVertices();
+            int numberOfItemsAdded = 0;
+            for (int i = 0; i < n; i++) {
+                if (itemAlreadyAdded[i]) {
+                    numberOfItemsAdded++;
+                    assertTrue("Item not contained in list of items, although it has been added", addedItems.contains(items.get(i)));
+                } else {
+                    assertFalse("Item contained in list of items, although it has not been added", addedItems.contains(items.get(i)));
+                }
+            }
+            assertEquals("", numberOfItemsAdded, addedItems.size() - 2); // -2 because of START/END
+            System.out.print("Number of items added: " + numberOfItemsAdded);
+            System.out.println(" (=" + ((double) numberOfItemsAdded / (double) n) * 100 + "%)");
+
+            return itemGraph;
+        } finally {
+            MagicSort.printDebugOutput = magicSortDebugOutput;
+            ItemGraph.printDebugOutput = itemGraphDebugOutput;
+        }
     }
 }
