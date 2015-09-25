@@ -2,6 +2,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import javax.persistence.*;
 
+import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.common.util.NamedQueryConstants;
 
@@ -74,7 +75,23 @@ public class Edge {
         return distance;
     }
 
-    public void setDistance(int distance) { this.distance = distance; }
+    // item graph is needed in order to be able to update the parents list of the "to"-Vertex
+    public void setDistance(int distance, ItemGraph itemGraph) {
+        if (itemGraph == null) {
+            throw new ArgumentNullException("itemGraph");
+        }
+        int oldDistance = this.distance;
+        this.distance = distance;
+        if (distance == 0 && oldDistance > 0) {
+            // add edge to the vertex's parents list
+            Vertex child = itemGraph.getVertexForBoughtItem(to);
+            child.addBoughtItemToParents(from);
+        } else if (distance > 0 && oldDistance == 0) {
+            // remove edge from the vertex's parents list
+            Vertex child = itemGraph.getVertexForBoughtItem(to);
+            child.removeBoughtItemFromParents(from);
+        }
+    }
 
     public void addDistance(int distance) {
         this.distance = this.distance + distance;

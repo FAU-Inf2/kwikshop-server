@@ -44,6 +44,20 @@ public class Vertex {
         return new HashSet<>(parents);
     }
 
+    public synchronized void addBoughtItemToParents(BoughtItem boughtItem) {
+        Vertex vertex = itemGraph.getVertexForBoughtItem(boughtItem);
+        if (!parents.contains(vertex)) {
+            parents.add(vertex);
+        }
+    }
+
+    public synchronized void removeBoughtItemFromParents(BoughtItem boughtItem) {
+        Vertex vertex = itemGraph.getVertexForBoughtItem(boughtItem);
+        if (parents.contains(vertex)) {
+            parents.remove(vertex);
+        }
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Vertex)) {

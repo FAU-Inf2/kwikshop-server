@@ -555,14 +555,14 @@ public class ItemGraph {
                 //edge to parent already exists
                 if(currentEdge.getDistance() > fromCurrentNode.getDistance() +1){
                     //update distance if its shorter
-                    currentEdge.setDistance(fromCurrentNode.getDistance() +1);
+                    currentEdge.setDistance(fromCurrentNode.getDistance() +1, this);
                 }
             }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
                 //edge exists in the opposite direction
             }else{
                 if(!parentNode.equals(fromCurrentNode.getTo())) {
                     Edge toBeAdded = new Edge(parentNode, fromCurrentNode.getTo(), supermarket);
-                    toBeAdded.setDistance(fromCurrentNode.getDistance() + 1);
+                    toBeAdded.setDistance(fromCurrentNode.getDistance() + 1, this);
                     daoHelper.createEdge(toBeAdded);
                     Vertex vertex = getVertexForBoughtItem(parentNode);
                     vertex.addEdge(toBeAdded);
@@ -574,7 +574,7 @@ public class ItemGraph {
                     //edge already exists
                     if (currentEdge.getDistance() > toParentNode.getDistance() + fromCurrentNode.getDistance() + 1) {
                         //update distance if its shorter than the existing one
-                        currentEdge.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                        currentEdge.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1, this);
                     }
                 }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), toParentNode.getFrom(), supermarket)) != null){
                     //edge exists in the opposite direction
@@ -583,7 +583,7 @@ public class ItemGraph {
                     //edge does not exist already, so create it if from != to
                     if(!toParentNode.getFrom().equals(fromCurrentNode.getTo())) {
                         Edge toBeAdded = new Edge(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket);
-                        toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1);
+                        toBeAdded.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1, this);
                         daoHelper.createEdge(toBeAdded);
                         Vertex vertex = getVertexForBoughtItem(parentNode);
                         vertex.addEdge(toBeAdded);
@@ -612,7 +612,7 @@ public class ItemGraph {
                     System.out.println("Existing edge found: " + ancestor.getName() + "->" + currentNode.getName());
                 }
                 existingEdge.setWeight(existingEdge.getWeight() + 1);
-                if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1);
+                if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1, this);
 
             } else if(daoHelper.getEdgeByFromTo(currentNode, ancestor, supermarket) != null) {
                 //edge already exists in the opposite direction
@@ -623,7 +623,7 @@ public class ItemGraph {
                         System.out.println("Created new indirect edge: " + ancestor.getName() + " -> " + currentNode.getName());
                     }
                     existingEdge = new Edge(ancestor, currentNode, supermarket);
-                    existingEdge.setDistance(edgeToParent.getDistance() + 1);
+                    existingEdge.setDistance(edgeToParent.getDistance() + 1, this);
                     daoHelper.createEdge(existingEdge);
                     Vertex vertex = getVertexForBoughtItem(ancestor);
                     vertex.addEdge(existingEdge);
