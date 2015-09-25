@@ -530,6 +530,7 @@ public class ItemGraph {
             } else {
             /* Edit existing edge - increase weight */
                 edge.setWeight(edge.getWeight() + 1);
+                edge.setDistance(0, this);
             }
 
             if (printDebugOutput) {
