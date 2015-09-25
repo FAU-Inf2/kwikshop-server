@@ -157,11 +157,10 @@ public class ItemGraph {
     public List<BoughtItem> getChildren(BoughtItem parent) {
         List<Edge> edges;
         synchronized (vertices) {
-            Vertex vertex = getVertexForBoughtItem(parent);
-            if (vertex == null) {
+            if (!vertices.containsKey(parent)) {
                 return null; //parent not contained in this item graph
             }
-            edges = vertex.getEdges();
+            edges = getVertexForBoughtItem(parent).getEdges();
         }
         List<BoughtItem> children = new ArrayList<>(edges.size());
         for (Edge edge : edges) {
