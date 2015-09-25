@@ -30,7 +30,7 @@ public class ItemGraph {
         this.supermarket = supermarket;
     }
 
-    public static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
+    private static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         ItemGraphFactory itemGraphFactory = new ItemGraphFactory() {
             @Override
             public ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
