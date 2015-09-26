@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantLock;
 
+import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.AbstractDAOHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.DAOHelper;
@@ -190,6 +191,9 @@ public class DAODummyHelper extends AbstractDAOHelper {
 
     @Override
     public void deleteEdge(Edge edge) {
+        if (edge == null) {
+            throw new ArgumentNullException("edge");
+        }
         int id1 = edge.getFrom().getId();
         int id2 = edge.getTo().getId();
         try {

@@ -449,12 +449,14 @@ public class ItemGraph {
             lock1.lock();
             lock2.lock();
             /* Supermarket must be included because different supermarkets have different edges */
-            edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+            Vertex v1 = getVertexForBoughtItem(i1);
+            Vertex v2 = getVertexForBoughtItem(i2);
+            edge = v1.getEdgeTo(i2);
 
             if(edge == null) {
 
             /* Check if there is an Edge in the opposite direction */
-                edge = daoHelper.getEdgeByFromTo(i2, i1, supermarket);
+                edge = v2.getEdgeTo(i1);
 
                 if(edge != null) {
                 /* Edit existing edge - decrease weight */
@@ -466,7 +468,7 @@ public class ItemGraph {
                         //only decrement if the parent node is connected with the other item
                         if (edgeFromToExists(i2, parent) || parent.equals(i2)) {
                             Edge edgeToParentNode;
-                            if ((edgeToParentNode = daoHelper.getEdgeByFromTo(parent, i1, supermarket)) != null) {
+                            if ((edgeToParentNode = getVertexForBoughtItem(parent).getEdgeTo(i1)) != null) {
                                 edgeToParentNode.setWeight(edgeToParentNode.getWeight() - 1);
 
                             /* Create edge in the opposite direction */
@@ -475,8 +477,8 @@ public class ItemGraph {
                                     Edge edge2;
                                     //delete all edges between the conflicting items
                                     for (BoughtItem betweenTheConflictingVertices : getVertices()) {
-                                        if (daoHelper.getEdgeByFromTo(i2, betweenTheConflictingVertices, supermarket) != null
-                                                && (edge2 = daoHelper.getEdgeByFromTo(betweenTheConflictingVertices, i1, supermarket)) != null) {
+                                        if (v2.getEdgeTo(betweenTheConflictingVertices) != null
+                                                && (edge2 = getVertexForBoughtItem(betweenTheConflictingVertices).getEdgeTo(i1)) != null) {
                                             if (betweenTheConflictingVertices.equals(i1) || betweenTheConflictingVertices.equals(i2))
                                                 continue;
                                             boolean contains = false;
@@ -488,11 +490,14 @@ public class ItemGraph {
                                                 if (printDebugOutput) {
                                                     System.out.println("Deleted: " + edge2.getFrom().getName() + "->" + edge2.getTo().getName());
                                                 }
+                                                Vertex vertex = getVertexForBoughtItem(edge2.getFrom());
+                                                vertex.removeEdge(edge2);
                                                 daoHelper.deleteEdge(edge2);
                                             }
                                         }
                                     }
-                                    daoHelper.deleteEdge(daoHelper.getEdgeByFromTo(i2, i1, supermarket));
+                                    v2.removeEdgeTo(i1);
+                                    daoHelper.deleteEdge(edge/*daoHelper.getEdgeByFromTo(i2, i1, supermarket)*/);
                                     daoHelper.createEdge(new Edge(i1, i2, supermarket));
 
                                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);

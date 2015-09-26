@@ -58,6 +58,24 @@ public class Vertex {
         }
     }
 
+    public synchronized Edge getEdgeTo(BoughtItem boughtItem) {
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(boughtItem)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    public synchronized boolean removeEdge(Edge edge) {
+        return edges.remove(edge);
+    }
+
+    public synchronized boolean removeEdgeTo(BoughtItem boughtItem) {
+        Edge edge = getEdgeTo(boughtItem);
+        return removeEdge(edge);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Vertex)) {
