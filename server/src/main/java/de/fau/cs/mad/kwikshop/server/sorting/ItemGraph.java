@@ -598,7 +598,6 @@ public class ItemGraph {
                 if (printDebugOutput) {
                     System.out.println("Existing edge found: " + ancestor.getName() + "->" + currentNode.getName());
                 }
-                existingEdge.setWeight(existingEdge.getWeight() + 1);
                 if (existingEdge.getDistance() > edgeToParent.getDistance() + 1) existingEdge.setDistance(edgeToParent.getDistance() + 1, this);
 
             } else if(daoHelper.getEdgeByFromTo(currentNode, ancestor, supermarket) != null) {
