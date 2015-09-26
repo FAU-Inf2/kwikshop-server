@@ -1,7 +1,10 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -220,7 +223,7 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
     //sorts the List of boughtItems according to the direction of the existing edges
     //originally meant to only sort the missing items, but that might also work for the whole knownItems
     public List<BoughtItem> sortBoughtItems(List<BoughtItem> items){
-
+/*
         for(int i = 0; i < items.size(); i++){
             for(int j = i + 1; j < items.size(); j++) {
                 if (itemGraph.edgeFromToExists(items.get(i), items.get(j))) {
@@ -240,6 +243,31 @@ public class MagicSort implements Algorithm<ShoppingListServer, ShoppingListServ
                 }
             }
         }
+        return items;
+
+        */
+
+        final HashMap<BoughtItem, Integer> amountOfEdgesFromThisPoint = new HashMap<>();
+
+        for(int i = 0; i < items.size(); i++){
+            int edgeCounter = 0;
+            for(int j = 0; j < items.size(); j++){
+                if(i != j){
+                    //increase edgeCounter for every item that has a edge from the current item at position i
+                    if(itemGraph.edgeFromToExists(items.get(i), items.get(j))) edgeCounter ++;
+                }
+                if(j == items.size() -1){
+                    //after iterating over every other item put the item with its counter in the hashmap
+                    amountOfEdgesFromThisPoint.put(items.get(i), edgeCounter);
+                }
+            }
+        }
+        Collections.sort(items, new Comparator<BoughtItem>(){
+            public int compare(BoughtItem i1, BoughtItem i2){
+                return amountOfEdgesFromThisPoint.get(i2) - amountOfEdgesFromThisPoint.get(i1);
+            }
+        });
+
         return items;
     }
 
