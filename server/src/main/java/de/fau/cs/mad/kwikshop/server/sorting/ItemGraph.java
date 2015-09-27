@@ -517,6 +517,13 @@ public class ItemGraph {
                                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
                                     Vertex vertex = getVertexForBoughtItem(i1);
                                     vertex.addEdge(edge);
+
+                                    if (printDebugOutput) {
+                                        System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+                                    }
+                                    insertIndirectEdgesToAncestors(i2, i1, supermarket);
+                                    insertIndirectEdgesToDescendantsForNode(i2, i1);
+
                                     break;
                                 }
                             }
@@ -530,6 +537,12 @@ public class ItemGraph {
                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
                     Vertex vertex = getVertexForBoughtItem(i1);
                     vertex.addEdge(edge);
+
+                    if (printDebugOutput) {
+                        System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
+                    }
+                    insertIndirectEdgesToAncestors(i2, i1, supermarket);
+                    insertIndirectEdgesToDescendantsForNode(i2, i1);
                 }
 
             } else {
@@ -538,11 +551,7 @@ public class ItemGraph {
                 edge.setDistance(0, this);
             }
 
-            if (printDebugOutput) {
-                System.out.println("Calling insertIndirectEdges for node: " + i2.getName());
-            }
-            insertIndirectEdgesToAncestors(i2, i1, supermarket);
-            insertIndirectEdgesToDescendantsForNode(i2, i1);
+
         } finally {
             lock2.unlock();
             lock1.unlock();
