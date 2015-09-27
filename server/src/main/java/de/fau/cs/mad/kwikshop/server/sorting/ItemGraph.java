@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -192,6 +193,19 @@ public class ItemGraph {
             }
             Vertex vertex = getVertexForBoughtItem(boughtItem);
             edges=vertex.getEdges();
+        }
+        return new HashSet<>(edges);
+    }
+
+    public Set<Edge> getEdgesTo(Vertex vertex) {
+        List<Edge> edges = new LinkedList<>();
+        synchronized (vertices) {
+            Set<Vertex> parents = vertex.getParents();
+            for (Vertex parent : parents) {
+                Edge edge = parent.getEdgeTo(vertex.getBoughtItem());
+                assert edge != null;
+                edges.add(edge);
+            }
         }
         return new HashSet<>(edges);
     }
@@ -541,15 +555,17 @@ public class ItemGraph {
         assert daoHelper.getLockWithNumber(currentNode.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
         assert daoHelper.getLockWithNumber(parentNode.getId() % daoHelper.getNumberOfLocks()).isHeldByCurrentThread();
 
+        Vertex parentVertex = getVertexForBoughtItem(parentNode);
+        Vertex currentVertex = getVertexForBoughtItem(currentNode);
         for(Edge fromCurrentNode : getEdgesFrom(currentNode)){
             Edge currentEdge;
-            if((currentEdge = daoHelper.getEdgeByFromTo(parentNode, fromCurrentNode.getTo(), supermarket)) != null){
+            if((currentEdge = parentVertex.getEdgeTo(fromCurrentNode.getTo())) != null){
                 //edge to parent already exists
                 if(currentEdge.getDistance() > fromCurrentNode.getDistance() +1){
                     //update distance if its shorter
                     currentEdge.setDistance(fromCurrentNode.getDistance() +1, this);
                 }
-            }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), parentNode, supermarket)) != null){
+            }else if((currentEdge = getVertexForBoughtItem(fromCurrentNode.getTo()).getEdgeTo(parentNode)) != null){
                 //edge exists in the opposite direction
             }else{
                 if(!parentNode.equals(fromCurrentNode.getTo())) {
@@ -560,15 +576,16 @@ public class ItemGraph {
                     vertex.addEdge(toBeAdded);
                 }
             }
-
-            for(Edge toParentNode : daoHelper.getEdgesByTo(currentNode, supermarket)){
-                if((currentEdge = daoHelper.getEdgeByFromTo(toParentNode.getFrom(), fromCurrentNode.getTo(), supermarket)) != null) {
+            for(Edge toParentNode : getEdgesTo(currentVertex)){
+                if (toParentNode.getFrom().isServerInternalItem() || toParentNode.getTo().isServerInternalItem()) {
+                    continue;
+                }
+                if((currentEdge = getVertexForBoughtItem(toParentNode.getFrom()).getEdgeTo(fromCurrentNode.getTo())) != null) {
                     //edge already exists
                     if (currentEdge.getDistance() > toParentNode.getDistance() + fromCurrentNode.getDistance() + 1) {
-                        //update distance if its shorter than the existing one
                         currentEdge.setDistance(toParentNode.getDistance() + fromCurrentNode.getDistance() + 1, this);
                     }
-                }else if((currentEdge = daoHelper.getEdgeByFromTo(fromCurrentNode.getTo(), toParentNode.getFrom(), supermarket)) != null){
+                }else if((currentEdge = getVertexForBoughtItem(fromCurrentNode.getTo()).getEdgeTo(toParentNode.getFrom())) != null){
                     //edge exists in the opposite direction
 
                 }else{
@@ -584,6 +601,7 @@ public class ItemGraph {
             }
         }
     }
+
 
     /* Connects a BoughtItem currentNode with all ancestors of his parent and sets distance
      if it's lower than the existing distance for a given Supermarket*/

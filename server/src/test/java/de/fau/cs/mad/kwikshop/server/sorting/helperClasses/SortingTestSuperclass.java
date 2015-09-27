@@ -3,6 +3,8 @@ package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 import org.junit.Before;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -112,6 +114,12 @@ public class SortingTestSuperclass {
                     itemAlreadyAdded[index] = true;
                     boughtItems.add(items.get(index));
                 }
+                Collections.sort(boughtItems, new Comparator<BoughtItem>() {
+                    @Override
+                    public int compare(BoughtItem i1, BoughtItem i2) {
+                        return i1.getName().compareTo(i2.getName());
+                    }
+                });
                 itemGraph.addBoughtItems(boughtItems);
             }
 
