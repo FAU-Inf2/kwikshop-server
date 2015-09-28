@@ -856,7 +856,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge detected", itemGraph.edgeFromToExists(iStart, i3));
     }
 
-    @Test
+    /*@Test
     public void privateMethodAddStartEndDoesWorkIfItemsAreCalledSTART_ITEM_or_END_ITEM() throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         String startItemName = DAOHelper.START_ITEM;
@@ -894,7 +894,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertEquals("i3 not added correctly", "i3", returnedValue.get(4).getName());
         assertEquals("END_ITEM not added correctly", endItemName, returnedValue.get(5).getName());
         assertTrue("END_ITEM not added correctly", returnedValue.get(5).isServerInternalItem());
-    }
+    }*/
 
     @Test
     public void closeACycleWhereOnlyTwoEdgesAreAllowedToBeDeleted() {
