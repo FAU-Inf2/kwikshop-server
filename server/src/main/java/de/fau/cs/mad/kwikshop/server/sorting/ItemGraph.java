@@ -10,21 +10,24 @@ import java.util.Set;
 import java.util.TreeMap;
 
 import de.fau.cs.mad.kwikshop.common.ArgumentNullException;
+import de.fau.cs.mad.kwikshop.common.ShoppingListServer;
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+import de.fau.cs.mad.kwikshop.common.sorting.SortingRequest;
 
 public class ItemGraph {
 
     public static boolean printDebugOutput = true; // debug output is printed when the item graph is used
 
     /*package visible*/ interface ItemGraphFactory {
-        ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket);
-    }
 
+        ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket);
+
+    }
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
+
     private final BoughtItem startBoughtItem;
     private final BoughtItem endBoughtItem;
-
     // the keys in this map should all be loaded from the DAOHelper before.
     // Otherwise Hibernate might complain about unsaved objects, if they are used
     private final TreeMap<BoughtItem, Vertex> vertices = new TreeMap<>(new Comparator<BoughtItem>() {
@@ -36,7 +39,6 @@ public class ItemGraph {
             return i1.getName().compareTo(i2.getName());
         }
     });
-
     private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
@@ -247,6 +249,17 @@ public class ItemGraph {
             vertex2 = getVertexForBoughtItem(boughtItems.pollFirst());
         }
 
+    }
+
+    public ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+        // TODO: implement
+        return shoppingList;
+    }
+
+    // This method is mainly for testing
+    public boolean edgeFromToExists(BoughtItem from, BoughtItem to) {
+        // TODO: implement
+        return false;
     }
 
     @Override

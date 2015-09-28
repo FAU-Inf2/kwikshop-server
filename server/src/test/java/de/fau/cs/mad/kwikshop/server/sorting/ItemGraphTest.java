@@ -67,7 +67,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("setSupermarket returned true although it is not a new supermarket", itemGraph.setSupermarket("blah", "blah"));
     }*/
 
-    @Test
+    /*@Test
     public void createOrUpdateEdgeForEmptyGraphShouldReturnAEdge() {
         ItemGraph itemGraph = createNewItemGraph();
         BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
@@ -78,9 +78,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertNotNull("createOrUpdateEdge returns null", edge);
         assertEquals("The created edge has a different start as the one handed over in the method call", i1, edge.getFrom());
         assertEquals("The created edge has a different end as the one handed over in the method call", i2, edge.getTo());
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void createdEdgeShouldBeContainedInResultOfGetEdges() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
@@ -94,7 +94,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertNotNull("getEdges returns null although an edge was just added", edges);
         assertTrue("newly added edge is not contained in the item graph", edges.contains(edge));
         assertEquals("getEdges returns more than just one edge, although no other edges were added", 1, edges.size());
-    }
+    }*/
 
     @Test
     public void getVerticesReturnsTheItemsThatWereAddedBeforeForOneItem() {
@@ -125,7 +125,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         }
     }
 
-    @Test
+    /*@Test
     public void childIsSetCorrectlyForAListOfTwoItems() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -136,9 +136,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("item i1 is not recognized as i0's child", i0sChildren.contains(i1));
         List<BoughtItem> i1sChildren = itemGraph.getChildren(i1);
         assertFalse("item i0 is recognized as child of i1 incorrectly", i1sChildren.contains(i0));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void parentIsSetCorrectlyForAListOfTwoItems() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -149,9 +149,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("item i0 is not recognized as i1's parent", i1sParents.contains(i0));
         List<BoughtItem> i0sParents = itemGraph.getParents(i0);
         assertFalse("item i1 is recognized as parent of i0 incorrectly", i0sParents.contains(i1));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void parentIsSetCorrectlyForAListOfThreeItems() {
         List<BoughtItem> items = createBoughtItems(3, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -168,9 +168,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         List<BoughtItem> i2sParents = itemGraph.getParents(i2);
         assertTrue("item i1 is not recognized as i2's parent", i2sParents.contains(i1));
         assertFalse("item i0 is recognized as parent of i2 incorrectly", i2sParents.contains(i0));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void parentIsUpdated() {
         List<BoughtItem> items = createBoughtItems(3, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -191,9 +191,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         addBoughtItemsToItemGraph(itemGraph, i0, i2);
         i2sParents = itemGraph.getParents(i2);
         assertTrue("item i0 is not recognized as parent of i2", i2sParents.contains(i0));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void getSiblingsWorksForTwoSimpleLists() {
         List<BoughtItem> items = createBoughtItems(3, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -216,9 +216,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
         assertTrue("i2 is not recognized as sibling for i1", itemGraph.getSiblings(i1).contains(i2));
         assertTrue("i1 is not recognized as sibling for i2", itemGraph.getSiblings(i2).contains(i1));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void getSiblingsDoesNotReturnFalseSiblings() {
         List<BoughtItem> items = createBoughtItems(2, ONE);
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
@@ -236,7 +236,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("i0 is contained in i1's siblings incorrectly", i1sSiblings.contains(i0));
         assertFalse("i1 is contained in i0's siblings incorrectly", i0sSiblings.contains(i1));
         assertFalse("i1 is contained in i1's siblings incorrectly", i1sSiblings.contains(i1));
-    }
+    }*/
 
     @Test
     public void edgeFromToExistsDoesDetectEdges() {
@@ -366,7 +366,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("The edge, that was added for the first two items, didn't get removed after the data changed", itemGraph.edgeFromToExists(i0, i1));
     }
 
-    @Test
+    /*@Test
     public void edgeShouldFlipInsteadOfGettingWeightZero() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(2, ONE);
@@ -385,9 +385,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
                 return;
             }
         }
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void weightOfANewlyAddedEdgeInASimpleGraphShouldBeOne() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(2, ONE);
@@ -403,9 +403,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
                 return;
             }
         }
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void weightOfANewlyAddedEdgeInAComplicatedGraphShouldBeOne() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
         BoughtItem i0 = createBoughtItemWithIdAndSupermarket(0, ONE);
@@ -425,9 +425,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
                 return;
             }
         }
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void weightOfAnEdgeShouldBeIncrementedIfItemsAreBoughtInThatOrder() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
         BoughtItem i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
@@ -460,9 +460,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         int weightAfterUpdate = edge.getWeight();
 
         assertEquals("The weight of the edge was not updated correctly", weightBeforeUpdate + 1, weightAfterUpdate);
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void getEdgesFromDoesReturnEdges() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
@@ -486,7 +486,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
             }
         }
         assertTrue("Edge i1->i2 not contained", edgeFound);
-    }
+    }*/
 
 
     @Test
@@ -721,7 +721,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("missing indirect edge found", itemGraph.edgeFromToExists(i3, i2));
     }
 
-    @Test
+    /*@Test
     public void cycleDetectionDoesNotAddAnEdgeIfAllOtherEdgesHaveAHigherWeight() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
@@ -730,9 +730,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         i1 = items.get(1);
         i2 = items.get(2);
         addItemsToItemGraphTwiceAndThenCloseTheCycle(itemGraph, items, i0, i1, i2);
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void cycleDetectionShouldAddAnEdgeIfItIsAddedMultipleTimes() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
@@ -753,9 +753,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         } else {
             assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
         }
-    }
+    }*/
 
-    // helper method
+    /*// helper method
     private void addItemsToItemGraphTwiceAndThenCloseTheCycle(ItemGraph itemGraph, List<BoughtItem> items, BoughtItem i0, BoughtItem i1, BoughtItem i2) {
         itemGraph.addBoughtItems(items);
         itemGraph.addBoughtItems(items);
@@ -797,7 +797,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i1, i2));
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i2, i0));
-    }
+    }*/
 
     @Test
     public void cycleDetectionShouldRemoveAnOtherEdgeWithWeightOneInsteadOfNotAddingANewEdge() {
