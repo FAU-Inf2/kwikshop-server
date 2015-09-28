@@ -1,5 +1,79 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.LinkedList;
+import java.util.List;
+
+import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
+
+public class Vertex {
+    private final BoughtItem boughtItem;
+    private List<Edge> edges; // adjacency list of edges
+    private final ItemGraph itemGraph; // the ItemGraph this vertex is contained in
+
+    public Vertex(BoughtItem boughtItem, ItemGraph itemGraph) {
+        this.boughtItem = boughtItem;
+        this.edges = new LinkedList<>();
+        this.itemGraph = itemGraph;
+    }
+
+    public BoughtItem getBoughtItem() {
+        return boughtItem;
+    }
+
+    public synchronized void addEdgeOrIncreaseWeightTo(Vertex toVertex) {
+        Edge edge = getEdgeToVertex(toVertex);
+        if (edge != null) {
+            // Edge already exists, so increase weight
+            edge.incrementWeight();
+        } else {
+            // Edge does not exist yet
+            // check whether edge exists in the other direction
+            edge = toVertex.getEdgeToVertex(this);
+            if (edge != null) {
+                // edge already exists in the other direction
+                // decrease weight and flip Edge, when necessary
+                int newWeight = edge.decrementWeight();
+                if (newWeight <= 0) {
+                    // edge has to be flipped
+                    toVertex.removeEdge(edge);
+                    edge.setTo(toVertex.getBoughtItem());
+                    edge.setFrom(this.getBoughtItem());
+                    this.addEdge(edge);
+                }
+            } else {
+                // edge doesn't exist in either direction
+                BoughtItem i1 = this.getBoughtItem(), i2 = toVertex.getBoughtItem();
+                Supermarket supermarket = itemGraph.getSupermarket();
+                DAOHelper daoHelper = itemGraph.getDaoHelper();
+                daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
+                this.addEdge(edge);
+            }
+        }
+    }
+
+    private Edge getEdgeToVertex(Vertex toVertex) {
+        BoughtItem to = toVertex.getBoughtItem();
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(to)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
+    private void addEdge(Edge edge) {
+        assert !edges.contains(edge) : "Trying to add a edge that is already contained";
+
+        this.edges.add(edge);
+    }
+
+    private boolean removeEdge(Edge edge) {
+        return edges.remove(edge);
+    }
+}
+
+/*
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -89,3 +163,4 @@ public class Vertex {
         return boughtItem.getName().hashCode();
     }
 }
+*/
