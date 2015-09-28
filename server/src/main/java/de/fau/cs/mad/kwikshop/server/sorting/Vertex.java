@@ -1,7 +1,10 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 
@@ -75,6 +78,38 @@ public class Vertex {
 
     public List<Edge> getEdges() {
         return new LinkedList<>(edges);
+    }
+
+    public void traverseGraphForENDAndAddItemsToList(LinkedList<BoughtItem> totallyOrderedItems, String endName) {
+        totallyOrderedItems.addLast(this.getBoughtItem());
+        if (boughtItem.isServerInternalItem()) {
+            if (boughtItem.getName().equals(endName)) {
+                // end found
+                return;
+            }
+        }
+        SortedSet<Edge> edges = new TreeSet<>(new Comparator<Edge>() {
+            @Override
+            public int compare(Edge e1, Edge e2) {
+                return e1.getWeight() - e2.getWeight();
+            }
+        });
+        edges.addAll(this.edges);
+        for (Edge edge : edges) {
+            // edge is the Edge with the highest weight, that might not lead to an already added item
+            BoughtItem item = edge.getTo();
+            if (totallyOrderedItems.contains(item)) {
+                // this item was already visited
+                continue;
+            }
+            // this item is not part of the totallyOrderedItems list
+            totallyOrderedItems.addLast(this.getBoughtItem());
+            Vertex vertex = itemGraph.getVertexForBoughtItem(item);
+            vertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endName);
+            return;
+        }
+        // no edge found, that leads to an not already added item
+        // TODO: implement
     }
 }
 

@@ -28,6 +28,10 @@ public class ItemGraph {
 
     private final BoughtItem startBoughtItem;
     private final BoughtItem endBoughtItem;
+
+    private LinkedList<BoughtItem> totallyOrderedItems = null;
+    private boolean totallyOrderedItemsAreUpToDate;
+
     // the keys in this map should all be loaded from the DAOHelper before.
     // Otherwise Hibernate might complain about unsaved objects, if they are used
     private final TreeMap<BoughtItem, Vertex> vertices = new TreeMap<>(new Comparator<BoughtItem>() {
@@ -239,6 +243,8 @@ public class ItemGraph {
     public void addBoughtItems(List<BoughtItem> newBoughtItems) {
         assert !newBoughtItems.isEmpty() : "Trying to add an empty list";
 
+        totallyOrderedItemsAreUpToDate = false;
+
         LinkedList<BoughtItem> boughtItems = new LinkedList<>(newBoughtItems); // copy the input
         boughtItems.addFirst(startBoughtItem);
         boughtItems.addLast(endBoughtItem);
@@ -252,7 +258,21 @@ public class ItemGraph {
             vertex1 = vertex2;
             item2 = boughtItems.pollFirst();
         }
+    }
 
+    public boolean updateTotallyOrderedItems() {
+        if (totallyOrderedItemsAreUpToDate) {
+            // no updating has to be performed
+            return false;
+        }
+        totallyOrderedItems = new LinkedList<>();
+        //totallyOrderedItems.addFirst(startBoughtItem); // this is done in the startVertex
+
+        Vertex startVertex = getVertexForBoughtItem(startBoughtItem);
+        startVertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endBoughtItem.getName());
+
+        totallyOrderedItemsAreUpToDate = true;
+        return true;
     }
 
     public ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
