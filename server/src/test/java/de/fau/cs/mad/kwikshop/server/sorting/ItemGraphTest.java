@@ -2,17 +2,12 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 
 import org.junit.*;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 import java.util.Set;
 
 import de.fau.cs.mad.kwikshop.common.sorting.BoughtItem;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.DAODummyHelper;
-import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.ItemGraphHelper;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SortingTestSuperclass;
 import de.fau.cs.mad.kwikshop.server.sorting.helperClasses.SupermarketHelper;
 
@@ -1152,27 +1147,24 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Edge i4 -> i4 exist", itemGraph.edgeFromToExists(i4, i4));
     }
 
-    @Ignore
-    @Test(timeout = 120000) //2 Minutes
+    @Test(timeout = 10000) // 10 Seconds
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated__AddItemsMoreOften() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 100);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, true);
     }
 
-    @Test(timeout = 60000) //1 Minute
+    @Test(timeout = 5000) // 5 Seconds
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, 25);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, false);
     }
 
-    @Ignore
-    @Test(timeout = 300000) //5 Minutes
+    @Test(timeout = 30000) // 30 Seconds
     public void createItemGraphWith1000ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000, 250);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000, false);
     }
 
-    @Test(timeout = 300000) //5 Minutes
-    @Ignore // currently this would take way too long
+    @Test(timeout = 60000) // 60 Seconds
     public void createItemGraphWith10000ItemsAndCheckIfEveryItemHasBeenCreated() {
-        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000, 2500);
+        createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000, false);
     }
 
 

@@ -1,7 +1,5 @@
 package de.fau.cs.mad.kwikshop.server.sorting.helperClasses;
 
-import org.junit.Before;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -95,7 +93,7 @@ public class SortingTestSuperclass {
         return itemGraphHelper.checkForDoubleEdge(itemGraph, i1, i2);
     }
 
-    protected ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, int numberOfTurns) {
+    protected ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, boolean addItemsMoreOften) {
         boolean magicSortDebugOutput = MagicSort.printDebugOutput;
         boolean itemGraphDebugOutput = ItemGraph.printDebugOutput;
         try {
@@ -105,8 +103,11 @@ public class SortingTestSuperclass {
             List<BoughtItem> items = createBoughtItems(n, ONE);
             ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
             boolean[] itemAlreadyAdded = new boolean[n];
+            double sqrtN = Math.sqrt(n);
+            int numberOfTurns = (int)(sqrtN * 2.5);
+            if (addItemsMoreOften) { numberOfTurns *= 4; }
             for (int i = 0; i < numberOfTurns; i++) {
-                int numberOfItemsToAdd = (n / 10) + (int) ((random.nextDouble() - 0.5) * (n / 10));
+                int numberOfItemsToAdd = (int)(sqrtN + ((random.nextDouble() - 0.5) * sqrtN));
                 System.out.println("Starting to add items for the " + (i+1) + "th time; " + numberOfItemsToAdd + " will be added");
                 List<BoughtItem> boughtItems = new ArrayList<>(numberOfItemsToAdd);
                 for (int j = 0; j < numberOfItemsToAdd; j++) {
