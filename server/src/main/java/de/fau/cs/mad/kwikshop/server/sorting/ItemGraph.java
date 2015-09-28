@@ -4,6 +4,7 @@ package de.fau.cs.mad.kwikshop.server.sorting;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -21,6 +22,8 @@ public class ItemGraph {
 
     private final DAOHelper daoHelper;
     private final Supermarket supermarket;
+    private final BoughtItem startBoughtItem;
+    private final BoughtItem endBoughtItem;
 
     // the keys in this map should all be loaded from the DAOHelper before.
     // Otherwise Hibernate might complain about unsaved objects, if they are used
@@ -37,6 +40,8 @@ public class ItemGraph {
     private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
+        this.startBoughtItem = daoHelper.getStartBoughtItem();
+        this.endBoughtItem = daoHelper.getEndBoughtItem();
     }
 
     private static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
@@ -89,6 +94,7 @@ public class ItemGraph {
         return items;
     }
 
+    /* returns the stored vertex for the given bought item, or creates a new one, if no such vertex exists */
     /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
         Vertex foundVertex;
         synchronized (vertices) {
@@ -222,6 +228,24 @@ public class ItemGraph {
         for(Vertex vertex : this.vertices.values()) {
             daoHelper.createBoughtItem(vertex.getBoughtItem());
         }
+    }
+
+    public void addBoughtItems(List<BoughtItem> newBoughtItems) {
+        assert !newBoughtItems.isEmpty() : "Trying to add an empty list";
+
+        LinkedList<BoughtItem> boughtItems = new LinkedList<>(newBoughtItems); // copy the input
+        boughtItems.addFirst(startBoughtItem);
+        boughtItems.addLast(endBoughtItem);
+
+        Vertex vertex1 = getVertexForBoughtItem(boughtItems.pollFirst());
+        Vertex vertex2 = getVertexForBoughtItem(boughtItems.pollFirst());
+        while (vertex2 != null) {
+            vertex1.addEdgeOrIncreaseWeightTo(vertex2);
+
+            vertex1 = vertex2;
+            vertex2 = getVertexForBoughtItem(boughtItems.pollFirst());
+        }
+
     }
 
     @Override
