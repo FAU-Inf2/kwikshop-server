@@ -134,6 +134,7 @@ public class ItemGraph {
     }
 
     // slow!!
+    // this method is currently used for copying data from an other item graph and for toString()
     public Set<Edge> getEdges() {
         Set<Edge> edges = new HashSet<>(); // size is not known at the moment
         synchronized (vertices) {

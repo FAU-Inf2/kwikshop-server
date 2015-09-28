@@ -62,7 +62,8 @@ public class Vertex {
         return null;
     }
 
-    private void addEdge(Edge edge) {
+    // this method is also used in ItemGraph when copying all data from another graph
+    /*package global*/ void addEdge(Edge edge) {
         assert !edges.contains(edge) : "Trying to add a edge that is already contained";
 
         this.edges.add(edge);
@@ -70,6 +71,10 @@ public class Vertex {
 
     private boolean removeEdge(Edge edge) {
         return edges.remove(edge);
+    }
+
+    public List<Edge> getEdges() {
+        return new LinkedList<>(edges);
     }
 }
 
