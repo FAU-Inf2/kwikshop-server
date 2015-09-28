@@ -93,7 +93,7 @@ public class SortingTestSuperclass {
         return itemGraphHelper.checkForDoubleEdge(itemGraph, i1, i2);
     }
 
-    protected ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, boolean addItemsMoreOften) {
+    private ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, boolean addItemsMoreOften, boolean mixSomeOfTheItems) {
         boolean magicSortDebugOutput = MagicSort.printDebugOutput;
         boolean itemGraphDebugOutput = ItemGraph.printDebugOutput;
         try {
@@ -115,12 +115,28 @@ public class SortingTestSuperclass {
                     itemAlreadyAdded[index] = true;
                     boughtItems.add(items.get(index));
                 }
-                Collections.sort(boughtItems, new Comparator<BoughtItem>() {
-                    @Override
-                    public int compare(BoughtItem i1, BoughtItem i2) {
-                        return i1.getName().compareTo(i2.getName());
+                if (mixSomeOfTheItems) {
+                    if (random.nextDouble() < 0.5) {
+                        Collections.sort(boughtItems, new Comparator<BoughtItem>() {
+                            @Override
+                            public int compare(BoughtItem i1, BoughtItem i2) {
+                                return i1.getName().compareTo(i2.getName());
+                            }
+                        });
+                    } else {
+                        if (random.nextDouble() < 0.5) {
+                            Collections.sort(boughtItems, new Comparator<BoughtItem>() {
+                                @Override
+                                public int compare(BoughtItem i1, BoughtItem i2) {
+                                    return i1.getName().compareTo(i2.getName());
+                                }
+                            });
+                            int swap1 = random.nextInt(boughtItems.size());
+                            int swap2 = random.nextInt(boughtItems.size());
+                            Collections.swap(boughtItems, swap1, swap2);
+                        }
                     }
-                });
+                }
                 itemGraph.addBoughtItems(boughtItems);
             }
 
@@ -143,5 +159,13 @@ public class SortingTestSuperclass {
             MagicSort.printDebugOutput = magicSortDebugOutput;
             ItemGraph.printDebugOutput = itemGraphDebugOutput;
         }
+    }
+
+    protected ItemGraph createItemGraphWithNItems_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated(int n) {
+        return createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(n, false, true);
+    }
+
+    protected ItemGraph createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(int n, boolean addItemsMoreOften) {
+        return createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(n, addItemsMoreOften, false);
     }
 }

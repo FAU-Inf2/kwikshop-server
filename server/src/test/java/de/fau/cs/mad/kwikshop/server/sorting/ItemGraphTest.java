@@ -1157,9 +1157,19 @@ public class ItemGraphTest extends SortingTestSuperclass {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, false);
     }
 
+    @Test(timeout = 10000) // 10 Seconds
+    public void createItemGraphWith100Items_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated() {
+        createItemGraphWithNItems_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated(100);
+    }
+
     @Test(timeout = 30000) // 30 Seconds
     public void createItemGraphWith1000ItemsAndCheckIfEveryItemHasBeenCreated() {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(1000, false);
+    }
+
+    @Test(timeout = 45000) // 45 Seconds
+    public void createItemGraphWith1000Items_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated() {
+        createItemGraphWithNItems_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated(1000);
     }
 
     @Test(timeout = 60000) // 60 Seconds
@@ -1167,5 +1177,8 @@ public class ItemGraphTest extends SortingTestSuperclass {
         createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000, false);
     }
 
-
+    @Test(timeout = 90000) // 90 Seconds
+    public void createItemGraphWith10000Items_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated() {
+        createItemGraphWithNItems_MixSomeOfThem_AndCheckIfEveryItemHasBeenCreated(10000);
+    }
 }
