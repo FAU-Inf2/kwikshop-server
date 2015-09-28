@@ -98,6 +98,9 @@ public class ItemGraph {
 
     /* returns the stored vertex for the given bought item, or creates a new one, if no such vertex exists */
     /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
+        if (item == null) {
+            throw new ArgumentNullException("item");
+        }
         Vertex foundVertex;
         synchronized (vertices) {
             foundVertex = vertices.get(item);
@@ -241,12 +244,13 @@ public class ItemGraph {
         boughtItems.addLast(endBoughtItem);
 
         Vertex vertex1 = getVertexForBoughtItem(boughtItems.pollFirst());
-        Vertex vertex2 = getVertexForBoughtItem(boughtItems.pollFirst());
-        while (vertex2 != null) {
+        BoughtItem item2 = boughtItems.pollFirst();
+        while (item2 != null) {
+            Vertex vertex2 = getVertexForBoughtItem(item2);
             vertex1.addEdgeOrIncreaseWeightTo(vertex2);
 
             vertex1 = vertex2;
-            vertex2 = getVertexForBoughtItem(boughtItems.pollFirst());
+            item2 = boughtItems.pollFirst();
         }
 
     }
