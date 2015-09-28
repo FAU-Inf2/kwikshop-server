@@ -250,7 +250,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
     }
 
 
-    @Test
+    /*@Test
     public void indirectEdgesAreSetCorrectlyForThreeItems(){
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
@@ -268,76 +268,76 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("There is no edge from i1 to end", itemGraph.edgeFromToExists(i1, itemGraph.getDaoHelper().getEndBoughtItem()));
         assertTrue("There is no edge from i2 to end", itemGraph.edgeFromToExists(i2, itemGraph.getDaoHelper().getEndBoughtItem()));
         assertTrue("The indirect edge from i0 to i2 has the wrong distance", itemGraph.getDaoHelper().getEdgeByFromTo(i0, i2, itemGraph.getSupermarket()).getDistance() == 1);
-    }
+    }*/
 
 
-    @Test
-    public void cycleOfThreeItemsShouldNotOccur() {
-        BoughtItem i1, i2, i3;
-        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
-        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
-        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+//    @Test
+//    public void cycleOfThreeItemsShouldNotOccur() {
+//        BoughtItem i1, i2, i3;
+//        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+//        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+//        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+//
+//        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+//        addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
+//
+//        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
+//        item graph -> if there are edges i1->i2 and i2->i3, i3->i1 must not exist; only two of these
+//        three edges may exist at one time*/
+//        boolean i1ToI2Exists, i2ToI3Exists, i3ToI1Exists;
+//        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
+//        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
+//        i3ToI1Exists = itemGraph.edgeFromToExists(i3, i1);
+//
+//        if (i1ToI2Exists) {
+//            if (i2ToI3Exists) {
+//                assertFalse("Cycle in item graph detected", i3ToI1Exists);
+//            } else {
+//                assertTrue("Missing edge in item Graph", i3ToI1Exists);
+//            }
+//        } else {
+//            assertTrue("Missing edge in item Graph", i2ToI3Exists);
+//            assertTrue("Missing edge in item Graph", i3ToI1Exists);
+//        }
+//    }
 
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        addItemsToItemGraphThatWouldProduceACycleOfThree(itemGraph, i1, i2, i3);
-
-        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
-        item graph -> if there are edges i1->i2 and i2->i3, i3->i1 must not exist; only two of these
-        three edges may exist at one time*/
-        boolean i1ToI2Exists, i2ToI3Exists, i3ToI1Exists;
-        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
-        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
-        i3ToI1Exists = itemGraph.edgeFromToExists(i3, i1);
-
-        if (i1ToI2Exists) {
-            if (i2ToI3Exists) {
-                assertFalse("Cycle in item graph detected", i3ToI1Exists);
-            } else {
-                assertTrue("Missing edge in item Graph", i3ToI1Exists);
-            }
-        } else {
-            assertTrue("Missing edge in item Graph", i2ToI3Exists);
-            assertTrue("Missing edge in item Graph", i3ToI1Exists);
-        }
-    }
-
-    @Test
-    public void cycleOfFourItemsShouldNotOccur() {
-        BoughtItem i1, i2, i3, i4;
-        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
-        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
-        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
-        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
-
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        addItemsToItemGraphThatWouldProduceACycle(itemGraph, i1, i2, i3, i4);
-
-        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
-        item graph -> if there are edges i1->i2, i2->i3 and i3->i4, i4->i1 must not exist; only
-        three of these four edges may exist at one time*/
-        boolean i1ToI2Exists, i2ToI3Exists, i3ToI4Exists, i4ToI1Exists;
-        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
-        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
-        i3ToI4Exists = itemGraph.edgeFromToExists(i3, i4);
-        i4ToI1Exists = itemGraph.edgeFromToExists(i4, i1);
-
-        if (i1ToI2Exists) {
-            if (i2ToI3Exists) {
-                if (i3ToI4Exists) {
-                    assertFalse("Cycle in item graph detected", i4ToI1Exists);
-                } else {
-                    assertTrue("Missing edge in item Graph", i4ToI1Exists);
-                }
-            } else {
-                assertTrue("Missing edge in item Graph", i3ToI4Exists);
-                assertTrue("Missing edge in item Graph", i4ToI1Exists);
-            }
-        } else {
-            assertTrue("Missing edge in item Graph", i2ToI3Exists);
-            assertTrue("Missing edge in item Graph", i3ToI4Exists);
-            assertTrue("Missing edge in item Graph", i4ToI1Exists);
-        }
-    }
+//    @Test
+//    public void cycleOfFourItemsShouldNotOccur() {
+//        BoughtItem i1, i2, i3, i4;
+//        i1 = createBoughtItemWithIdAndSupermarket(1, ONE);
+//        i2 = createBoughtItemWithIdAndSupermarket(2, ONE);
+//        i3 = createBoughtItemWithIdAndSupermarket(3, ONE);
+//        i4 = createBoughtItemWithIdAndSupermarket(4, ONE);
+//
+//        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+//        addItemsToItemGraphThatWouldProduceACycle(itemGraph, i1, i2, i3, i4);
+//
+//        /*Now items were "bought in a cycle", but it is crucial that no cycles are contained in the
+//        item graph -> if there are edges i1->i2, i2->i3 and i3->i4, i4->i1 must not exist; only
+//        three of these four edges may exist at one time*/
+//        boolean i1ToI2Exists, i2ToI3Exists, i3ToI4Exists, i4ToI1Exists;
+//        i1ToI2Exists = itemGraph.edgeFromToExists(i1, i2);
+//        i2ToI3Exists = itemGraph.edgeFromToExists(i2, i3);
+//        i3ToI4Exists = itemGraph.edgeFromToExists(i3, i4);
+//        i4ToI1Exists = itemGraph.edgeFromToExists(i4, i1);
+//
+//        if (i1ToI2Exists) {
+//            if (i2ToI3Exists) {
+//                if (i3ToI4Exists) {
+//                    assertFalse("Cycle in item graph detected", i4ToI1Exists);
+//                } else {
+//                    assertTrue("Missing edge in item Graph", i4ToI1Exists);
+//                }
+//            } else {
+//                assertTrue("Missing edge in item Graph", i3ToI4Exists);
+//                assertTrue("Missing edge in item Graph", i4ToI1Exists);
+//            }
+//        } else {
+//            assertTrue("Missing edge in item Graph", i2ToI3Exists);
+//            assertTrue("Missing edge in item Graph", i3ToI4Exists);
+//            assertTrue("Missing edge in item Graph", i4ToI1Exists);
+//        }
+//    }
 
     @Test
     public void edgeShouldFlipIfItemsAreAddedTheOtherWayRoundMoreOften() {
@@ -545,7 +545,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
     }
 
-    @Test
+    /*@Test
     public void addItemsToTheExampleItemGraphThatWouldProduceACycleButShouldNotRemoveAnyEdges() {
         ItemGraph itemGraph = createCyclicFreeDataWithSixVertices();
         BoughtItem i3, i4, i5;
@@ -556,7 +556,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         addBoughtItemsToItemGraph(itemGraph, i3, i4, i5);
         makeSureAllEdgesWereAddedCorrectlyAccordingToCyclicFreeExampleItemGraphWithSixVertices(itemGraph);
         assertFalse("Cycle found", itemGraph.edgeFromToExists(i4, i5));
-    }
+    }*/
 
     @Test
     public void onlyRelevantEdgesAreModifiedWhenAnEdgeFlips() {
@@ -587,7 +587,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Edge that should have flipped was not removed", itemGraph.edgeFromToExists(i1, i2));
     }
 
-    @Test
+    /*@Test
     public void addDataThatWouldProduceTwoCyclesAtOnce() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(5, ONE);
@@ -631,9 +631,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
             assertTrue("missing edge found", itemGraph.edgeFromToExists(i3, i4));
             assertTrue("missing edge found", itemGraph.edgeFromToExists(i4, i2));
         }
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void addDataThatWouldProduceThreeCyclesAtOnce() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(5, ONE);
@@ -714,7 +714,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         }
         //check if indirect edge was set correctly
         assertTrue("missing indirect edge found", itemGraph.edgeFromToExists(i3, i2));
-    }
+    }*/
 
     /*@Test
     public void cycleDetectionDoesNotAddAnEdgeIfAllOtherEdgesHaveAHigherWeight() {
@@ -794,7 +794,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i2, i0));
     }*/
 
-    @Test
+    /*@Test
     public void cycleDetectionShouldRemoveAnOtherEdgeWithWeightOneInsteadOfNotAddingANewEdge() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
@@ -816,7 +816,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i0, i1));
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i2, i0));
         assertFalse("Cycle detected", itemGraph.edgeFromToExists(i1, i2));
-    }
+    }*/
 
     @Test
     public void addItemsToItemGraphWithTheSameNameAsTheStartAndEndItems() {
@@ -891,7 +891,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("END_ITEM not added correctly", returnedValue.get(5).isServerInternalItem());
     }*/
 
-    @Test
+    /*@Test
     public void closeACycleWhereOnlyTwoEdgesAreAllowedToBeDeleted() {
         List<BoughtItem> items = createBoughtItems(7, ONE);
         BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
@@ -919,9 +919,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         } else {
             assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
         }
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i4_i6_mayBeDeleted() {
         List<BoughtItem> items = createBoughtItems(7, ONE);
         BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
@@ -948,9 +948,9 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("MissingEdgeFound", itemGraph.edgeFromToExists(i3, i4));
         assertFalse("cycle detected", itemGraph.edgeFromToExists(i4, i6));
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(start, i6));
-    }
+    }*/
 
-    @Test
+    /*@Test
     public void closeACycleWhereOnlyOneEdgeIsAllowedToBeDeleted_i3_i4_mayBeDeleted() {
         List<BoughtItem> items = createBoughtItems(7, ONE);
         BoughtItem i0, i1, i2, i3, i4, i5, i6, start;
@@ -976,36 +976,36 @@ public class ItemGraphTest extends SortingTestSuperclass {
         assertTrue("Missing edge found", itemGraph.edgeFromToExists(i4, i6));
         assertFalse("cycle detected", itemGraph.edgeFromToExists(i6, i1));
 
-    }
+    }*/
 
-    // helper method
-    private ItemGraph createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(BoughtItem i0, BoughtItem i1, BoughtItem i2, BoughtItem i3, BoughtItem i4, BoughtItem i5, BoughtItem i6) {
-        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
-        addBoughtItemsToItemGraph(itemGraph, i0, i1, i5);
-        addBoughtItemsToItemGraph(itemGraph, i0, i2, i4, i6);
-        addBoughtItemsToItemGraph(itemGraph, i1, i3, i4);
-
-        /*
-         * This item graph looks something like this:
-         *                    i0
-         *                   /  \
-         *                  /    \
-         *                 /      \
-         *                |       |
-         *                v       v
-         *                i1      i2
-         *               /  \      \
-         *              /   |      |
-         *             /    v      v
-         *            /     i3 --> i4
-         *           |             |
-         *           v             v
-         *           i5            i6
-         * All edges have weight 1
-         */
-
-        return itemGraph;
-    }
+//    // helper method
+//    private ItemGraph createGraphWhereOnlyTwoEdgesAreAllowedToBeDeleted(BoughtItem i0, BoughtItem i1, BoughtItem i2, BoughtItem i3, BoughtItem i4, BoughtItem i5, BoughtItem i6) {
+//        ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
+//        addBoughtItemsToItemGraph(itemGraph, i0, i1, i5);
+//        addBoughtItemsToItemGraph(itemGraph, i0, i2, i4, i6);
+//        addBoughtItemsToItemGraph(itemGraph, i1, i3, i4);
+//
+//        /*
+//         * This item graph looks something like this:
+//         *                    i0
+//         *                   /  \
+//         *                  /    \
+//         *                 /      \
+//         *                |       |
+//         *                v       v
+//         *                i1      i2
+//         *               /  \      \
+//         *              /   |      |
+//         *             /    v      v
+//         *            /     i3 --> i4
+//         *           |             |
+//         *           v             v
+//         *           i5            i6
+//         * All edges have weight 1
+//         */
+//
+//        return itemGraph;
+//    }
 
     @Test
     public void itemGraphGetsBrokenIfMultipleSupermarketsAreUsed() {
