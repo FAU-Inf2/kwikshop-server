@@ -260,9 +260,18 @@ public class ItemGraph {
         return shoppingList;
     }
 
-    // This method is mainly for testing
+    // This method is mainly for testing, as it is quite slow
     public boolean edgeFromToExists(BoughtItem from, BoughtItem to) {
-        // TODO: implement
+        Vertex vertexFrom = vertices.get(from);
+        if (vertexFrom == null) {
+            return false;
+        }
+        List<Edge> edges = vertexFrom.getEdges();
+        for (Edge edge : edges) {
+            if (edge.getTo().equals(to)) {
+                return true;
+            }
+        }
         return false;
     }
 

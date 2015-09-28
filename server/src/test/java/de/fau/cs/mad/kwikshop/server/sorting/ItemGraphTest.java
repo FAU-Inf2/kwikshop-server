@@ -570,7 +570,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
         addBoughtItemsToItemGraph(itemGraph, i0, i1);
 
         assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i1));
-        assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2));
+        //assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2)); //indirect edge
         assertTrue("Missing edge detected before adding the items that cause the flip", itemGraph.edgeFromToExists(i1, i2));
 
         addBoughtItemsToItemGraph(itemGraph, i2, i1);
@@ -582,7 +582,7 @@ public class ItemGraphTest extends SortingTestSuperclass {
 
 
         assertTrue("Missing edge detected after adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i1));
-        assertTrue("Missing edge detected after adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2));
+        //assertTrue("Missing edge detected after adding the items that cause the flip", itemGraph.edgeFromToExists(i0, i2)); //indirect edge
         assertTrue("Inverse edge was not added when edge should have flipped", itemGraph.edgeFromToExists(i2, i1));
         assertFalse("Edge that should have flipped was not removed", itemGraph.edgeFromToExists(i1, i2));
     }
