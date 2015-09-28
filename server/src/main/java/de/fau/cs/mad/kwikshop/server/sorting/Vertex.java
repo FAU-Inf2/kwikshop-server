@@ -13,6 +13,8 @@ public class Vertex {
     private List<Edge> edges; // adjacency list of edges
     private final ItemGraph itemGraph; // the ItemGraph this vertex is contained in
 
+    private int itemIsVisitedCount = 0;
+
     public Vertex(BoughtItem boughtItem, ItemGraph itemGraph) {
         this.boughtItem = boughtItem;
         this.edges = new LinkedList<>();
@@ -81,10 +83,11 @@ public class Vertex {
     }
 
     public void traverseGraphForENDAndAddItemsToList(LinkedList<BoughtItem> totallyOrderedItems, String endName) {
-        totallyOrderedItems.addLast(this.getBoughtItem());
         if (boughtItem.isServerInternalItem()) {
             if (boughtItem.getName().equals(endName)) {
                 // end found
+                totallyOrderedItems.addLast(this.getBoughtItem());
+                itemIsVisitedCount = 0;
                 return;
             }
         }
@@ -106,10 +109,25 @@ public class Vertex {
             totallyOrderedItems.addLast(this.getBoughtItem());
             Vertex vertex = itemGraph.getVertexForBoughtItem(item);
             vertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endName);
+            itemIsVisitedCount = 0;
             return;
         }
         // no edge found, that leads to an not already added item
-        // TODO: implement
+        int count = 0;
+        for (Edge edge : edges) {
+            if (count++ < itemIsVisitedCount) {
+                // this edge has already been taken a second time in a previous run
+                continue;
+            }
+            // this edge has not been taken a second time yet
+            itemIsVisitedCount++;
+            // take edge a second time
+            Vertex vertex = itemGraph.getVertexForBoughtItem(edge.getTo());
+            vertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endName);
+            // now the list is complete
+            itemIsVisitedCount = 0;
+            return;
+        }
     }
 }
 

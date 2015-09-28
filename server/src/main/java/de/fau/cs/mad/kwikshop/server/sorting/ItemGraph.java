@@ -266,7 +266,7 @@ public class ItemGraph {
             return false;
         }
         totallyOrderedItems = new LinkedList<>();
-        //totallyOrderedItems.addFirst(startBoughtItem); // this is done in the startVertex
+        //totallyOrderedItems.addFirst(startBoughtItem); // this is done in startVertex
 
         Vertex startVertex = getVertexForBoughtItem(startBoughtItem);
         startVertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endBoughtItem.getName());
