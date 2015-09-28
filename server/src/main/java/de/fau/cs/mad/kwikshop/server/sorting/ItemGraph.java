@@ -258,6 +258,7 @@ public class ItemGraph {
             vertex1 = vertex2;
             item2 = boughtItems.pollFirst();
         }
+        updateTotallyOrderedItems();
     }
 
     public boolean updateTotallyOrderedItems() {
@@ -270,6 +271,14 @@ public class ItemGraph {
 
         Vertex startVertex = getVertexForBoughtItem(startBoughtItem);
         startVertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endBoughtItem.getName());
+
+        if (printDebugOutput) {
+            System.out.println("Totally ordered items:");
+            for (BoughtItem boughtItem : totallyOrderedItems) {
+                System.out.println(boughtItem.getName());
+            }
+            System.out.println("----------------------");
+        }
 
         totallyOrderedItemsAreUpToDate = true;
         return true;

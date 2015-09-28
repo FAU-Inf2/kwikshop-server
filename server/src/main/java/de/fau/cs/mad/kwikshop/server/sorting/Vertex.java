@@ -94,7 +94,8 @@ public class Vertex {
         SortedSet<Edge> edges = new TreeSet<>(new Comparator<Edge>() {
             @Override
             public int compare(Edge e1, Edge e2) {
-                return e1.getWeight() - e2.getWeight();
+                //return -(e1.getWeight() - e2.getWeight());
+                return e2.getWeight() - e1.getWeight();
             }
         });
         edges.addAll(this.edges);
