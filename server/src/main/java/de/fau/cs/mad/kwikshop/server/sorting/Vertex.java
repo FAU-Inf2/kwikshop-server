@@ -1,6 +1,7 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.SortedSet;
@@ -91,14 +92,8 @@ public class Vertex {
                 return;
             }
         }
-        SortedSet<Edge> edges = new TreeSet<>(new Comparator<Edge>() {
-            @Override
-            public int compare(Edge e1, Edge e2) {
-                //return -(e1.getWeight() - e2.getWeight());
-                return e2.getWeight() - e1.getWeight();
-            }
-        });
-        edges.addAll(this.edges);
+        SortedSet<Edge> edges = getSortedEdges();
+
         for (Edge edge : edges) {
             // edge is the Edge with the highest weight, that might not lead to an already added item
             BoughtItem item = edge.getTo();
@@ -129,6 +124,58 @@ public class Vertex {
             itemIsVisitedCount = 0;
             return;
         }
+    }
+
+    private SortedSet<Edge> getSortedEdges() {
+        SortedSet<Edge> edges = new TreeSet<>(new Comparator<Edge>() {
+            @Override
+            public int compare(Edge e1, Edge e2) {
+                //return -(e1.getWeight() - e2.getWeight());
+                return e2.getWeight() - e1.getWeight();
+            }
+        });
+        edges.addAll(this.edges);
+        return edges;
+    }
+
+    public Vertex findNextItemWithName(TreeSet<String> names) {
+        final HashMap<BoughtItem, Integer> distances = new HashMap<>();
+        SortedSet<Vertex> placesToLook = new TreeSet<>(new Comparator<Vertex>() {
+            @Override
+            public int compare(Vertex v1, Vertex v2) {
+                Integer distance1, distance2;
+                distance1 = distances.get(v1.getBoughtItem());
+                distance2 = distances.get(v2.getBoughtItem());
+                assert distance1 != null;
+                assert distance2 != null;
+                return distance1 - distance2;
+            }
+        });
+
+        return findNextItemWithName(names, placesToLook, distances, 0);
+    }
+
+    private Vertex findNextItemWithName(TreeSet<String> names, SortedSet<Vertex> placesToLook, HashMap<BoughtItem, Integer> distances, int currentDistance) {
+        if (placesToLook.isEmpty()) {
+            return null;
+        }
+        if (names.contains(this.getBoughtItem().getName())) {
+            return this;
+        }
+        for (Edge edge : getSortedEdges()) {
+            if (!distances.containsKey(edge.getTo())) {
+                // the bought item at the other end of this edge has not yet been added to placesToLook
+                Vertex vertex = itemGraph.getVertexForBoughtItem(edge.getTo());
+                placesToLook.add(vertex);
+                distances.put(vertex.getBoughtItem(), currentDistance + 1);
+            }
+            // the case "item is already contained in placesToLook, but with the wrong distance, cannot
+            // occur, as all items with distance x come before any item with distance x+1
+        }
+        // all edges that lead to relevant vertices were added
+
+        placesToLook.remove(this); // this vertex is not relevant any longer
+        return placesToLook.first().findNextItemWithName(names, placesToLook, distances, currentDistance + 1);
     }
 }
 

@@ -43,6 +43,8 @@ public class ItemGraph {
             return i1.getName().compareTo(i2.getName());
         }
     });
+
+    // private constructor, used when getItemGraph is called for a supermarket, where no item graph exists so far
     private ItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         this.daoHelper = daoHelper;
         this.supermarket = supermarket;
@@ -98,6 +100,17 @@ public class ItemGraph {
             }
         }
         return items;
+    }
+
+    public Vertex getVertexForNameOrNull(String name) {
+        if (name == null || name.isEmpty()) {
+            return null;
+        }
+        BoughtItem boughtItem = new BoughtItem(name);
+        synchronized (vertices) {
+            return vertices.get(boughtItem);
+        }
+
     }
 
     /* returns the stored vertex for the given bought item, or creates a new one, if no such vertex exists */
@@ -282,6 +295,13 @@ public class ItemGraph {
 
         totallyOrderedItemsAreUpToDate = true;
         return true;
+    }
+
+    public LinkedList<BoughtItem> getTotallyOrderedItems() {
+        if (!totallyOrderedItemsAreUpToDate) {
+            updateTotallyOrderedItems();
+        }
+        return new LinkedList<>(totallyOrderedItems);
     }
 
     public ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
