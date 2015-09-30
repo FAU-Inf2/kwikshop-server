@@ -82,6 +82,7 @@ public class EdgeDAO extends AbstractDAO<Edge> {
     }
 
     public void deleteEdge(Edge edge) {
+        currentSession().merge(edge);
         currentSession().delete(edge);
     }
 }

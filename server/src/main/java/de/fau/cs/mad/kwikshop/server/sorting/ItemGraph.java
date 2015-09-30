@@ -125,6 +125,10 @@ public class ItemGraph {
                 }
             }
         }
+        // TODO: Does this suffice?
+        for(Edge edge : daoHelper.getEdgesByFrom(item, supermarket)) {
+            foundVertex.addEdge(edge);
+        }
         return foundVertex;
     }
 
@@ -512,7 +516,10 @@ public class ItemGraph {
                                     }
                                     v2.removeEdgeTo(i1);
                                     daoHelper.deleteEdge(edge/*daoHelper.getEdgeByFromTo(i2, i1, supermarket)*/);
-                                    daoHelper.createEdge(new Edge(i1, i2, supermarket));
+
+                                    if(daoHelper.getEdgeByFromTo(i1, i2, supermarket) == null) {
+                                        daoHelper.createEdge(new Edge(i1, i2, supermarket));
+                                    }
 
                                     edge = daoHelper.getEdgeByFromTo(i1, i2, supermarket);
                                     Vertex vertex = getVertexForBoughtItem(i1);

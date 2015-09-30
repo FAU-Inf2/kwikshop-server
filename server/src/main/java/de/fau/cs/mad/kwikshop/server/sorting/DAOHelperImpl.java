@@ -84,6 +84,16 @@ public class DAOHelperImpl extends AbstractDAOHelper {
     }
 
     @Override
+    public List<Edge> getEdgesByFrom(BoughtItem boughtItem, Supermarket supermarket) {
+        try {
+            lockLockWithId(boughtItem.getId());
+            return edgeDAO.getByFrom(boughtItem, supermarket);
+        } finally {
+            unlockLockWithId(boughtItem.getId());
+        }
+    }
+
+    @Override
     public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
         try {
             lockLockWithId(boughtItem.getId());
