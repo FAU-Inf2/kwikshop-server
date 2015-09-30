@@ -14,6 +14,7 @@ public class SupermarketChain {
     @Column(name="name")
     private String name;
 
+    @Transient
     private ReentrantLock lock = new ReentrantLock();
 
     public SupermarketChain() {

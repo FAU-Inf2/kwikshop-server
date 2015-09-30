@@ -14,6 +14,7 @@ public interface DAOHelper {
     List<Edge> getEdgesBySupermarket(Supermarket supermarket);
     Edge getEdgeByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket);
     List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket);
+    List<Edge> getEdgesByFrom(BoughtItem boughtItem, Supermarket supermarket);
     Edge createEdge(Edge edge);
     void deleteEdge(Edge edge);
     BoughtItem getStartBoughtItem();
