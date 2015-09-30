@@ -3,8 +3,11 @@
 CURDATE=$(date +%d.%m.%y-%H)
 
 if [ ! -f h2.jar ]; then
-  echo "[ERROR] File h2.jar is missing."
-  exit
+  echo "[INFO] File h2.jar is missing, downloading..."
+  wget -q http://www.h2database.com/h2-2015-09-13.zip
+  unzip h2-2015-09-13.zip
+  cp h2/bin/h2*.jar h2.jar
+  rm -rf h2/
 fi
 
 if [ ! -f ~/kwikshop-data/kwikshop-db.mv.db ]; then
