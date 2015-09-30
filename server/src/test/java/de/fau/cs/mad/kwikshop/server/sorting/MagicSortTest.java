@@ -508,7 +508,6 @@ public class MagicSortTest extends SortingTestSuperclass {
     }
 
     @Test
-    @Ignore
     public void wrongSortOrderWhenTheGraphContainsParallelWays(){
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
 
