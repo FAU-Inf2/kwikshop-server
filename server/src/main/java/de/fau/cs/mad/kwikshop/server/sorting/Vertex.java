@@ -151,14 +151,13 @@ public class Vertex {
                 return distance1 - distance2;
             }
         });
+        distances.put(this.getBoughtItem(), 0);
+        placesToLook.add(this);
 
         return findNextItemWithName(names, placesToLook, distances, 0);
     }
 
     private Vertex findNextItemWithName(TreeSet<String> names, SortedSet<Vertex> placesToLook, HashMap<BoughtItem, Integer> distances, int currentDistance) {
-        if (placesToLook.isEmpty()) {
-            return null;
-        }
         if (names.contains(this.getBoughtItem().getName())) {
             return this;
         }
@@ -166,8 +165,8 @@ public class Vertex {
             if (!distances.containsKey(edge.getTo())) {
                 // the bought item at the other end of this edge has not yet been added to placesToLook
                 Vertex vertex = itemGraph.getVertexForBoughtItem(edge.getTo());
-                placesToLook.add(vertex);
                 distances.put(vertex.getBoughtItem(), currentDistance + 1);
+                placesToLook.add(vertex);
             }
             // the case "item is already contained in placesToLook, but with the wrong distance, cannot
             // occur, as all items with distance x come before any item with distance x+1
@@ -175,6 +174,9 @@ public class Vertex {
         // all edges that lead to relevant vertices were added
 
         placesToLook.remove(this); // this vertex is not relevant any longer
+        if (placesToLook.isEmpty()) {
+            return null;
+        }
         return placesToLook.first().findNextItemWithName(names, placesToLook, distances, currentDistance + 1);
     }
 }

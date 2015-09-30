@@ -305,8 +305,8 @@ public class ItemGraph {
     }
 
     public ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
-        // TODO: implement
-        return shoppingList;
+        magicSort.setUp(this);
+        return magicSort.sort(shoppingList);
     }
 
     // This method is mainly for testing, as it is quite slow
