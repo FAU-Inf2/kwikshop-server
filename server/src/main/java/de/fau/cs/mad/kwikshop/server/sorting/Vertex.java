@@ -145,7 +145,8 @@ public class Vertex {
     }
 
     private PriorityQueue<Edge> getSortedEdges() {
-        PriorityQueue<Edge> edges = new PriorityQueue<>(new Comparator<Edge>() {
+        PriorityQueue<Edge> edges = new PriorityQueue<>(this.edges.size()+1, new Comparator<Edge>() {
+            // the PriorityQueue-constructor with the capacity has to be used, because the constructor without is not available for Java 7
             @Override
             public int compare(Edge e1, Edge e2) {
                 //return -(e1.getWeight() - e2.getWeight());
