@@ -340,13 +340,15 @@ public class MagicSortTest extends SortingTestSuperclass {
         }
     }
 
-    @Test(timeout = 5000)
+    @Test
     public void addTheSameItemTwiceAndThenSortTwoItems() {
         ItemGraph itemGraph = createNewItemGraphWithSupermarket(ONE);
         List<BoughtItem> items = createBoughtItems(3, ONE);
         BoughtItem i0 = items.get(0);
         items.add(i0); // i0 is now contained twice - this is something that can definitely happen
         itemGraph.addBoughtItems(items);
+
+        System.out.println(itemGraph);
 
         Item i1 = createItemWithId(1);
         Item i2 = createItemWithId(2);

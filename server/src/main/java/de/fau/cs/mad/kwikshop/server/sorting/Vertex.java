@@ -4,6 +4,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -84,27 +85,39 @@ public class Vertex {
     }
 
     public void traverseGraphForENDAndAddItemsToList(LinkedList<BoughtItem> totallyOrderedItems, String endName) {
-        if (boughtItem.isServerInternalItem()) {
-            if (boughtItem.getName().equals(endName)) {
-                // end found
-                totallyOrderedItems.addLast(this.getBoughtItem());
-                itemIsVisitedCount = 0;
-                return;
-            }
-        }
-        SortedSet<Edge> edges = getSortedEdges();
+        if (!totallyOrderedItems.contains(boughtItem)) {
+            // mark item as traversed
+            totallyOrderedItems.addLast(boughtItem);
 
+            if (boughtItem.isServerInternalItem()) {
+                if (boughtItem.getName().equals(endName)) {
+                    // end found
+                    itemIsVisitedCount = 0;
+                    return;
+                }
+            }
+
+
+        } //else {
+            // this item is traversed a second time, because there was no better item reachable from the last item
+            // do nothing
+        //}
+
+
+        PriorityQueue<Edge> edges = getSortedEdges();
         for (Edge edge : edges) {
-            // edge is the Edge with the highest weight, that might not lead to an already added item
             BoughtItem item = edge.getTo();
             if (totallyOrderedItems.contains(item)) {
                 // this item was already visited
                 continue;
             }
+            // edge is the Edge with the highest weight, that might not lead to an already added item
             // this item is not part of the totallyOrderedItems list
-            totallyOrderedItems.addLast(this.getBoughtItem());
             Vertex vertex = itemGraph.getVertexForBoughtItem(item);
             vertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endName);
+
+            assert totallyOrderedItems.getLast().getName().equals(endName);
+
             itemIsVisitedCount = 0;
             return;
         }
@@ -117,6 +130,10 @@ public class Vertex {
             }
             // this edge has not been taken a second time yet
             itemIsVisitedCount++;
+            if (itemIsVisitedCount == edges.size()) {
+                // it is possible that far more cycles "end" in this item, as this item has out-going edges
+                itemIsVisitedCount = 0;
+            }
             // take edge a second time
             Vertex vertex = itemGraph.getVertexForBoughtItem(edge.getTo());
             vertex.traverseGraphForENDAndAddItemsToList(totallyOrderedItems, endName);
@@ -126,8 +143,8 @@ public class Vertex {
         }
     }
 
-    private SortedSet<Edge> getSortedEdges() {
-        SortedSet<Edge> edges = new TreeSet<>(new Comparator<Edge>() {
+    private PriorityQueue<Edge> getSortedEdges() {
+        PriorityQueue<Edge> edges = new PriorityQueue<>(new Comparator<Edge>() {
             @Override
             public int compare(Edge e1, Edge e2) {
                 //return -(e1.getWeight() - e2.getWeight());
