@@ -627,14 +627,14 @@ public class MagicSortTest extends SortingTestSuperclass {
         assertTrue("First Item is not i1", sorted2.get(0).getName().equals("i1"));
     }
 
-    @Test(timeout = 25000) // 25 Seconds
+    @Test(timeout = 7500) // 7.5 Seconds
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated__AddItemsMoreOftenAndSortAfterwards() {
         ItemGraph itemGraph = createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, true);
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(50);
         magicSortHelper.sort(itemGraph, shoppingListServer);
     }
 
-    @Test(timeout = 50000) // 50 Seconds
+    @Test(timeout = 12500) // 12.5 Seconds
     public void createItemGraphWith100ItemsAndCheckIfEveryItemHasBeenCreated__SortAfterwards() {
         ItemGraph itemGraph = createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(100, false);
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(7);
