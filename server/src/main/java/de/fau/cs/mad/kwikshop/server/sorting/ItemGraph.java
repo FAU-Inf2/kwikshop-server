@@ -263,8 +263,17 @@ public class ItemGraph {
         boughtItems.addLast(endBoughtItem);
 
         Vertex vertex1 = getVertexForBoughtItem(boughtItems.pollFirst());
+        while (!vertex1.getBoughtItem().isServerInternalItem() && !itemNameIsAllowed(vertex1.getBoughtItem().getName())) {
+            vertex1 = getVertexForBoughtItem(boughtItems.pollFirst());
+        }
         BoughtItem item2 = boughtItems.pollFirst();
+
+
         while (item2 != null) {
+            if (!item2.isServerInternalItem() && !itemNameIsAllowed(item2.getName())) {
+                item2 = boughtItems.pollFirst();
+                continue;
+            }
             Vertex vertex2 = getVertexForBoughtItem(item2);
             vertex1.addEdgeOrIncreaseWeightTo(vertex2);
 
@@ -272,6 +281,17 @@ public class ItemGraph {
             item2 = boughtItems.pollFirst();
         }
         updateTotallyOrderedItems();
+    }
+
+    private boolean itemNameIsAllowed(String name) {
+        // all "reserved keywords" should return false
+        if (name.equals(startBoughtItem.getName())) {
+            return false;
+        }
+        if (name.equals(endBoughtItem.getName())) {
+            return false;
+        }
+        return true;
     }
 
     public boolean updateTotallyOrderedItems() {
