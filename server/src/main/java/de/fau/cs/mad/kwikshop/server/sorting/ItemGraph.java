@@ -52,7 +52,7 @@ public class ItemGraph {
         this.endBoughtItem = daoHelper.getEndBoughtItem();
     }
 
-    private static ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
+    private static synchronized ItemGraph getItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
         ItemGraphFactory itemGraphFactory = new ItemGraphFactory() {
             @Override
             public ItemGraph createItemGraph(DAOHelper daoHelper, Supermarket supermarket) {
@@ -63,7 +63,7 @@ public class ItemGraph {
         return daoHelper.getItemGraphForSupermarket(supermarket, itemGraphFactory);
     }
 
-    public static ItemGraph getItemGraph(DAOHelper daoHelper, String supermarketPlaceId, String supermarketName) {
+    public static synchronized ItemGraph getItemGraph(DAOHelper daoHelper, String supermarketPlaceId, String supermarketName) {
         Supermarket supermarket = daoHelper.getSupermarketByPlaceID(supermarketPlaceId);
 
         /* Supermarket does not exist yet, create it and try to find a matching SupermarketChain */
@@ -91,7 +91,7 @@ public class ItemGraph {
         return daoHelper;
     }
 
-    public Set<BoughtItem> getVertices() {
+    public synchronized Set<BoughtItem> getVertices() {
         Set<BoughtItem> items;
         synchronized (vertices) {
             items = new HashSet<>(vertices.size());
@@ -102,7 +102,7 @@ public class ItemGraph {
         return items;
     }
 
-    public Vertex getVertexForNameOrNull(String name) {
+    public synchronized Vertex getVertexForNameOrNull(String name) {
         if (name == null || name.isEmpty()) {
             return null;
         }
@@ -114,7 +114,7 @@ public class ItemGraph {
     }
 
     /* returns the stored vertex for the given bought item, or creates a new one, if no such vertex exists */
-    /*package visible*/ Vertex getVertexForBoughtItem(BoughtItem item) {
+    /*package visible*/ synchronized Vertex getVertexForBoughtItem(BoughtItem item) {
         if (item == null) {
             throw new ArgumentNullException("item");
         }
@@ -157,7 +157,7 @@ public class ItemGraph {
 
     // slow!!
     // this method is currently used for copying data from an other item graph and for toString()
-    public Set<Edge> getEdges() {
+    public synchronized Set<Edge> getEdges() {
         Set<Edge> edges = new HashSet<>(); // size is not known at the moment
         synchronized (vertices) {
             for (Vertex vertex : vertices.values()) {
@@ -178,7 +178,7 @@ public class ItemGraph {
     }
 
     // quite slow!
-    private void wrappedUpdate(boolean isGlobal) {
+    private synchronized void wrappedUpdate(boolean isGlobal) {
 
         /* Update() loads all Edges and Vertices of one specific supermarket -> supermarket may not be null */
         if(supermarket == null) {
@@ -219,7 +219,7 @@ public class ItemGraph {
         }
     }
 
-    private void setVerticesAndEdges(Collection<BoughtItem> vertices, Collection<Edge> edges) {
+    private synchronized void setVerticesAndEdges(Collection<BoughtItem> vertices, Collection<Edge> edges) {
         synchronized (this.vertices) {
             this.vertices.clear();
             for (BoughtItem item : vertices) {
@@ -237,7 +237,7 @@ public class ItemGraph {
     }
 
     /* Create a new ItemGraph, load all Edges and Vertices from 'supermarket' and copy them to this ItemGraph */
-    private void copyDataFromItemGraph(Supermarket supermarket) {
+    private synchronized void copyDataFromItemGraph(Supermarket supermarket) {
         if(supermarket == null)
             return;
 
@@ -253,7 +253,7 @@ public class ItemGraph {
         }
     }
 
-    public void addBoughtItems(List<BoughtItem> newBoughtItems) {
+    public synchronized void addBoughtItems(List<BoughtItem> newBoughtItems) {
         assert !newBoughtItems.isEmpty() : "Trying to add an empty list";
 
         totallyOrderedItemsAreUpToDate = false;
@@ -283,7 +283,7 @@ public class ItemGraph {
         updateTotallyOrderedItems();
     }
 
-    private boolean itemNameIsAllowed(String name) {
+    private synchronized boolean itemNameIsAllowed(String name) {
         // all "reserved keywords" should return false
         if (name.equals(startBoughtItem.getName())) {
             return false;
@@ -294,7 +294,7 @@ public class ItemGraph {
         return true;
     }
 
-    public boolean updateTotallyOrderedItems() {
+    public synchronized boolean updateTotallyOrderedItems() {
         if (totallyOrderedItemsAreUpToDate) {
             // no updating has to be performed
             return false;
@@ -317,20 +317,20 @@ public class ItemGraph {
         return true;
     }
 
-    public LinkedList<BoughtItem> getTotallyOrderedItems() {
+    public synchronized LinkedList<BoughtItem> getTotallyOrderedItems() {
         if (!totallyOrderedItemsAreUpToDate) {
             updateTotallyOrderedItems();
         }
         return new LinkedList<>(totallyOrderedItems);
     }
 
-    public ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
+    public synchronized ShoppingListServer sort(MagicSort magicSort, ShoppingListServer shoppingList, SortingRequest sortingRequest) {
         magicSort.setUp(this);
         return magicSort.sort(shoppingList);
     }
 
     // This method is mainly for testing, as it is quite slow
-    public boolean edgeFromToExists(BoughtItem from, BoughtItem to) {
+    public synchronized boolean edgeFromToExists(BoughtItem from, BoughtItem to) {
         Vertex vertexFrom = vertices.get(from);
         if (vertexFrom == null) {
             return false;
@@ -345,7 +345,7 @@ public class ItemGraph {
     }
 
     // This method is mainly for testing
-    public Set<Edge> getEdgesFrom(BoughtItem from) {
+    public synchronized Set<Edge> getEdgesFrom(BoughtItem from) {
         Vertex vertexFrom = vertices.get(from);
         if (vertexFrom == null) {
             return null;
@@ -354,7 +354,7 @@ public class ItemGraph {
     }
 
     @Override
-    public String toString() {
+    public synchronized String toString() {
         /* Debug output */
         StringBuilder stringBuilder = new StringBuilder();
         Set<BoughtItem> vertices;
