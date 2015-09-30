@@ -152,6 +152,24 @@ public class DAODummyHelper extends AbstractDAOHelper {
     }
 
     @Override
+    public List<Edge> getEdgesByFrom(BoughtItem boughtItem, Supermarket supermarket) {
+        try {
+            lockLockWithId(boughtItem.getId());
+            List<Edge> allEdges = getEdgesBySupermarket(supermarket);
+            List<Edge> foundEdges = new ArrayList<>();
+            for (Edge edge : allEdges) {
+                if (edge.getFrom().equals(boughtItem)) {
+                    foundEdges.add(edge);
+                }
+            }
+            return foundEdges;
+        } finally {
+            unlockLockWithId(boughtItem.getId());
+        }
+
+    }
+
+    @Override
     public List<Edge> getEdgesByTo(BoughtItem boughtItem, Supermarket supermarket) {
         try {
             lockLockWithId(boughtItem.getId());
