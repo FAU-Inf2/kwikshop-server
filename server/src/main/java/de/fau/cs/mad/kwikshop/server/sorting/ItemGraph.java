@@ -344,6 +344,15 @@ public class ItemGraph {
         return false;
     }
 
+    // This method is mainly for testing
+    public Set<Edge> getEdgesFrom(BoughtItem from) {
+        Vertex vertexFrom = vertices.get(from);
+        if (vertexFrom == null) {
+            return null;
+        }
+        return new HashSet<>(vertexFrom.getEdges());
+    }
+
     @Override
     public String toString() {
         /* Debug output */

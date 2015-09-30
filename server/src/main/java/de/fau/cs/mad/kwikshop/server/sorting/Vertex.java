@@ -45,6 +45,7 @@ public class Vertex {
                     toVertex.removeEdge(edge);
                     edge.setTo(toVertex.getBoughtItem());
                     edge.setFrom(this.getBoughtItem());
+                    edge.setWeight(1);
                     this.addEdge(edge);
                 }
             } else {
