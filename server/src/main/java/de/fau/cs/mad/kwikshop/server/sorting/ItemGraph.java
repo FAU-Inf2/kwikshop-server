@@ -125,7 +125,7 @@ public class ItemGraph {
                 }
             }
         }
-        // TODO: Does this suffice?
+        // Load the Edges
         for(Edge edge : daoHelper.getEdgesByFrom(item, supermarket)) {
             foundVertex.addEdge(edge);
         }
