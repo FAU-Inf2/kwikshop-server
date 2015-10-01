@@ -71,7 +71,7 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
             BoughtItem newBoughtItem = new BoughtItem(START_ITEM);
             newBoughtItem.setServerInternalItem(true);
             createBoughtItem(newBoughtItem);
-            start = getByName(START_ITEM);
+            start = getByName(START_ITEM, true);
         }
         return start;
     }
@@ -82,7 +82,7 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
             BoughtItem newBoughtItem = new BoughtItem(END_ITEM);
             newBoughtItem.setServerInternalItem(true);
             createBoughtItem(newBoughtItem);
-            end = getByName(END_ITEM);
+            end = getByName(END_ITEM, true);
         }
         return end;
     }

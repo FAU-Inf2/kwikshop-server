@@ -150,6 +150,11 @@ public class ItemGraph {
                     foundVertex = new Vertex(itemFromDatabase, this);
                     vertices.put(itemFromDatabase, foundVertex);
                 }
+                /* Load the Edges for this vertex */
+                for(Edge edge : daoHelper.getEdgesByFrom(item, supermarket)) {
+                    foundVertex.addEdge(edge);
+                }
+
             }
         }
         return foundVertex;
