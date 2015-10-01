@@ -238,10 +238,10 @@ public class ItemGraph {
 
     /* Create a new ItemGraph, load all Edges and Vertices from 'supermarket' and copy them to this ItemGraph */
     private synchronized void copyDataFromItemGraph(Supermarket supermarket) {
-        if(supermarket == null)
+        //if(supermarket == null)
             return;
 
-        ItemGraph globalItemGraph = getItemGraph(this.daoHelper, supermarket);
+        /*ItemGraph globalItemGraph = getItemGraph(this.daoHelper, supermarket);
         globalItemGraph.updateGlobalItemGraph();
         Set<Edge> edges = globalItemGraph.getEdges();
         setVerticesAndEdges(globalItemGraph.getVertices(), edges);
@@ -250,7 +250,7 @@ public class ItemGraph {
         }
         for(Vertex vertex : this.vertices.values()) {
             daoHelper.createBoughtItem(vertex.getBoughtItem());
-        }
+        }*/
     }
 
     public synchronized void addBoughtItems(List<BoughtItem> newBoughtItems) {
@@ -291,12 +291,22 @@ public class ItemGraph {
             return;
         }
 
-        SupermarketChain supermarketChain = this.supermarket.getSupermarketChain();
-        if (supermarketChain != null) {
+        ItemGraph globalItemGraph = getGlobalSupermarketItemGraph();
+        if (globalItemGraph != null) {
             // this supermarket belongs to a chain
-            ItemGraph globalItemGraph = getItemGraph(daoHelper, daoHelper.getGlobalSupermarket(supermarketChain));
             globalItemGraph.addBoughtItems(newBoughtItems, true);
         }
+
+
+    }
+
+    public ItemGraph getGlobalSupermarketItemGraph() {
+        SupermarketChain supermarketChain = this.supermarket.getSupermarketChain();
+        if (supermarketChain == null) {
+            return null;
+        }
+        // this supermarket belongs to a chain
+        return getItemGraph(daoHelper, daoHelper.getGlobalSupermarket(supermarketChain));
     }
 
     private synchronized boolean itemNameIsAllowed(String name) {

@@ -413,9 +413,9 @@ public class MagicSortTest extends SortingTestSuperclass {
 
         ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(3);
 
-        ItemGraph otherItemGraph = createNewItemGraphWithSupermarketAndDAOHelper("foo", CHAIN_ONE, itemGraph.getDaoHelper());
+        ItemGraph otherItemGraph = createNewItemGraphWithSupermarketAndDAOHelper(THREE, THREE, itemGraph.getDaoHelper());
         otherItemGraph.update();
-        SortingRequest sortingRequest = new SortingRequest("foo", CHAIN_ONE); // This supermarket belongs to the same chain as ONE
+        SortingRequest sortingRequest = new SortingRequest(THREE, THREE); // This supermarket belongs to the same chain as ONE
         List<Item> sorted = magicSortHelper.sort(otherItemGraph, shoppingListServer, sortingRequest);
 
         assertEquals("The first item was not sorted correctly according to the global data of this supermarket", "i0", sorted.get(0).getName());
@@ -641,4 +641,11 @@ public class MagicSortTest extends SortingTestSuperclass {
         magicSortHelper.sort(itemGraph, shoppingListServer);
     }
 
+
+    @Test(timeout = 105000) // 105 Seconds
+    public void createItemGraphWith10000ItemsAndCheckIfEveryItemHasBeenCreated__SortAfterwards() {
+        ItemGraph itemGraph = createItemGraphWithNItemsAndCheckIfEveryItemHasBeenCreated(10000, false);
+        ShoppingListServer shoppingListServer = createShoppingListServerWithNItemsMixedUp(500);
+        magicSortHelper.sort(itemGraph, shoppingListServer);
+    }
 }

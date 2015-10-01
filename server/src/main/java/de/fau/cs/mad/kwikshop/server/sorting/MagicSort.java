@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -19,10 +20,16 @@ public class MagicSort /*implements Algorithm<ShoppingListServer, ShoppingListSe
     }
 
     public ShoppingListServer sort(ShoppingListServer shoppingListToSort) {
+        return sort(shoppingListToSort, false);
+    }
+
+    private ShoppingListServer sort(ShoppingListServer shoppingListToSort, boolean isGlobalItemGraph) {
         LinkedList<BoughtItem> totallyOrderedItems = itemGraph.getTotallyOrderedItems();
         LinkedList<Item> itemsToSort = new LinkedList<>(shoppingListToSort.getItems());
 
         LinkedList<Item> sortedItems = new LinkedList<>();
+        LinkedList<Item> itemsNotContainedInItemGraph = new LinkedList<>();
+
         TreeSet<String> namesOfItemsThatAreAlreadySorted = new TreeSet<>();
 
         for (BoughtItem boughtItem : totallyOrderedItems) {
@@ -54,9 +61,8 @@ public class MagicSort /*implements Algorithm<ShoppingListServer, ShoppingListSe
 
             Vertex vertex = itemGraph.getVertexForNameOrNull(name);
             if (vertex == null) {
-                // This item is not known for the current supermarket, so insert item at the end
-                sortedItems.addLast(item);
-                namesOfItemsThatAreAlreadySorted.add(item.getName());
+                // This item is not known for the current supermarket, add it to the list itemsNotContainedInItemGraph
+                itemsNotContainedInItemGraph.addLast(item);
                 continue;
             }
 
@@ -82,6 +88,44 @@ public class MagicSort /*implements Algorithm<ShoppingListServer, ShoppingListSe
             // index now holds the index, where item has to be inserted
             sortedItems.add(index, item);
             namesOfItemsThatAreAlreadySorted.add(item.getName());
+        }
+
+        ItemGraph globalItemGraph = itemGraph.getGlobalSupermarketItemGraph();
+        if (!itemsNotContainedInItemGraph.isEmpty() || globalItemGraph == null) {
+            if (isGlobalItemGraph) {
+                // this is already the global graph, so just add the items at the end (because there is no global graph to look anymore
+                for (Item item : itemsNotContainedInItemGraph) {
+                    sortedItems.addLast(item);
+                }
+            } else {
+                // have a look in the global supermarket data, where the items should be sorted
+                MagicSort globalMagicSort = new MagicSort();
+                globalMagicSort.setUp(globalItemGraph);
+                ShoppingListServer globallySortedShoppingList = globalMagicSort.sort(shoppingListToSort, true);
+                LinkedList<Item> globallySortedItems = new LinkedList<>(globallySortedShoppingList.getItems());
+                Collections.sort(globallySortedItems);
+                for (Item notYetSortedItem : itemsNotContainedInItemGraph) {
+                    int index = globallySortedItems.indexOf(notYetSortedItem);
+                    // find the next item in globallySortedItems, that is also contained in the sortedItems list
+                    boolean itemFound = false;
+                    for (int i = index + 1; i < globallySortedItems.size(); i++) {
+                        Item item = globallySortedItems.get(i);
+                        if (!sortedItems.contains(item)) {
+                            // this item is not sorted yet
+                            continue;
+                        }
+                        // the notYetSortedItem is to be inserted before item
+                        int itemIndex = sortedItems.indexOf(item);
+                        sortedItems.add(itemIndex, notYetSortedItem);
+                        itemFound = true;
+                        break;
+                    }
+                    if (!itemFound) {
+                        // there is no item after this one, that is alredy sorted
+                        sortedItems.addLast(notYetSortedItem);
+                    }
+                }
+            }
         }
 
         // sortedItems now contains every item that should be sorted
