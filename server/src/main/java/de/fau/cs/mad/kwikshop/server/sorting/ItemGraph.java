@@ -254,6 +254,10 @@ public class ItemGraph {
     }
 
     public synchronized void addBoughtItems(List<BoughtItem> newBoughtItems) {
+        addBoughtItems(newBoughtItems, false);
+    }
+
+    private synchronized void addBoughtItems(List<BoughtItem> newBoughtItems, boolean isChainGlobalSupermarket) {
         assert !newBoughtItems.isEmpty() : "Trying to add an empty list";
 
         totallyOrderedItemsAreUpToDate = false;
@@ -281,6 +285,18 @@ public class ItemGraph {
             item2 = boughtItems.pollFirst();
         }
         updateTotallyOrderedItems();
+
+        if (isChainGlobalSupermarket) {
+            // this is already the call for the global graph, so no data has to be added any more
+            return;
+        }
+
+        SupermarketChain supermarketChain = this.supermarket.getSupermarketChain();
+        if (supermarketChain != null) {
+            // this supermarket belongs to a chain
+            ItemGraph globalItemGraph = getItemGraph(daoHelper, daoHelper.getGlobalSupermarket(supermarketChain));
+            globalItemGraph.addBoughtItems(newBoughtItems, true);
+        }
     }
 
     private synchronized boolean itemNameIsAllowed(String name) {
