@@ -1,5 +1,6 @@
 package de.fau.cs.mad.kwikshop.server.sorting;
 
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.TreeSet;
 
@@ -87,10 +88,21 @@ public class MagicSort /*implements Algorithm<ShoppingListServer, ShoppingListSe
         // sortedItems now contains every item that should be sorted
         int index = 0;
         for (Item item : sortedItems) {
-            item.setOrder(index);
+            Item listItem = shoppingListToSort.getItem(item.getServerId());
+            if(listItem != null) {
+                if(listItem.getDeleted() == false && listItem.isBought() == false) {
+                    listItem.setOrder(index);
+                    listItem.setVersion(listItem.getVersion()+1);
+                }
+            }
+
             index++;
         }
 
-        return new ShoppingListServer(shoppingListToSort.getId(), sortedItems);
+        /* Update version and lastModifiedDate to make sure this list gets synchronized */
+        shoppingListToSort.setVersion(shoppingListToSort.getVersion()+1);
+        shoppingListToSort.setLastModifiedDate(new Date());
+
+        return shoppingListToSort;
     }
 }
