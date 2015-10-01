@@ -88,8 +88,7 @@ public class BoughtItemDAO extends AbstractDAO<BoughtItem> {
     }
 
     public void createBoughtItem(BoughtItem boughtItem) {
-        //currentSession().saveOrUpdate(boughtItem);
-        persist(boughtItem);
+        currentSession().saveOrUpdate(boughtItem);
     }
 
 }
