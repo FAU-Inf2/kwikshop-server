@@ -540,6 +540,19 @@ public class MagicSortTest extends SortingTestSuperclass {
         item4.setName("i4");
         item5.setName("i5");
 
+        item0.setID(0);
+        item0.setServerId(0);
+        item1.setID(1);
+        item1.setServerId(1);
+        item2.setID(2);
+        item2.setServerId(2);
+        item3.setID(3);
+        item3.setServerId(3);
+        item4.setID(4);
+        item4.setServerId(4);
+        item5.setID(5);
+        item5.setServerId(5);
+
         //the order of the items is important
         items.add(item2);
         items.add(item3);
@@ -597,6 +610,14 @@ public class MagicSortTest extends SortingTestSuperclass {
         item1.setName("i1");
         item2.setName("i2");
 
+        item0.setID(0);
+        item1.setID(1);
+        item2.setID(2);
+
+        item0.setServerId(0);
+        item1.setServerId(1);
+        item2.setServerId(2);
+
         items.add(item2);
         items.add(item0);
         items.add(item1);
@@ -605,6 +626,11 @@ public class MagicSortTest extends SortingTestSuperclass {
 
         SortingRequest sortingRequest = new SortingRequest(ONE, ONE);
         List<Item> sorted = magicSortHelper.sort(itemGraph, shoppingListServer, sortingRequest);
+
+        System.out.println("foo");
+        for (Item item : sorted) {
+            System.out.println(item.getName());
+        }
 
         assertTrue("First Item is not i0", sorted.get(0).getName().equals("i0"));
 
