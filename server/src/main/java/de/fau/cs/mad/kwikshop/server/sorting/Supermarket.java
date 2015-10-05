@@ -76,10 +76,12 @@ public class Supermarket {
 
         Supermarket supermarket = (Supermarket) o;
 
-        if(!this.supermarketChain.equals(supermarket.getSupermarketChain()))
-            return false;
+        if(this.getSupermarketChain() != null && supermarket.getSupermarketChain() != null) {
+            if(!this.getSupermarketChain().equals(supermarket.getSupermarketChain()))
+                return false;
+        }
 
-        if(!this.placeId.equals(supermarket.getPlaceId()))
+        if(!this.getPlaceId().equals(supermarket.getPlaceId()))
             return false;
 
         return true;

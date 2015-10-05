@@ -98,7 +98,7 @@ public class MagicSort /*implements Algorithm<ShoppingListServer, ShoppingListSe
                 for (Item item : itemsNotContainedInItemGraph) {
                     sortedItems.addLast(item);
                 }
-            } else {
+            } else if(globalItemGraph != null) {
                 // have a look in the global supermarket data, where the items should be sorted
                 MagicSort globalMagicSort = new MagicSort();
                 globalMagicSort.setUp(globalItemGraph);

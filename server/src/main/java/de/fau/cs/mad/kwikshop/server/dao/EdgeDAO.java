@@ -29,20 +29,16 @@ public class EdgeDAO extends AbstractDAO<Edge> {
     public Edge getByFromTo(BoughtItem from, BoughtItem to, Supermarket supermarket) {
         final Session session = currentSession();
 
-        Edge result = null;
+        List<Edge> result = null;
 
         Criteria criteria = session.createCriteria(Edge.class)
                 .add(Restrictions.eq("from.id", from.getId()))
                 .add(Restrictions.eq("to.id", to.getId()))
                 .add(Restrictions.eq("supermarket.id", supermarket.getId()));
 
-        Object tmp = criteria.uniqueResult();
+        result = criteria.list();
 
-        if (tmp != null) {
-            result = (Edge) tmp;
-        }
-
-        return result;
+        return result.size() > 0 ? result.get(0) : null;
     }
 
     public List<Edge> getBySupermarket(Supermarket supermarket) {
@@ -78,6 +74,7 @@ public class EdgeDAO extends AbstractDAO<Edge> {
     }
 
     public Edge createEdge(Edge edge) {
+        currentSession().merge(edge);
         return persist(edge);
     }
 
