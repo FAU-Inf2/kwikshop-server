@@ -27,9 +27,9 @@ else
     echo "KEYSTORE_PW=xxx ./run"
     exit
   fi
-  
+
   echo "[INFO] Running new container."
-  docker run -d -p 443:443 --name kwikshop-server-prod \
+  docker run --restart=always -d -p 443:443 --name kwikshop-server-prod \
     -e KEYSTORE_PW=$KEYSTORE_PW \
     -v ~/kwikshop-data:/kwikshop-server/server/data kwikshop-server
 fi
